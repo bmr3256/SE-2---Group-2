@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Barkery - Premium Dog Treats</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.Se2.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-bone"></i> THE BARKERY</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#products">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#feedback">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="navbar-icons">
+                <i class="fas fa-shopping-cart"></i>
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="hero-content">
+            <div class="hero-image">
+                [Dog with treats image]
+            </div>
+            <div class="hero-text">
+                <h1>
+                    TAIL-WAGGINGLY GUARANTEED:<br>
+                    AGE-APPROPRIATE, HEALTH-<br>
+                    FOCUSED <span class="highlight">TREATS</span> MADE JUST FOR<br>
+                    YOUR FURBABIES!
+                </h1>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Story Section -->
+    <section class="story-section" id="about">
+        <div class="story-content">
+            <div class="story-text">
+                <h2>Our Story</h2>
+                <p>At the Barkery, we offer transparency in all of our products. The health benefits are that we use natural and human-grade ingredients.</p>
+                <button class="btn-shop">SHOP NOW</button>
+            </div>
+            <div class="story-images">
+                <div class="product-img">[Product image 1]</div>
+                <div class="product-img">[Product image 2]</div>
+                <div class="product-img">[Product image 3]</div>
+                <div class="product-img">[Product image 4]</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instagram Section -->
+    <section class="instagram-section">
+        <h3>Follow Us On Instagram</h3>
+        <p class="instagram-handle">@the.barkeryph</p>
+        <div class="instagram-grid">
+            <div class="instagram-post">[Instagram post 1]</div>
+            <div class="instagram-post">[Instagram post 2]</div>
+            <div class="instagram-post">[Instagram post 3]</div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>What ingredients do you use in your dog treats?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    We use only natural, human-grade ingredients in all our treats. Each product lists specific ingredients on the packaging.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Are your dog treats suitable for all breeds and sizes?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes, our treats are designed to be suitable for dogs of all breeds and sizes. We offer different portion sizes to accommodate various dog sizes.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How should I store your dog treats?</span>
+                    <i class="fas fa-chevron-up"></i>
+                </div>
+                <div class="faq-answer show">
+                    To maintain freshness, store the treats in a cool, dry place, away from direct sunlight. For long-term storage, some treats may be frozen—check the packaging for specific instructions.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Do the treats have a specific expiration date?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Yes, all our treats have expiration dates printed on the packaging. We recommend using treats before this date for optimal freshness and quality.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How do we ensure the ingredients contained in the treats are allergen free?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    We clearly list all ingredients on our packaging. If your dog has specific allergies, please check the ingredient list before purchasing.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div>
+                <i class="fas fa-bone"></i> THE BARKERY
+            </div>
+            <div>
+                © 2024 The Barkery
+            </div>
+            <div>
+                Angeles City, Pampanga
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
