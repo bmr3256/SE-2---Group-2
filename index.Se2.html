@@ -9,29 +9,39 @@
     <link href="style.Se2.css" rel="stylesheet">
 </head>
 <body>
-    <!-- navigation -->
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="fas fa-bone"></i> THE BARKERY</a>
+            <a class="navbar-brand" href="index.Se2.html">
+                <i class="fas fa-bone"></i> THE BARKERY
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#products">Products</a></li>
                     <li class="nav-item"><a class="nav-link" href="#feedback">Feedback</a></li>
                 </ul>
             </div>
-            <div class="navbar-icons">
-                <i class="fas fa-shopping-cart"></i>
-                <i class="fas fa-user-circle"></i>
+            <div class="navbar-actions">
+                <button class="btn-help" data-bs-toggle="modal" data-bs-target="#helpModal" title="Need help?">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                <a href="#" class="nav-icon" title="Shopping Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+                    <i class="fas fa-user-circle"></i>
+                </a>
             </div>
         </div>
     </nav>
 
-    <!-- hero section -->
+    <!-- Hero Section -->
     <section class="hero-section" id="home">
         <div class="hero-content">
             <div class="hero-image">
@@ -44,17 +54,20 @@
                     FOCUSED <span class="highlight">TREATS</span> MADE JUST FOR<br>
                     YOUR FURBABIES!
                 </h1>
+                <button class="btn-hero" onclick="location.href='#products'">
+                    SHOP NOW <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
         </div>
     </section>
 
-    <!-- our story section -->
+    <!-- Our Story Section -->
     <section class="story-section" id="about">
         <div class="story-content">
             <div class="story-text">
                 <h2>Our Story</h2>
                 <p>At the Barkery, we offer transparency in all of our products. The health benefits are that we use natural and human-grade ingredients.</p>
-                <button class="btn-shop">SHOP NOW</button>
+                <button class="btn-shop" onclick="location.href='#products'">SHOP NOW</button>
             </div>
             <div class="story-images">
                 <div class="product-img">[Product image 1]</div>
@@ -76,8 +89,8 @@
         </div>
     </section>
 
-    <!-- FAQ -->
-    <section class="faq-section">
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
         <h2>Frequently Asked Questions</h2>
         <div class="faq-container">
             <div class="faq-item">
@@ -125,23 +138,54 @@
                     We clearly list all ingredients on our packaging. If your dog has specific allergies, please check the ingredient list before purchasing.
                 </div>
             </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How do I create an account and place an order?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Click the user icon in the top right corner to sign up. Fill in your details, then browse our products and add them to your cart. Follow the checkout process to complete your order.
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- footer -->
+    <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div>
-                <i class="fas fa-bone"></i> THE BARKERY
+            <div class="footer-logo">
+                <span class="logo-icon">B</span>
+                <span class="logo-text">THE BARKERY</span>
             </div>
-            <div>
+            <div class="footer-copyright">
                 © 2024 The Barkery
             </div>
-            <div>
+            <div class="footer-location">
                 Angeles City, Pampanga
             </div>
         </div>
     </footer>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Need Help?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Quick Guide:</h6>
+                    <ul>
+                        <li><strong>Ordering:</strong> Click the user icon to create an account, then browse products and add to cart</li>
+                        <li><strong>Account:</strong> Sign up to track orders and save preferences</li>
+                        <li><strong>Questions?</strong> Check our <a href="#faq">FAQ section</a> below</li>
+                        <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>

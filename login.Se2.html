@@ -4,31 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="auth-styles.Se2.css" rel="stylesheet">
 </head>
 <body>
+    <nav class="breadcrumb-nav">
+        <div class="breadcrumb-container">
+            <a href="index.html" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Login</span>
+        </div>
+    </nav>
+
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-left">
                 <div class="auth-logo">
-                    <h1>THE BARKERY</h1>
+                    <a href="index.html" title="Back to Home">
+                        <h1>THE BARKERY</h1>
+                    </a>
                     <p class="tagline">Where happy tails and healthy treats meet!</p>
                 </div>
                 
-                <form class="auth-form">
-                    <input type="email" placeholder="Email Address" required>
-                    <input type="password" placeholder="Password" required>
-                    <button type="submit" class="btn-auth">LOGIN</button>
+                <form class="auth-form" id="loginForm" novalidate>
+                    <div class="form-group">
+                        <label for="email" class="form-label">
+                            Email Address <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email"
+                            name="email"
+                            placeholder="your.email@example.com" 
+                            required
+                            autocomplete="email"
+                            aria-describedby="emailHelp"
+                        >
+                        <div class="invalid-feedback">Please enter a valid email address</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            Password <span class="required">*</span>
+                        </label>
+                        <div class="password-wrapper">
+                            <input 
+                                type="password" 
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password" 
+                                required
+                                autocomplete="current-password"
+                                aria-describedby="passwordHelp"
+                            >
+                            <button type="button" class="toggle-password" onclick="togglePassword('password')" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="invalid-feedback">Password is required</div>
+                    </div>
+
+                    <div class="form-check-group">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+
+                    <button type="submit" class="btn-auth">
+                        <span class="btn-text">LOGIN</span>
+                        <span class="btn-loader" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Logging in...
+                        </span>
+                    </button>
+
+                    <div class="form-message" id="formMessage"></div>
                 </form>
                 
                 <div class="auth-links">
-                    <a href="#" class="forgot-link">Forgot password?</a>
-                    <p class="alternate-action">No account? Click <a href="signup.html">here</a></p>
+                    <a href="#" class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                        Forgot password?
+                    </a>
+                    <p class="alternate-action">
+                        No account? Click <a href="signup.Se2.html">here</a> to sign up
+                    </p>
+                </div>
+
+                <!-- Help Button -->
+                <div class="help-section">
+                    <button class="btn-help-inline" data-bs-toggle="modal" data-bs-target="#loginHelpModal">
+                        <i class="fas fa-question-circle"></i> Need help logging in?
+                    </button>
                 </div>
             </div>
             
             <div class="auth-right">
-                <div class="product-image">[Product images]</div>
+                <div class="product-showcase">
+                    <div class="showcase-text">
+                        <h3>Premium Dog Treats</h3>
+                        <p>Natural, healthy, and tail-waggingly delicious!</p>
+                    </div>
+                    <div class="product-image">[Product images]</div>
+                </div>
             </div>
         </div>
     </div>
@@ -47,5 +125,48 @@
             </div>
         </div>
     </footer>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Enter your email address and we'll send you a link to reset your password.</p>
+                    <form id="forgotPasswordForm">
+                        <input type="email" class="form-control" placeholder="your.email@example.com" required>
+                        <button type="submit" class="btn-auth mt-3">Send Reset Link</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Help Modal -->
+    <div class="modal fade" id="loginHelpModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Having trouble logging in?</h6>
+                    <ul>
+                        <li><strong>Forgot password?</strong> Click the "Forgot password?" link below the login button</li>
+                        <li><strong>Don't have an account?</strong> Click "here" to sign up - it only takes a minute!</li>
+                        <li><strong>Email not recognized?</strong> Make sure you're using the email you signed up with</li>
+                        <li><strong>Still having issues?</strong> Contact us at support@barkery.ph</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="auth-script.js"></script>
 </body>
 </html>
