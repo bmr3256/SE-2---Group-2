@@ -25,7 +25,7 @@
             <div class="auth-left">
                 <!-- Logo with link back home -->
                 <div class="auth-logo">
-                    <a href="index.html" title="Back to Home">
+                    <a href="index.Se2.html" title="Back to Home">
                         <h1>THE BARKERY</h1>
                     </a>
                     <h2 class="signup-title">SIGN UP</h2>
@@ -35,70 +35,70 @@
                 <!-- Signup Form -->
                 <form class="auth-form" id="signupForm" novalidate>
                     <div class="form-group">
-                        <label for="firstName" class="form-label">
-                            First Name <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            id="firstName"
-                            name="firstName"
-                            placeholder="John" 
-                            required
-                            autocomplete="given-name"
-                            minlength="2"
-                        >
+                        <div class="floating-input">
+                            <input 
+                                type="text" 
+                                id="firstName"
+                                name="firstName"
+                                placeholder=" "
+                                required
+                                autocomplete="given-name"
+                                minlength="2"
+                            >
+                            <label for="firstName">First Name <span class="required">*</span></label>
+                        </div>
                         <div class="invalid-feedback">First name must be at least 2 characters</div>
                     </div>
 
                     <div class="form-group">
-                        <label for="lastName" class="form-label">
-                            Last Name <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="text" 
-                            id="lastName"
-                            name="lastName"
-                            placeholder="Doe" 
-                            required
-                            autocomplete="family-name"
-                            minlength="2"
-                        >
+                        <div class="floating-input">
+                            <input 
+                                type="text" 
+                                id="lastName"
+                                name="lastName"
+                                placeholder=" "
+                                required
+                                autocomplete="family-name"
+                                minlength="2"
+                            >
+                            <label for="lastName">Last Name <span class="required">*</span></label>
+                        </div>
                         <div class="invalid-feedback">Last name must be at least 2 characters</div>
                     </div>
 
                     <div class="form-group">
-                        <label for="email" class="form-label">
-                            Email <span class="required">*</span>
-                        </label>
-                        <input 
-                            type="email" 
-                            id="email"
-                            name="email"
-                            placeholder="john.doe@example.com" 
-                            required
-                            autocomplete="email"
-                        >
+                        <div class="floating-input">
+                            <input 
+                                type="email" 
+                                id="email"
+                                name="email"
+                                placeholder=" "
+                                required
+                                autocomplete="email"
+                            >
+                            <label for="email">Email <span class="required">*</span></label>
+                        </div>
                         <div class="invalid-feedback">Please enter a valid email address</div>
                     </div>
 
                     <div class="form-group">
-                        <label for="password" class="form-label">
-                            Password <span class="required">*</span>
-                            <button type="button" class="info-tooltip" data-bs-toggle="tooltip" title="Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 number">
-                                <i class="fas fa-info-circle"></i>
-                            </button>
-                        </label>
-                        <div class="password-wrapper">
+                        <div class="floating-input">
                             <input 
                                 type="password" 
                                 id="password"
                                 name="password"
-                                placeholder="Create a strong password" 
+                                placeholder=" "
                                 required
                                 autocomplete="new-password"
                                 minlength="8"
                                 pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"
                             >
+                            <label for="password">
+                                Password <span class="required">*</span>
+                                <button type="button" class="info-tooltip" data-bs-toggle="tooltip" title="Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 number">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </label>
                             <button type="button" class="toggle-password" onclick="togglePassword('password')" aria-label="Toggle password visibility">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -108,18 +108,16 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="confirmPassword" class="form-label">
-                            Confirm Password <span class="required">*</span>
-                        </label>
-                        <div class="password-wrapper">
+                        <div class="floating-input">
                             <input 
                                 type="password" 
                                 id="confirmPassword"
                                 name="confirmPassword"
-                                placeholder="Re-enter your password" 
+                                placeholder=" "
                                 required
                                 autocomplete="new-password"
                             >
+                            <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
                             <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')" aria-label="Toggle password visibility">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -147,7 +145,7 @@
                 <!-- Auth Links -->
                 <div class="auth-links">
                     <p class="alternate-action">
-                        Already have an account? Click <a href="login.html">here</a> to login
+                        Already have an account? Click <a href="login.Se2.html">here</a> to login
                     </p>
                 </div>
 
@@ -234,6 +232,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script src="auth-script.js"></script>
+    <script src="auth-script.Se2.js"></script>
 </body>
 </html>
