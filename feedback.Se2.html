@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.Se2.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.Se2.html">
+                <i class="fas fa-bone"></i> THE BARKERY
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.Se2.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.Se2.html">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.Se2.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="feedback.Se2.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="navbar-actions">
+                <button class="btn-help" data-bs-toggle="modal" data-bs-target="#helpModal" title="Need help?">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                <a href="#" class="nav-icon" title="Shopping Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Feedback Header -->
+    <section class="page-hero">
+        <div class="hero-content-center">
+            <h1>FEEDBACK</h1>
+        </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section class="feedback-page-section">
+        <div class="feedback-page-container">
+            <h2>WE VALUE YOUR OPINION</h2>
+            <p class="feedback-subtitle">How would you rate your overall experience?</p>
+            
+            <div class="rating-stars">
+                <span class="star" onclick="rateExperience(1)">⭐</span>
+                <span class="star" onclick="rateExperience(2)">⭐</span>
+                <span class="star" onclick="rateExperience(3)">⭐</span>
+                <span class="star" onclick="rateExperience(4)">⭐</span>
+                <span class="star" onclick="rateExperience(5)">⭐</span>
+            </div>
+
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="name">Your Name:</label>
+                    <input type="text" id="name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Your Email:</label>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Your Feedback:</label>
+                    <textarea id="message" placeholder="Kindly take a moment to tell us what you think..." required></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn-submit">Share my Feedback</button>
+                </div>
+            </form>
+
+            <div class="contact-info-page">
+                <h4>Related Words</h4>
+                <p>We aim to respond within 24-48 hours</p>
+                <p><strong>Delivery Charge Per Following Hours:</strong></p>
+                <p>• Delivery: 10:00 AM - 3:00 PM</p>
+                <p>• Delivery: 4:00 PM - 9:00 PM</p>
+
+                <h4 style="margin-top: 30px;">The Barkery's Social Media</h4>
+                <div class="social-links">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-instagram"></i>
+                        <span>@thebarkery.ph</span>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-facebook"></i>
+                        <span>fb.com/thebarkery</span>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Angeles City, Pampanga</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="logo-icon">B</span>
+                <span class="logo-text">THE BARKERY</span>
+            </div>
+            <div class="footer-copyright">
+                © 2025 The Barkery
+            </div>
+            <div class="footer-location">
+                Angeles City, Pampanga
+            </div>
+        </div>
+    </footer>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Need Help?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Quick Guide:</h6>
+                    <ul>
+                        <li><strong>Feedback:</strong> Rate your experience and share your thoughts</li>
+                        <li><strong>Response Time:</strong> We typically respond within 24-48 hours</li>
+                        <li><strong>Questions?</strong> Check our FAQ section on the homepage</li>
+                        <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="script.Se2.js"></script>
+</body>
+</html>

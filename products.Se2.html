@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.Se2.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.Se2.html">
+                <i class="fas fa-bone"></i> THE BARKERY
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="index.Se2.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.Se2.html">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="products.Se2.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="feedback.Se2.html">Feedback</a></li>
+                </ul>
+            </div>
+            <div class="navbar-actions">
+                <button class="btn-help" data-bs-toggle="modal" data-bs-target="#helpModal" title="Need help?">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                <a href="#" class="nav-icon" title="Shopping Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge">0</span>
+                </a>
+                <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Products Header -->
+    <section class="page-hero">
+        <div class="hero-content-center">
+            <h1>MANAGE PRODUCTS</h1>
+            <p>Customer Interface</p>
+        </div>
+    </section>
+
+    <!-- Products Detail Section -->
+    <section class="products-detail-section">
+        <div class="products-detail-container">
+            <div class="products-intro">
+                <div class="intro-image">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <div class="intro-text">
+                    <h3>PREMIUM TREATS FOR YOUR FURBABIES. BUT FOR REAL THOUGH...</h3>
+                    <p>These aren't just dog treats. These are <strong>100% all-natural</strong>, <strong>fully digestible</strong>, and <strong>completely drool-worthy</strong> snacks that are <strong>ideal for your furry best friend</strong>. Oh, and did we mention? They're the <strong>perfect blend of tasty and nutritious</strong> so your dog can enjoy every bite without you worrying about what's inside. Get them now and make your dog the happiest pup on the block!</p>
+                </div>
+            </div>
+
+            <!-- Product 1 -->
+            <div class="product-detail-card">
+                <div class="product-detail-left">
+                    <div class="product-detail-image">
+                        <i class="fas fa-drumstick-bite"></i>
+                    </div>
+                    <div class="product-detail-price">₱70</div>
+                    <button class="btn-add-cart-detail" onclick="addToCart('Pork Liver', 70)">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+                <div class="product-detail-right">
+                    <h2><i class="fas fa-drumstick-bite"></i> PORK LIVER</h2>
+                    <h4>Details</h4>
+                    <p>Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.</p>
+                    <div class="product-benefits-box">
+                        <p><strong>Benefits of Pork Liver:</strong></p>
+                        <ul>
+                            <li>Rich in protein and nutrients</li>
+                            <li>Supports healthy muscles and immune system</li>
+                            <li>High in vitamins A and B</li>
+                            <li>Great for training treats due to strong aroma</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product-detail-card">
+                <div class="product-detail-left">
+                    <div class="product-detail-image">
+                        <i class="fas fa-bone"></i>
+                    </div>
+                    <div class="product-detail-price">₱50</div>
+                    <button class="btn-add-cart-detail" onclick="addToCart('Chicken Feet', 50)">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+                <div class="product-detail-right">
+                    <h2><i class="fas fa-bone"></i> CHICKEN FEET</h2>
+                    <h4>Details</h4>
+                    <p>Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.</p>
+                    <div class="product-benefits-box">
+                        <p><strong>Benefits of Chicken Feet:</strong></p>
+                        <ul>
+                            <li>Natural source of glucosamine for joint health</li>
+                            <li>Supports mobility in senior dogs</li>
+                            <li>Dental benefits from natural chewing action</li>
+                            <li>High in protein and collagen</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product-detail-card">
+                <div class="product-detail-left">
+                    <div class="product-detail-image">
+                        <i class="fas fa-cookie-bite"></i>
+                    </div>
+                    <div class="product-detail-price">₱80</div>
+                    <button class="btn-add-cart-detail" onclick="addToCart('Beef Bones', 80)">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+                <div class="product-detail-right">
+                    <h2><i class="fas fa-cookie-bite"></i> BEEF BONES</h2>
+                    <h4>Details</h4>
+                    <p>Our beef bones are perfect for aggressive chewers and provide hours of entertainment. They help clean teeth naturally and are an excellent source of calcium and other minerals. Always supervise your dog when enjoying bone treats.</p>
+                    <div class="product-benefits-box">
+                        <p><strong>Benefits of Beef Bones:</strong></p>
+                        <ul>
+                            <li>Long-lasting chew for aggressive chewers</li>
+                            <li>Natural teeth cleaning and gum massage</li>
+                            <li>Rich in calcium and essential minerals</li>
+                            <li>Reduces anxiety and boredom</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="product-detail-card">
+                <div class="product-detail-left">
+                    <div class="product-detail-image">
+                        <i class="fas fa-fish"></i>
+                    </div>
+                    <div class="product-detail-price">₱65</div>
+                    <button class="btn-add-cart-detail" onclick="addToCart('Dried Fish', 65)">
+                        <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </button>
+                </div>
+                <div class="product-detail-right">
+                    <h2><i class="fas fa-fish"></i> DRIED FISH</h2>
+                    <h4>Details</h4>
+                    <p>Our dried fish treats are an excellent source of omega-3 fatty acids, which support healthy skin and a shiny coat. These treats are great for dogs with sensitivities to other proteins and provide a unique flavor dogs can't resist.</p>
+                    <div class="product-benefits-box">
+                        <p><strong>Benefits of Dried Fish:</strong></p>
+                        <ul>
+                            <li>High in omega-3 fatty acids for skin health</li>
+                            <li>Supports a shiny, healthy coat</li>
+                            <li>Alternative protein source for sensitive dogs</li>
+                            <li>Low in calories, high in nutrients</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="proceed-checkout-container">
+                <button class="btn-proceed-checkout" onclick="alert('Proceeding to checkout...')">
+                    Proceed to Checkout <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="logo-icon">B</span>
+                <span class="logo-text">THE BARKERY</span>
+            </div>
+            <div class="footer-copyright">
+                © 2025 The Barkery
+            </div>
+            <div class="footer-location">
+                Angeles City, Pampanga
+            </div>
+        </div>
+    </footer>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Need Help?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Quick Guide:</h6>
+                    <ul>
+                        <li><strong>Ordering:</strong> Click "Add to Cart" on any product, then "Proceed to Checkout"</li>
+                        <li><strong>Account:</strong> Sign up to track orders and save preferences</li>
+                        <li><strong>Questions?</strong> Check our FAQ section on the homepage</li>
+                        <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="script.Se2.js"></script>
+</body>
+</html>
