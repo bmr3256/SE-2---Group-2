@@ -1,12 +1,13 @@
 /* Color Scheme */
 :root {
-    --primary-tan: #D4B896;
-    --dark-brown: #5C4033;
-    --cream: #F5F0E8;
-    --light-cream: #FBF8F3;
-    --orange: #E8955E;
-    --button-tan: #C4AA86;
-    --text-gray: #7A7A7A;
+    --primary-tan: #E3D2B8;      
+    --dark-brown: #1E1E1E;       
+    --cream: #FBF6EE;            
+    --light-cream: #FFF9F2;      
+    --orange: #C48A3A;           
+    --button-tan: #C9A876;      
+    --text-gray: #6B6B6B;
+    --leonard:#BFB7A3;
     --success: #4CAF50;
     --error: #f44336;
     --warning: #ff9800;
@@ -36,14 +37,16 @@ body {
     font-size: 1.5rem;
     color: var(--dark-brown) !important;
     transition: transform 0.2s;
+    ;
 }
 
 .navbar-brand:hover {
     transform: scale(1.05);
 }
 
-.navbar-brand i {
+.navbar-brand img {
     font-size: 24px;
+    max-width: 220px
 }
 
 .nav-link {
@@ -273,9 +276,8 @@ body {
 }
 
 .product-img {
-    width: 150px;
-    height: 150px;
-    background-color: #E8E8E8;
+    width: 300px;
+    height: 300px;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -668,7 +670,7 @@ body {
 
 /* Footer */
 footer {
-    background-color: var(--primary-tan);
+    background-color: var(--leonard);
     padding: 2rem;
     margin-top: auto;
 }
@@ -681,6 +683,9 @@ footer {
     justify-content: space-between;
     align-items: center;
     color: var(--dark-brown);
+}
+.footer-content img {
+    width: 150px;
 }
 
 .footer-logo {
@@ -1255,4 +1260,151 @@ footer {
 
 .login-form.active {
     display: block;
+}
+
+/* Image Styling */
+.hero-img {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    object-fit: cover;
+}
+
+.product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.instagram-post img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.about-image-large img {
+    max-width: 200px;
+    height: auto;
+}
+
+.product-detail-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.intro-image img {
+    max-width: 120px;
+    height: auto;
+}
+
+/* ============================= */
+/* MOCKUP MATCH – ABOUT PAGE FIX */
+/* ============================= */
+
+/* About Page Hero */
+.about-hero {
+    padding: 2.5rem 2rem;
+    background-color: #FBF6EE;
+    border-bottom: 2px solid #E6D7C3;
+}
+
+.about-hero h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #1E1E1E;
+}
+
+/* About Content Section */
+.about-detail-section {
+    background-color: #FBF6EE;
+}
+
+.about-detail-content {
+    background-color: transparent;
+    box-shadow: none;
+    padding: 2rem 0;
+    align-items: flex-start;
+}
+
+.about-text-detail h2 {
+    display: none; /* Hide duplicate ABOUT US heading */
+}
+
+.about-text-detail p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #1E1E1E;
+    font-weight: 500;
+}
+
+/* Dog + Product Image Styling */
+.about-image-large img {
+    max-width: 260px;
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15));
+}
+
+/* Mission & Vision – Stacked Layout (Like Mockup) */
+.mission-vision-container.vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.mission-box-large,
+.vision-box-large {
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+.mission-box-large h2,
+.vision-box-large h2 {
+    font-size: 1.75rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #1E1E1E;
+    margin-bottom: 0.75rem;
+}
+
+.mission-box-large p,
+.vision-box-large p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #333;
+    max-width: 700px;
+}
+
+/* Footer Clean-Up (Matches Mockup) */
+
+
+.footer-content img#B_logo{
+    max-width: 20px;
+}
+
+/* Mobile Tuning */
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 2.25rem;
+    }
+
+    .about-detail-content {
+        padding: 1.5rem 0;
+        text-align: center;
+    }
+
+    .about-image-large img {
+        max-width: 220px;
+        margin-bottom: 1.5rem;
+    }
+
+    .mission-box-large p,
+    .vision-box-large p {
+        max-width: 100%;
+    }
 }

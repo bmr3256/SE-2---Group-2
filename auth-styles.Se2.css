@@ -1,14 +1,16 @@
 :root {
-    --primary-tan: #C9B699;
-    --dark-brown: #5C4033;
-    --cream: #F5F0E8;
-    --light-cream: #FBF8F3;
-    --button-tan: #C4AA86;
-    --text-gray: #7A7A7A;
+    --primary-tan: #E3D2B8;      
+    --dark-brown: #1E1E1E;       
+    --cream: #FBF6EE;            
+    --light-cream: #FFF9F2;      
+    --orange: #C48A3A;           
+    --button-tan: #C9A876;      
+    --text-gray: #6B6B6B;
+    --leonard:#BFB7A3;
     --success: #4CAF50;
     --error: #f44336;
     --warning: #ff9800;
-    --info: #2196F3;
+    --lighter-cream:#ede1cc;
 }
 
 * {
@@ -69,7 +71,7 @@ body {
 }
 
 .auth-card {
-    background: var(--cream);
+    background: var(--lighter-cream);
     border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     max-width: 1000px;
@@ -101,6 +103,10 @@ body {
     margin-bottom: 0.5rem;
     letter-spacing: 1px;
     transition: color 0.3s;
+}
+.auth-logo img {
+    width: 180px;
+    margin-bottom: 0.5rem;
 }
 
 .auth-logo a:hover h1 {
@@ -447,7 +453,7 @@ body {
 /* Right Side - Product Showcase */
 .auth-right {
     flex: 1;
-    background: linear-gradient(135deg, #E8DCC8 0%, #D9C9B3 100%);
+    background: url('images/designtreats.png') center/cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -482,7 +488,6 @@ body {
 
 .product-image {
     width: 80%;
-    height: 60%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -491,10 +496,16 @@ body {
     background: rgba(255, 255, 255, 0.3);
     border-radius: 10px;
 }
+.product-image img {
+    max-width: 190%;
+    max-height: 190%;
+    border-radius: 10px;
+    object-fit: contain;
+}
 
 /* Footer */
 .auth-footer {
-    background: var(--primary-tan);
+    background: var(--leonard);
     padding: 1.5rem 2rem;
     margin-top: auto;
 }
@@ -506,6 +517,12 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     color: var(--dark-brown);
+}
+.footer-content img {
+    width: 150px;
+}
+.footer-content img#B_logo{
+    max-width: 20px;
 }
 
 .footer-logo {

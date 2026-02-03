@@ -25,7 +25,7 @@
             <div class="auth-left">
                 <div class="auth-logo">
                     <a href="index.Se2.html" title="Back to Home">
-                        <h1>THE BARKERY</h1>
+                        <img src="images/Logo - Black.png" alt="The Barkery Logo">
                     </a>
                     <p class="tagline">Where happy tails and healthy treats meet!</p>
                 </div>
@@ -40,7 +40,6 @@
                                 placeholder=" "
                                 required
                                 autocomplete="email"
-                                aria-describedby="emailHelp"
                             >
                             <label for="email">Email Address <span class="required">*</span></label>
                         </div>
@@ -56,7 +55,6 @@
                                 placeholder=" "
                                 required
                                 autocomplete="current-password"
-                                aria-describedby="passwordHelp"
                             >
                             <label for="password">Password <span class="required">*</span></label>
                             <button type="button" class="toggle-password" onclick="togglePassword('password')" aria-label="Toggle password visibility">
@@ -98,25 +96,19 @@
             </div>
             
             <div class="auth-right">
-                <div class="product-showcase">
-                    <div class="showcase-text">
-                        <h3>Premium Dog Treats</h3>
-                        <p>Natural, healthy, and tail-waggingly delicious!</p>
-                    </div>
-                    <div class="product-image">[Product images]</div>
-                </div>
+                
             </div>
         </div>
     </div>
     
-    <footer class="auth-footer">
+     <footer class="auth-footer">
         <div class="footer-content">
             <div class="footer-logo">
-                <span class="logo-icon">B</span>
-                <span class="logo-text">THE BARKERY</span>
+                <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
+                <img src="images/Logo - Black.png" alt="The Barkery Logo">
             </div>
             <div class="footer-copyright">
-                © 2024 The Barkery
+                © 2025 The Barkery
             </div>
             <div class="footer-location">
                 Angeles City, Pampanga
@@ -155,7 +147,7 @@
                         <li><strong>Forgot password?</strong> Click the "Forgot password?" link below the login button</li>
                         <li><strong>Don't have an account?</strong> Click "here" to sign up - it only takes a minute!</li>
                         <li><strong>Email not recognized?</strong> Make sure you're using the email you signed up with</li>
-                        <li><strong>Still having issues?</strong> Contact us at support@barkery.ph</li>
+                        <li><strong>Still having issues?</strong> Contact us at hello@barkery.ph</li>
                     </ul>
                 </div>
             </div>
@@ -163,6 +155,23 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script src="auth-script.Se2.js"></script>
+    <script src="script.js"></script>
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const button = input.parentElement.querySelector('.toggle-password');
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>
