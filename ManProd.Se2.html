@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="admin-styles.Se2.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+    <div class="sidebar-logo">
+        <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
+                <img src="images/Logo - Black.png" alt="The Barkery Logo">
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="ManProd.Se2.html" class="active"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
+        <li><a href="ManCon.Se2.html"><i class="fas fa-file-alt"></i> <span>Manage Content</span></a></li>
+        <li><a href="ManOrd.Se2.html"><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a></li>
+    </ul>
+    <div class="sidebar-user">
+        <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
+        <div class="sidebar-user-info">
+            <span class="user-name">ADMIN</span>
+            <span class="user-email">admin@gmail.com</span>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="admin-main">
+    <div class="admin-topbar">
+        <h3>All Products</h3>
+    </div>
+
+    <div class="admin-content">
+        <!-- Toolbar -->
+        <div class="products-toolbar">
+            <button class="btn-admin-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> Add Product</button>
+            <button class="btn-admin-danger" onclick="promptDelete()"><i class="fas fa-trash"></i> Delete Product</button>
+            <button class="btn-admin-outline" onclick="openEditModal()"><i class="fas fa-pen"></i> Edit stock</button>
+        </div>
+
+        <!-- Product Cards -->
+        <div class="product-cards" id="productCards">
+            <!-- Cards injected by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal-overlay" id="addModal">
+    <div class="order-info-modal" style="width:400px; max-width:92%;">
+        <button class="modal-close-btn" onclick="closeModal('addModal')">&times;</button>
+        <h5>Add New Product</h5>
+        <div class="form-group mb-2">
+            <label style="font-size:0.82rem; color:var(--text-gray);">Product Name</label>
+            <input type="text" id="newName" class="form-control form-control-sm" placeholder="e.g. Pork Liver">
+        </div>
+        <div class="form-group mb-2">
+            <label style="font-size:0.82rem; color:var(--text-gray);">Price (₱)</label>
+            <input type="number" id="newPrice" class="form-control form-control-sm" placeholder="70">
+        </div>
+        <div class="form-group mb-2">
+            <label style="font-size:0.82rem; color:var(--text-gray);">Description</label>
+            <textarea id="newDesc" class="form-control form-control-sm" rows="2" placeholder="Short description..."></textarea>
+        </div>
+        <div class="form-group mb-3">
+            <label style="font-size:0.82rem; color:var(--text-gray);">Image (filename in images/ folder)</label>
+            <input type="text" id="newImg" class="form-control form-control-sm" placeholder="e.g. liver_product.png">
+        </div>
+        <div style="text-align:right;">
+            <button class="btn-admin-outline me-2" onclick="closeModal('addModal')">Cancel</button>
+            <button class="btn-admin-primary" onclick="addProduct()">Add Product</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT STOCK MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="order-info-modal" style="width:380px; max-width:92%;">
+        <button class="modal-close-btn" onclick="closeModal('editModal')">&times;</button>
+        <h5>Edit Stock</h5>
+        <div id="editStockList"></div>
+        <div style="text-align:right; margin-top:1rem;">
+            <button class="btn-admin-outline me-2" onclick="closeModal('editModal')">Cancel</button>
+            <button class="btn-admin-primary" onclick="saveStock()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="order-info-modal" style="width:340px; max-width:92%;">
+        <button class="modal-close-btn" onclick="closeModal('deleteModal')">&times;</button>
+        <h5>Delete Product</h5>
+        <p style="font-size:0.85rem; color:var(--text-gray); margin-bottom:1rem;">Select a product to delete:</p>
+        <div id="deleteList"></div>
+        <div style="text-align:right; margin-top:1rem;">
+            <button class="btn-admin-outline me-2" onclick="closeModal('deleteModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script>
+// ─── Sample data (acts as "database") ───
+let products = [
+    { id: 1, name: "Pork Liver", price: 70, desc: "Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.", img: "liver_product.png" },
+    { id: 2, name: "Chicken Feet", price: 50, desc: "Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.", img: "chickenfeet_product.png" },
+    { id: 3, name: "Beef Bones", price: 80, desc: "Our beef bones are perfect for aggressive chewers and provide hours of entertainment. They help clean teeth naturally and are an excellent source of calcium and other minerals.", img: "pbutter_product.png" },
+];
+
+// ─── Render product cards ───
+function renderProducts() {
+    const container = document.getElementById('productCards');
+    container.innerHTML = '';
+    products.forEach(p => {
+        container.innerHTML += `
+        <div class="product-card">
+            <div class="product-card-image">
+                <img src="images/${p.img}" alt="${p.name}" onerror="this.style.display='none'">
+            </div>
+            <div class="product-card-body">
+                <div class="product-card-header">
+                    <h4>${p.name}</h4>
+                    <div class="product-price-badge">₱${p.price}</div>
+                </div>
+                <span class="details-label">Details</span>
+                <p>${p.desc}</p>
+                <div class="product-card-actions">
+                    <button class="btn-admin-primary" onclick="addToCart(${p.id})"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                </div>
+            </div>
+        </div>`;
+    });
+}
+
+// ─── Add to cart placeholder ───
+function addToCart(id) {
+    showToast('Added ' + products.find(p => p.id === id).name + ' to cart!');
+}
+
+// ─── ADD product ───
+function openAddModal() { document.getElementById('addModal').classList.add('show'); }
+
+function addProduct() {
+    const name  = document.getElementById('newName').value.trim();
+    const price = document.getElementById('newPrice').value.trim();
+    const desc  = document.getElementById('newDesc').value.trim();
+    const img   = document.getElementById('newImg').value.trim();
+    if (!name || !price) { showToast('Please fill in name and price.'); return; }
+    products.push({ id: Date.now(), name, price: Number(price), desc: desc || 'No description.', img: img || 'liver_product.png' });
+    closeModal('addModal');
+    document.getElementById('newName').value = '';
+    document.getElementById('newPrice').value = '';
+    document.getElementById('newDesc').value = '';
+    document.getElementById('newImg').value = '';
+    renderProducts();
+    showToast('Product added successfully!');
+}
+
+// ─── DELETE product ───
+function promptDelete() {
+    const list = document.getElementById('deleteList');
+    list.innerHTML = '';
+    products.forEach(p => {
+        list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.35rem 0; border-bottom:1px solid #f0ebe4;">
+            <span style="font-size:0.85rem;">${p.name} — ₱${p.price}</span>
+            <button class="btn-admin-danger" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="confirmDelete(${p.id})">Delete</button>
+        </div>`;
+    });
+    document.getElementById('deleteModal').classList.add('show');
+}
+
+function confirmDelete(id) {
+    products = products.filter(p => p.id !== id);
+    closeModal('deleteModal');
+    renderProducts();
+    showToast('PRODUCT SUCCESSFULLY DELETED');
+}
+
+// ─── EDIT STOCK ───
+function openEditModal() {
+    const list = document.getElementById('editStockList');
+    list.innerHTML = '';
+    products.forEach(p => {
+        list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #f0ebe4;">
+            <span style="font-size:0.85rem;">${p.name}</span>
+            <input type="number" class="form-control form-control-sm" style="width:80px;" value="${p.price}" data-id="${p.id}">
+        </div>`;
+    });
+    document.getElementById('editModal').classList.add('show');
+}
+
+function saveStock() {
+    document.querySelectorAll('#editStockList input[data-id]').forEach(inp => {
+        const id = Number(inp.dataset.id);
+        const val = Number(inp.value);
+        const prod = products.find(p => p.id === id);
+        if (prod && val > 0) prod.price = val;
+    });
+    closeModal('editModal');
+    renderProducts();
+    showToast('Stock updated successfully!');
+}
+
+// ─── Helpers ───
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function showToast(msg) {
+    const t = document.getElementById('adminToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── Init ───
+renderProducts();
+</script>
+</body>
+</html>

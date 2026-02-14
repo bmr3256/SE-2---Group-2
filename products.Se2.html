@@ -29,7 +29,7 @@
                 <button class="btn-help" data-bs-toggle="modal" data-bs-target="#helpModal" title="Need help?">
                     <i class="fas fa-question-circle"></i>
                 </button>
-                <a href="#" class="nav-icon" title="Shopping Cart">
+                <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-badge">0</span>
                 </a>
@@ -41,28 +41,19 @@
     </nav>
 
     <section class="page-hero">
-        <div class="hero-content-center">
-            <h1>MANAGE PRODUCTS</h1>
-            <p>Customer Interface</p>
-        </div>
+
+            <img src="images/productsbanner.png" alt="Banner Image">
+        
     </section>
 
     <section class="products-detail-section">
         <div class="products-detail-container">
-            <div class="products-intro">
-                <div class="intro-image">
-                    <i class="fas fa-paw"></i>
-                </div>
-                <div class="intro-text">
-                    <h3>PREMIUM TREATS FOR YOUR FURBABIES. BUT FOR REAL THOUGH...</h3>
-                    <p>These aren't just dog treats. These are <strong>100% all-natural</strong>, <strong>fully digestible</strong>, and <strong>completely drool-worthy</strong> snacks that are <strong>ideal for your furry best friend</strong>. Oh, and did we mention? They're the <strong>perfect blend of tasty and nutritious</strong> so your dog can enjoy every bite without you worrying about what's inside. Get them now and make your dog the happiest pup on the block!</p>
-                </div>
-            </div>
+          
 
             <div class="product-detail-card">
                 <div class="product-detail-left">
                     <div class="product-detail-image">
-                        <i class="fas fa-drumstick-bite"></i>
+                        <image src="images/liver_product.png" alt="Pork Liver Treats">
                     </div>
                     <div class="product-detail-price">₱70</div>
                     <button class="btn-add-cart-detail" onclick="addToCart('Pork Liver', 70)">
@@ -71,8 +62,15 @@
                 </div>
                 <div class="product-detail-right">
                     <h2><i class="fas fa-drumstick-bite"></i> PORK LIVER</h2>
-                    <h4>Details</h4>
-                    <p>Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.</p>
+                    <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Details</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                        Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.                </div>
+                </div>
+                    
                     <div class="product-benefits-box">
                         <p><strong>Benefits of Pork Liver:</strong></p>
                         <ul>
@@ -88,7 +86,7 @@
             <div class="product-detail-card">
                 <div class="product-detail-left">
                     <div class="product-detail-image">
-                        <i class="fas fa-bone"></i>
+                        <image src="images/chickenfeet_product.png" alt="Chicken Feet Treats">
                     </div>
                     <div class="product-detail-price">₱50</div>
                     <button class="btn-add-cart-detail" onclick="addToCart('Chicken Feet', 50)">
@@ -96,9 +94,16 @@
                     </button>
                 </div>
                 <div class="product-detail-right">
-                    <h2><i class="fas fa-bone"></i> CHICKEN FEET</h2>
-                    <h4>Details</h4>
-                    <p>Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.</p>
+                    <h2><i class=""></i> CHICKEN FEET</h2>
+                    <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Details</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                        Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.                </div>
+                </div>
+
                     <div class="product-benefits-box">
                         <p><strong>Benefits of Chicken Feet:</strong></p>
                         <ul>
@@ -114,22 +119,28 @@
             <div class="product-detail-card">
                 <div class="product-detail-left">
                     <div class="product-detail-image">
-                        <i class="fas fa-cookie-bite"></i>
+                        <image src="images/pbutter_product.png" alt="Pawnut Butter Treats">
                     </div>
                     <div class="product-detail-price">₱80</div>
-                    <button class="btn-add-cart-detail" onclick="addToCart('Beef Bones', 80)">
+                    <button class="btn-add-cart-detail" onclick="addToCart('Pawnut Butter', 80)">
                         <i class="fas fa-shopping-cart"></i> Add to Cart
                     </button>
                 </div>
                 <div class="product-detail-right">
-                    <h2><i class="fas fa-cookie-bite"></i> BEEF BONES</h2>
-                    <h4>Details</h4>
-                    <p>Our beef bones are perfect for aggressive chewers and provide hours of entertainment. They help clean teeth naturally and are an excellent source of calcium and other minerals. Always supervise your dog when enjoying bone treats.</p>
+                    <h2><i class="fas fa-cookie-bite"></i> PAWNUT BUTTER</h2>
+                   <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Details</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                        Pawnut Butter is a healthy treat made from natural ingredients. It's safe, delicious, and promotes a shiny coat. Great for training or as a reward for your furry friends.                </div>
+                </div>
                     <div class="product-benefits-box">
-                        <p><strong>Benefits of Beef Bones:</strong></p>
+                        <p><strong>Benefits of Pawnut Butter:</strong></p>
                         <ul>
-                            <li>Long-lasting chew for aggressive chewers</li>
-                            <li>Natural teeth cleaning and gum massage</li>
+                            <li>Rich in protein and healthy fats</li>
+                            <li>Provides sustained energy for active dogs</li>
                             <li>Rich in calcium and essential minerals</li>
                             <li>Reduces anxiety and boredom</li>
                         </ul>
@@ -137,30 +148,7 @@
                 </div>
             </div>
 
-            <div class="product-detail-card">
-                <div class="product-detail-left">
-                    <div class="product-detail-image">
-                        <i class="fas fa-fish"></i>
-                    </div>
-                    <div class="product-detail-price">₱65</div>
-                    <button class="btn-add-cart-detail" onclick="addToCart('Dried Fish', 65)">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>
-                </div>
-                <div class="product-detail-right">
-                    <h2><i class="fas fa-fish"></i> DRIED FISH</h2>
-                    <h4>Details</h4>
-                    <p>Our dried fish treats are an excellent source of omega-3 fatty acids, which support healthy skin and a shiny coat. These treats are great for dogs with sensitivities to other proteins and provide a unique flavor dogs can't resist.</p>
-                    <div class="product-benefits-box">
-                        <p><strong>Benefits of Dried Fish:</strong></p>
-                        <ul>
-                            <li>High in omega-3 fatty acids for skin health</li>
-                            <li>Supports a shiny, healthy coat</li>
-                            <li>Alternative protein source for sensitive dogs</li>
-                            <li>Low in calories, high in nutrients</li>
-                        </ul>
-                    </div>
-                </div>
+            
             </div>
 
             <div class="proceed-checkout-container">

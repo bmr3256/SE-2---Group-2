@@ -9,6 +9,7 @@
     <link href="style.Se2.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.Se2.html">
@@ -29,7 +30,7 @@
                 <button class="btn-help" data-bs-toggle="modal" data-bs-target="#helpModal" title="Need help?">
                     <i class="fas fa-question-circle"></i>
                 </button>
-                <a href="#" class="nav-icon" title="Shopping Cart">
+                <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-badge">0</span>
                 </a>
@@ -40,43 +41,81 @@
         </div>
     </nav>
 
+    <!-- Feedback Header -->
     <section class="page-hero">
         <div class="hero-content-center">
             <h1>FEEDBACK</h1>
         </div>
     </section>
 
+    <!-- Feedback Section -->
     <section class="feedback-page-section">
         <div class="feedback-page-container">
             <h2>WE VALUE YOUR OPINION</h2>
             <p class="feedback-subtitle">How would you rate your overall experience?</p>
             
-            <div class="rating-stars">
-                <span class="star" onclick="rateExperience(1)">⭐</span>
-                <span class="star" onclick="rateExperience(2)">⭐</span>
-                <span class="star" onclick="rateExperience(3)">⭐</span>
-                <span class="star" onclick="rateExperience(4)">⭐</span>
-                <span class="star" onclick="rateExperience(5)">⭐</span>
+            <div class="rating-stars" id="ratingStars">
+                <svg class="star-icon" data-rating="1" onclick="rateExperience(1)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <svg class="star-icon" data-rating="2" onclick="rateExperience(2)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <svg class="star-icon" data-rating="3" onclick="rateExperience(3)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <svg class="star-icon" data-rating="4" onclick="rateExperience(4)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <svg class="star-icon" data-rating="5" onclick="rateExperience(5)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
             </div>
 
             <form id="feedbackForm">
                 <div class="form-group">
-                    <label for="name">Your Name:</label>
-                    <input type="text" id="name" placeholder="Enter your name" required>
+                    <div class="floating-input">
+                        <input 
+                            type="text" 
+                            id="name"
+                            name="name"
+                            placeholder=" "
+                            required
+                        >
+                        <label for="name">Your Name <span class="required">*</span></label>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="email">Your Email:</label>
-                    <input type="email" id="email" placeholder="Enter your email" required>
+                    <div class="floating-input">
+                        <input 
+                            type="email" 
+                            id="email"
+                            name="email"
+                            placeholder=" "
+                            required
+                        >
+                        <label for="email">Your Email <span class="required">*</span></label>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="message">Your Feedback:</label>
-                    <textarea id="message" placeholder="Kindly take a moment to tell us what you think..." required></textarea>
+                    <div class="floating-input">
+                        <textarea 
+                            id="message"
+                            name="message"
+                            placeholder=" "
+                            required
+                            rows="5"
+                        ></textarea>
+                        <label for="message">Your Feedback <span class="required">*</span></label>
+                    </div>
                 </div>
 
                 <div class="text-center">
-                    <button type="submit" class="btn-submit">Share my Feedback</button>
+                    <button type="submit" class="btn-submit">
+                        Share my Feedback
+                    </button>
                 </div>
             </form>
 
@@ -93,19 +132,12 @@
                         <i class="fab fa-instagram"></i>
                         <span>@thebarkery.ph</span>
                     </a>
-                    <a href="#" class="social-link">
-                        <i class="fab fa-facebook"></i>
-                        <span>fb.com/thebarkery</span>
-                    </a>
-                    <a href="#" class="social-link">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>Angeles City, Pampanga</span>
-                    </a>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Footer -->
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
@@ -121,6 +153,7 @@
         </div>
     </footer>
 
+    <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

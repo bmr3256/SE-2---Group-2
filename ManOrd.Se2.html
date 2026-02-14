@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="admin-styles.Se2.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+    <div class="sidebar-logo">
+        <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
+                <img src="images/Logo - Black.png" alt="The Barkery Logo">
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="ManProd.Se2.html"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
+        <li><a href="ManCon.Se2.html" ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a></li>
+        <li><a href="ManOrd.Se2.html" class="active"><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a></li>
+    </ul>
+    <div class="sidebar-user">
+        <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
+        <div class="sidebar-user-info">
+            <span class="user-name">ADMIN</span>
+            <span class="user-email">admin@gmail.com</span>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="admin-main">
+    <div class="admin-topbar">
+        <h3>Orders</h3>
+    </div>
+
+    <div class="admin-content">
+        <!-- Toolbar: search + icons -->
+        <div class="orders-toolbar">
+            <input type="text" id="searchInput" placeholder="Search..." oninput="filterOrders()">
+            <div class="toolbar-icons">
+                <button title="Filter"><i class="fas fa-filter"></i></button>
+                <button title="Sort"><i class="fas fa-sort"></i></button>
+                <button title="Refresh" onclick="renderTable()"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="orders-table-wrap">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Name of Item</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <!-- rows injected by JS -->
+                </tbody>
+            </table>
+            <div class="orders-table-footer" id="tableFooter"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ORDER INFO MODAL -->
+<div class="modal-overlay" id="orderModal">
+    <div class="order-info-modal">
+        <button class="modal-close-btn" onclick="closeOrderModal()">&times;</button>
+        <h5>Order Information</h5>
+        
+        <div class="info-row">
+            <span class="info-label">Order Id:</span>
+            <span class="info-value" id="mOrderId"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Order date:</span>
+            <span class="info-value" id="mOrderDate"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Name of item:</span>
+            <span class="info-value" id="mItemName"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Customer name:</span>
+            <span class="info-value" id="mCustomer"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Address:</span>
+            <span class="info-value" id="mAddress"></span>
+        </div>
+        
+        <hr class="info-divider">
+        
+        <div class="info-row">
+            <span class="info-label">Total:</span>
+            <span class="info-value" id="mTotal"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Status:</span>
+            <span class="info-value" id="mStatus"></span>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script>
+// ─── Sample order data ───
+const orders = [
+    { id:"85693292", date:"03/12/25", item:"Pork Liver",    qty:1, total:20, status:"PROCESSING", customer:"PAWFECT BITES", address:"548 tras st, Pampanga city" },
+    { id:"85693347", date:"03/12/25", item:"Pork Liver",    qty:2, total:40, status:"CANCEL",     customer:"Happy Paws",    address:"12 Rizal Ave, Angeles City" },
+    { id:"87744453", date:"03/12/25", item:"Chicken Feet",  qty:1, total:50, status:"PROCESSING", customer:"Fur Baby Mom",   address:"201 Mabini St, Clark" },
+    { id:"85766042", date:"03/12/25", item:"Chicken Feet",  qty:3, total:150,status:"COMPLETE",   customer:"Dog Lovers PH",  address:"77 Del Pilar Rd, Mabalacat" },
+    { id:"85993407", date:"03/12/25", item:"Chicken Feet",  qty:1, total:50, status:"COMPLETE",   customer:"PawStation",     address:"33 Bonifacio St, San Fernando" },
+    { id:"85233040", date:"03/12/25", item:"Pork Liver",    qty:6, total:420,status:"COMPLETE",   customer:"Barkshop PH",    address:"99 Quezon Blvd, Angeles City" }
+];
+
+// Track which row is currently displayed
+let visibleOrders = [...orders];
+
+// ─── Render table ───
+function renderTable(data) {
+    const list = data || visibleOrders;
+    const tbody = document.getElementById('ordersBody');
+    tbody.innerHTML = '';
+    list.forEach(o => {
+        tbody.innerHTML += `
+        <tr onclick="openOrderModal('${o.id}')">
+            <td><span class="clickable">${o.id}</span></td>
+            <td>${o.date}</td>
+            <td>${o.item}</td>
+            <td>${o.qty}</td>
+            <td>₱${o.total}.00</td>
+            <td>${badgeHtml(o.status)}</td>
+        </tr>`;
+    });
+    document.getElementById('tableFooter').textContent = list.length + ' out of ' + orders.length + ' orders';
+}
+
+function badgeHtml(status) {
+    const cls = status === 'PROCESSING' ? 'badge-processing' : status === 'COMPLETE' ? 'badge-complete' : 'badge-cancel';
+    return `<span class="${cls}">${status}</span>`;
+}
+
+// ─── Search / Filter ───
+function filterOrders() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    visibleOrders = orders.filter(o =>
+        o.id.includes(q) ||
+        o.item.toLowerCase().includes(q) ||
+        o.status.toLowerCase().includes(q) ||
+        o.customer.toLowerCase().includes(q)
+    );
+    renderTable(visibleOrders);
+}
+
+// ─── Open order detail modal ───
+function openOrderModal(orderId) {
+    const o = orders.find(x => x.id === orderId);
+    if (!o) return;
+    document.getElementById('mOrderId').textContent    = o.id;
+    document.getElementById('mOrderDate').textContent  = o.date;
+    document.getElementById('mItemName').textContent   = o.item;
+    document.getElementById('mCustomer').textContent   = o.customer;
+    document.getElementById('mAddress').textContent    = o.address;
+    document.getElementById('mTotal').textContent      = 'PHP ' + o.total;
+    document.getElementById('mStatus').textContent     = o.status;
+    document.getElementById('orderModal').classList.add('show');
+}
+
+function closeOrderModal() {
+    document.getElementById('orderModal').classList.remove('show');
+}
+
+// ─── Toast ───
+function showToast(msg) {
+    const t = document.getElementById('adminToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── Init ───
+renderTable();
+</script>
+</body>
+</html>

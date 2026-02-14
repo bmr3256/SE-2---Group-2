@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Content - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="admin-styles.Se2.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+    <div class="sidebar-logo">
+        <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
+                <img src="images/Logo - Black.png" alt="The Barkery Logo">
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="ManProd.Se2.html"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
+        <li><a href="ManCon.Se2.html" class="active"><i class="fas fa-file-alt"></i> <span>Manage Content</span></a></li>
+        <li><a href="ManOrd.Se2.html"><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a></li>
+    </ul>
+    <div class="sidebar-user">
+        <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
+        <div class="sidebar-user-info">
+            <span class="user-name">ADMIN</span>
+            <span class="user-email">admin@gmail.com</span>
+        </div>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="admin-main">
+    <div class="admin-topbar">
+        <h3>Manage Content</h3>
+    </div>
+
+    <div class="admin-content">
+        <div class="content-layout">
+
+            <!-- Left Panel: Select Page + Actions -->
+            <div class="content-sidebar-panel">
+                <div class="panel-title">Select Page</div>
+                <div class="panel-body">
+                    <ul>
+                        <li><input type="radio" name="page" value="home" checked onchange="switchPage(this.value)"> Home Page</li>
+                        <li><input type="radio" name="page" value="about" onchange="switchPage(this.value)"> About Us Page</li>
+                        <li><input type="radio" name="page" value="feedback" onchange="switchPage(this.value)"> Feedback Page</li>
+                    </ul>
+                </div>
+
+                <!-- Action links -->
+                <ul class="content-actions-list">
+                    <li><a href="#" onclick="setMode('add'); event.preventDefault();"><i class="fas fa-plus-circle"></i> Add Announcement</a></li>
+                    <li><a href="#" onclick="setMode('delete'); event.preventDefault();"><i class="fas fa-trash-alt"></i> Delete Content</a></li>
+                    <li><a href="#" onclick="setMode('edit'); event.preventDefault();"><i class="fas fa-edit"></i> Edit Content</a></li>
+                </ul>
+            </div>
+
+            <!-- Right Panel: Textarea + Buttons -->
+            <div class="content-main-panel">
+                <div class="content-textarea-wrap">
+                    <div class="textarea-toolbar">
+                        <button title="Bold"><i class="fas fa-bold"></i></button>
+                        <button title="Italic"><i class="fas fa-italic"></i></button>
+                        <button title="Underline"><i class="fas fa-underline"></i></button>
+                        <button title="Bulleted List"><i class="fas fa-list-ul"></i></button>
+                        <button title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                        <button title="Emoji"><i class="fas fa-smile"></i></button>
+                    </div>
+                    <textarea id="contentTextarea" placeholder="Insert content here..." style="height: 420px;"></textarea>
+                </div>
+
+                <!-- Buttons row -->
+                <div class="content-actions-bar">
+                    <button class="btn-admin-outline" id="uploadBtn" onclick="uploadContent()"><i class="fas fa-upload"></i> Upload Content</button>
+                    <button class="btn-admin-primary" id="postBtn" onclick="postContent()" style="display:none;"><i class="fas fa-paper-plane"></i> Post Content</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script>
+// ─── Sample saved content per page ───
+const savedContent = {
+    home:     '',
+    about:    '',
+    feedback: ''
+};
+
+let currentMode = 'add'; // add | edit | delete
+let currentPage = 'home';
+
+// ─── Switch page via radio ───
+function switchPage(val) {
+    currentPage = val;
+    // If there is saved content, load it and show Post button
+    if (savedContent[val]) {
+        document.getElementById('contentTextarea').value = savedContent[val];
+        document.getElementById('uploadBtn').style.display = 'none';
+        document.getElementById('postBtn').style.display = 'inline-flex';
+    } else {
+        document.getElementById('contentTextarea').value = '';
+        document.getElementById('uploadBtn').style.display = 'inline-flex';
+        document.getElementById('postBtn').style.display = 'none';
+    }
+}
+
+// ─── Set mode (add / edit / delete) ───
+function setMode(mode) {
+    currentMode = mode;
+
+    if (mode === 'add') {
+        document.getElementById('contentTextarea').value = '';
+        document.getElementById('contentTextarea').placeholder = 'Insert content here...';
+        document.getElementById('uploadBtn').style.display = 'inline-flex';
+        document.getElementById('postBtn').style.display = 'none';
+    }
+
+    if (mode === 'edit') {
+        if (savedContent[currentPage]) {
+            document.getElementById('contentTextarea').value = savedContent[currentPage];
+            document.getElementById('uploadBtn').style.display = 'none';
+            document.getElementById('postBtn').style.display = 'inline-flex';
+        } else {
+            showToast('No content to edit for this page.');
+        }
+    }
+
+    if (mode === 'delete') {
+        if (savedContent[currentPage]) {
+            savedContent[currentPage] = '';
+            document.getElementById('contentTextarea').value = '';
+            document.getElementById('uploadBtn').style.display = 'inline-flex';
+            document.getElementById('postBtn').style.display = 'none';
+            showToast('Content deleted.');
+        } else {
+            showToast('No content to delete.');
+        }
+    }
+}
+
+// ─── Upload Content (first time) ───
+function uploadContent() {
+    const text = document.getElementById('contentTextarea').value.trim();
+    if (!text) { showToast('Please enter some content first.'); return; }
+    savedContent[currentPage] = text;
+    // Switch to Post button
+    document.getElementById('uploadBtn').style.display = 'none';
+    document.getElementById('postBtn').style.display = 'inline-flex';
+    showToast('Content uploaded. Click "Post Content" to publish.');
+}
+
+// ─── Post Content ───
+function postContent() {
+    const text = document.getElementById('contentTextarea').value.trim();
+    if (!text) { showToast('Nothing to post.'); return; }
+    savedContent[currentPage] = text;
+    showToast('Content Successfully Added!');
+}
+
+// ─── Toast helper ───
+function showToast(msg) {
+    const t = document.getElementById('adminToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
