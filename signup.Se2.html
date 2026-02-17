@@ -1,224 +1,426 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign Up - The Barkery</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="auth-styles.Se2.css" rel="stylesheet">
-</head>
-<body>
-    <!-- Breadcrumb Navigation -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="auth-styles.Se2.css" rel="stylesheet" />
+    <style>
+      /* Inline field error style */
+      input.error {
+        border-color: red;
+        color: red;
+      }
+      .password-error-message {
+        color: red;
+        font-size: 0.8em;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <!--connection to firebase with signup feature-->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      const form = document.getElementById("signupForm");
+
+      // reveal icon function
+      window.togglePassword = function (id) {
+        const input = document.getElementById(id);
+        const type = input.type === "password" ? "text" : "password";
+        input.type = type;
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const fname = document.getElementById("firstName");
+        const lname = document.getElementById("lastName");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const terms = document.getElementById("terms");
+        const passwordError = document.getElementById("passwordError");
+
+        [fname, lname, email, password, confirmPassword].forEach((el) => {
+          el.classList.remove("error");
+        });
+        passwordError.textContent = "";
+
+        // fnam/lname field validation
+        let hasError = false;
+
+        if (fname.value.trim().length < 2) {
+          fname.classList.add("error");
+          hasError = true;
+        }
+        if (lname.value.trim().length < 2) {
+          lname.classList.add("error");
+          hasError = true;
+        }
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email.value.trim())) {
+          email.classList.add("error");
+          hasError = true;
+        }
+
+        // password validation
+        const pwVal = password.value;
+        const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (!pwRegex.test(pwVal)) {
+          password.classList.add("error");
+          let message = "Password must include:";
+          if (pwVal.length < 8) message += " 8 characters,";
+          if (!/[A-Z]/.test(pwVal)) message += " 1 uppercase,";
+          if (!/[a-z]/.test(pwVal)) message += " 1 lowercase,";
+          if (!/\d/.test(pwVal)) message += " 1 number,";
+          message = message.replace(/,$/, "");
+          passwordError.textContent = message;
+          hasError = true;
+        }
+
+        if (pwVal !== confirmPassword.value) {
+          confirmPassword.classList.add("error");
+          passwordError.textContent = "Passwords do not match!";
+          hasError = true;
+        }
+
+        if (!terms.checked) {
+          alert(
+            "You must agree to the Terms & Conditions to create an account.",
+          );
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        try {
+          const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email.value.trim(),
+            pwVal,
+          );
+          const user = userCredential.user;
+
+          await setDoc(doc(db, "accounts", user.uid), {
+            fname: fname.value.trim(),
+            lname: lname.value.trim(),
+            email: email.value.trim(),
+            password: pwVal,
+            createdAt: new Date(),
+          });
+
+          alert("Account successfully created!");
+          form.reset();
+        } catch (error) {
+          alert(error.message);
+          console.error(error);
+        }
+      });
+    </script>
+
     <nav class="breadcrumb-nav">
-        <div class="breadcrumb-container">
-            <a href="index.Se2.html" class="breadcrumb-link">
-                <i class="fas fa-home"></i> Home
-            </a>
-            <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-current">Sign Up</span>
-        </div>
+      <div class="breadcrumb-container">
+        <a href="index.Se2.html" class="breadcrumb-link">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Sign Up</span>
+      </div>
     </nav>
 
     <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-left">
-                <div class="auth-logo">
-                    <a href="index.Se2.html" title="Back to Home">
-                        <img src="images/Logo - Black.png" alt="The Barkery Logo">
-                    </a>
-                    <h2 class="signup-title">SIGN UP</h2>
-                    <p class="signup-subtitle">Join our community of happy pet parents!</p>
-                </div>
-                
-                <form class="auth-form" id="signupForm" novalidate>
-                    <div class="form-group">
-                        <div class="floating-input">
-                            <input 
-                                type="text" 
-                                id="firstName"
-                                name="firstName"
-                                placeholder=" "
-                                required
-                                autocomplete="given-name"
-                                minlength="2"
-                            >
-                            <label for="firstName">First Name <span class="required">*</span></label>
-                        </div>
-                        <div class="invalid-feedback">First name must be at least 2 characters</div>
-                    </div>
+      <div class="auth-card">
+        <div class="auth-left">
+          <div class="auth-logo">
+            <a href="index.Se2.html" title="Back to Home">
+              <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+            </a>
+            <h2 class="signup-title">SIGN UP</h2>
+            <p class="signup-subtitle">
+              Join our community of happy pet parents!
+            </p>
+          </div>
 
-                    <div class="form-group">
-                        <div class="floating-input">
-                            <input 
-                                type="text" 
-                                id="lastName"
-                                name="lastName"
-                                placeholder=" "
-                                required
-                                autocomplete="family-name"
-                                minlength="2"
-                            >
-                            <label for="lastName">Last Name <span class="required">*</span></label>
-                        </div>
-                        <div class="invalid-feedback">Last name must be at least 2 characters</div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="floating-input">
-                            <input 
-                                type="email" 
-                                id="email"
-                                name="email"
-                                placeholder=" "
-                                required
-                                autocomplete="email"
-                            >
-                            <label for="email">Email <span class="required">*</span></label>
-                        </div>
-                        <div class="invalid-feedback">Please enter a valid email address</div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="floating-input">
-                            <input 
-                                type="password" 
-                                id="password"
-                                name="password"
-                                placeholder=" "
-                                required
-                                autocomplete="new-password"
-                                minlength="8"
-                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"
-                            >
-                            <label for="password">
-                                Password <span class="required">*</span>
-                                <button type="button" class="info-tooltip" data-bs-toggle="tooltip" title="Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 number">
-                                    <i class="fas fa-info-circle"></i>
-                                </button>
-                            </label>
-                            <button type="button" class="toggle-password" onclick="togglePassword('password')" aria-label="Toggle password visibility">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="password-strength" id="passwordStrength"></div>
-                        <div class="invalid-feedback">Password must be at least 8 characters with uppercase, lowercase, and number</div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="floating-input">
-                            <input 
-                                type="password" 
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder=" "
-                                required
-                                autocomplete="new-password"
-                            >
-                            <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
-                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')" aria-label="Toggle password visibility">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                        <div class="invalid-feedback">Passwords do not match</div>
-                    </div>
-
-                    <div class="form-check-group">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">
-                            I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms & Conditions</a> <span class="required">*</span>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn-auth">
-                        <span class="btn-text">SIGN UP</span>
-                        <span class="btn-loader" style="display: none;">
-                            <i class="fas fa-spinner fa-spin"></i> Creating account...
-                        </span>
-                    </button>
-
-                    <div class="form-message" id="formMessage"></div>
-                </form>
-                
-                <div class="auth-links">
-                    <p class="alternate-action">
-                        Already have an account? Click <a href="login.Se2.html">here</a> to login
-                    </p>
-                </div>
-
-                <div class="help-section">
-                    <button class="btn-help-inline" data-bs-toggle="modal" data-bs-target="#signupHelpModal">
-                        <i class="fas fa-question-circle"></i> Why create an account?
-                    </button>
-                </div>
+          <form class="auth-form" id="signupForm" novalidate>
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  placeholder=" "
+                  required
+                  autocomplete="given-name"
+                  minlength="2"
+                />
+                <label for="firstName"
+                  >First Name <span class="required">*</span></label
+                >
+              </div>
+              <div class="invalid-feedback">
+                First name must be at least 2 characters
+              </div>
             </div>
-            
-            <div class="auth-right">
+
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  placeholder=" "
+                  required
+                  autocomplete="family-name"
+                  minlength="2"
+                />
+                <label for="lastName"
+                  >Last Name <span class="required">*</span></label
+                >
+              </div>
+              <div class="invalid-feedback">
+                Last name must be at least 2 characters
+              </div>
             </div>
+
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder=" "
+                  required
+                  autocomplete="email"
+                />
+                <label for="email">Email <span class="required">*</span></label>
+              </div>
+              <div class="invalid-feedback">
+                Please enter a valid email address
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder=" "
+                  required
+                  autocomplete="new-password"
+                  minlength="8"
+                />
+                <label for="password">
+                  Password <span class="required">*</span>
+                  <button
+                    type="button"
+                    class="info-tooltip"
+                    data-bs-toggle="tooltip"
+                    title="Password must be at least 8 characters with 1 uppercase, 1 lowercase, and 1 number"
+                  >
+                    <i class="fas fa-info-circle"></i>
+                  </button>
+                </label>
+                <button
+                  type="button"
+                  class="toggle-password"
+                  onclick="togglePassword('password')"
+                  aria-label="Toggle password visibility"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="password-error-message" id="passwordError"></div>
+              <div class="password-strength" id="passwordStrength"></div>
+              <div class="invalid-feedback">
+                Password must be at least 8 characters with uppercase,
+                lowercase, and number
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder=" "
+                  required
+                  autocomplete="new-password"
+                />
+                <label for="confirmPassword"
+                  >Confirm Password <span class="required">*</span></label
+                >
+                <button
+                  type="button"
+                  class="toggle-password"
+                  onclick="togglePassword('confirmPassword')"
+                  aria-label="Toggle password visibility"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback">Passwords do not match</div>
+            </div>
+
+            <div class="form-check-group">
+              <input type="checkbox" id="terms" name="terms" required />
+              <label for="terms">
+                I agree to the
+                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal"
+                  >Terms & Conditions</a
+                >
+                <span class="required">*</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn-auth">
+              <span class="btn-text">SIGN UP</span>
+              <span class="btn-loader" style="display: none">
+                <i class="fas fa-spinner fa-spin"></i> Creating account...
+              </span>
+            </button>
+
+            <div class="form-message" id="formMessage"></div>
+          </form>
+
+          <div class="auth-links">
+            <p class="alternate-action">
+              Already have an account? Click
+              <a href="login.Se2.html">here</a> to login
+            </p>
+          </div>
+
+          <div class="help-section">
+            <button
+              class="btn-help-inline"
+              data-bs-toggle="modal"
+              data-bs-target="#signupHelpModal"
+            >
+              <i class="fas fa-question-circle"></i> Why create an account?
+            </button>
+          </div>
         </div>
+
+        <div class="auth-right"></div>
+      </div>
     </div>
-    
+
     <footer class="auth-footer">
-        <div class="footer-content">
-            <div class="footer-logo">
-                <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
-                <img src="images/Logo - Black.png" alt="The Barkery Logo">
-            </div>
-            <div class="footer-copyright">
-                © 2025 The Barkery
-            </div>
-            <div class="footer-location">
-                Angeles City, Pampanga
-            </div>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
         </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
     </footer>
 
     <div class="modal fade" id="signupHelpModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Why Create an Account?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>Benefits of signing up:</h6>
-                    <ul>
-                        <li><strong>Track Orders:</strong> See your order history and shipping status</li>
-                        <li><strong>Faster Checkout:</strong> Save your shipping and payment information</li>
-                        <li><strong>Exclusive Deals:</strong> Get special offers and promotions</li>
-                        <li><strong>Wish Lists:</strong> Save products for later</li>
-                        <li><strong>Easy Reordering:</strong> Quickly reorder your dog's favorites</li>
-                    </ul>
-                    <p class="mt-3"><strong>Privacy Promise:</strong> We'll never share your information with third parties.</p>
-                </div>
-            </div>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Why Create an Account?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Benefits of signing up:</h6>
+            <ul>
+              <li>
+                <strong>Track Orders:</strong> See your order history and
+                shipping status
+              </li>
+              <li>
+                <strong>Faster Checkout:</strong> Save your shipping and payment
+                information
+              </li>
+              <li>
+                <strong>Exclusive Deals:</strong> Get special offers and
+                promotions
+              </li>
+              <li><strong>Wish Lists:</strong> Save products for later</li>
+              <li>
+                <strong>Easy Reordering:</strong> Quickly reorder your dog's
+                favorites
+              </li>
+            </ul>
+            <p class="mt-3">
+              <strong>Privacy Promise:</strong> We'll never share your
+              information with third parties.
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="modal fade" id="termsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Terms & Conditions</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>Account Terms</h6>
-                    <p>By creating an account, you agree to:</p>
-                    <ul>
-                        <li>Provide accurate and complete information</li>
-                        <li>Keep your password secure and confidential</li>
-                        <li>Notify us of any unauthorized account access</li>
-                        <li>Accept our Privacy Policy and Cookie Policy</li>
-                    </ul>
-                    <h6 class="mt-3">Privacy</h6>
-                    <p>We respect your privacy and protect your personal information. We only collect what's necessary to process orders and improve your experience.</p>
-                </div>
-            </div>
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Terms & Conditions</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Account Terms</h6>
+            <ul>
+              <li>Provide accurate and complete information</li>
+              <li>Keep your password secure and confidential</li>
+              <li>Notify us of any unauthorized account access</li>
+              <li>Accept our Privacy Policy and Cookie Policy</li>
+            </ul>
+            <h6 class="mt-3">Privacy</h6>
+            <p>
+              We respect your privacy and protect your personal information. We
+              only collect what's necessary to process orders and improve your
+              experience.
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script src="auth-script.Se2.js"></script>
-</body>
+  </body>
 </html>
