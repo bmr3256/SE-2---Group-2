@@ -192,7 +192,6 @@ body {
 }
 
 .admin-topbar {
-    background: white;
     padding: 0.75rem 1.5rem;
     display: flex;
     align-items: center;
@@ -204,15 +203,16 @@ body {
 }
 
 .admin-topbar h3 {
-    font-size: 1rem;
     color: var(--dark-brown);
     background: var(--button-tan);
-    color: white;
+    color: black;
     padding: 0.3rem 0.85rem;
     border-radius: 5px;
-    font-weight: bold;
     letter-spacing: 0.5px;
-    font-family: var(--font-bold);
+    font-size: 0.85rem;
+    font-weight: bold;
+    font-family: var(--font-body);
+    font-weight: 700;
 }
 
 .admin-content {
@@ -398,11 +398,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 0.6rem;
-}
-
-.product-name-price {
-    flex: 1;
+    margin-bottom: 0.4rem;
 }
 
 .product-card-header h4 {
@@ -411,57 +407,17 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-family: var(--font-bold);
-    margin-bottom: 0.25rem;
 }
 
-.product-price {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--orange);
-    font-family: var(--font-body);
-}
-
-/* Stock Badge - replaces old price badge */
-.stock-badge {
+.product-price-badge {
     background: var(--cream);
     border: 2px solid var(--primary-tan);
     border-radius: 8px;
-    padding: 0.4rem 0.75rem;
+    padding: 0.3rem 0.7rem;
     font-weight: bold;
-    font-size: 0.8rem;
+    color: var(--dark-brown);
+    font-size: 0.9rem;
     font-family: var(--font-body);
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.stock-badge i {
-    font-size: 0.75rem;
-}
-
-/* Stock badge color variants */
-.stock-badge-good {
-    background: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
-}
-
-.stock-badge-medium {
-    background: #fff3cd;
-    border-color: #ffeaa7;
-    color: #856404;
-}
-
-.stock-badge-low {
-    background: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-}
-
-/* Remove old price badge styles */
-.product-price-badge {
-    display: none;
 }
 
 .product-card-body .details-label {
@@ -845,22 +801,4 @@ body {
     .content-layout {
         flex-direction: column;
     }
-}
-
-/* product management selector*/
-.product-card {
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.product-card.selected {
-  border: 2px solid #c9a876; /* change color if you want */
-  box-shadow: 0 0 10px rgba(255, 122, 0, 0.3);
-}
-
-/* Disabled buttons */
-.btn-disabled {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: not-allowed;
 }

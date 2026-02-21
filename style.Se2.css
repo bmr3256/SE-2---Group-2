@@ -14,6 +14,7 @@
     --success: #4CAF50;
     --error: #f44336;
     --warning: #ff9800;
+    --lighter-cream:#ede1cc;
     
     /* Font Variables */
     --font-formal: 'Abril Fatface', serif;      /* For formal/elegant text */
@@ -196,13 +197,13 @@ body {
     color: var(--orange);
 }
 .story-text p {
-    font-size: 1rem;
+    font-size: 1.5rem;
     line-height: 1.8;
     color: var(--dark-brown);
     margin-bottom: 2rem;
 }
 .btn-shop {
-    background-color: var(--dark-brown);
+    background-color: #4A3329;
     color: white;
     border: none;
     padding: 0.8rem 2rem;
@@ -214,7 +215,7 @@ body {
     transition: all 0.3s;
 }
 .btn-shop:hover {
-    background-color: #4A3329;
+    background-color: var(--dark-brown);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
@@ -392,7 +393,7 @@ body {
 }
 .feedback-subtitle {
     text-align: center;
-    font-size: 1rem;
+    font-size: 1.3rem;
     color: var(--text-gray);
     margin-bottom: 2rem;
 }
@@ -481,6 +482,7 @@ body {
     color: var(--dark-brown);
 }
 .social-links {
+    font-size: 1.3rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -495,14 +497,14 @@ body {
     text-decoration: none;
     color: var(--dark-brown);
     transition: background-color 0.3s;
-    font-size: 0.95rem;
+    font-size: 1.3rem;
 }
 .social-link:hover {
     background-color: var(--primary-tan);
     color: var(--dark-brown);
 }
 .social-link i {
-    font-size: 1.25rem;
+    font-size:2rem;
     color: var(--orange);
 }
 /* FAQ Section */
@@ -540,6 +542,7 @@ body {
     font-size: 1.5rem;
     user-select: none;
     font-family: var(--font-body);
+    font-weight: 500;
 }
 .faq-question:active {
     transform: translateY(2px);
@@ -556,7 +559,7 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease, padding 0.3s ease, opacity 0.3s ease;
-    color: var(--dark-brown);
+    color: #4A3329;
     line-height: 1.6;
     opacity: 0;
     font-size: 1.2rem;
@@ -715,6 +718,16 @@ footer {
     width: 100%;
   height: auto;
 }
+.feedback-hero {
+    padding: 1.8rem 1.8rem;
+    background-color: var(--cream);
+    text-align: center;
+    border-bottom: 2px solid var(--primary-tan);
+}
+.feedback-hero img {
+    width: 100%;
+  height: auto;
+}
 .hero-content-center h1 {
     font-size: 3rem;
     font-weight: bold;
@@ -746,7 +759,7 @@ footer {
     text-align: center;
     font-size: 150px;
     color: var(--button-tan);
-    opacity: 0.7;
+    opacity: 0.9;
 }
 .about-text-detail {
     flex: 1;
@@ -757,10 +770,12 @@ footer {
     color: var(--dark-brown);
 }
 .about-text-detail p {
-    font-size: 1rem;
+    font-size: 1.2rem;
     line-height: 1.8;
-    color: var(--text-gray);
+    color: #1E1E1E;
     margin-bottom: 1.25rem;
+    font-weight: 500;
+    text-align: justify;
 }
 /* Mission & Vision Section */
 .mission-vision-section {
@@ -783,15 +798,16 @@ footer {
 }
 .mission-box-large h2,
 .vision-box-large h2 {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 1.5rem;
-    color: var(--dark-brown);
+    color: #1E1E1E;
 }
 .mission-box-large p,
 .vision-box-large p {
-    font-size: 1rem;
+    font-size: 1.3rem;
     line-height: 1.8;
-    color: var(--text-gray);
+    color: #1E1E1E;
+    max-width: 700px;
 }
 /* Products Detail Page */
 .products-detail-section {
@@ -911,7 +927,7 @@ footer {
     margin-top: 3rem;
 }
 .btn-proceed-checkout {
-    background-color: var(--dark-brown);
+    background-color: #4A3329;
     color: white;
     border: none;
     padding: 1.125rem 3rem;
@@ -922,7 +938,7 @@ footer {
     transition: all 0.3s;
 }
 .btn-proceed-checkout:hover {
-    background-color: #4A3329;
+    background-color: #1E1E1E;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
@@ -936,7 +952,7 @@ footer {
 .feedback-page-container {
     max-width: 900px;
     margin: 0 auto;
-    background-color: white;
+    background-color: var(--lighter-cream);
     padding: 3rem;
     border-radius: 15px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -953,12 +969,12 @@ footer {
     color: var(--dark-brown);
 }
 .contact-info-page {
+    font-size: 1.3rem;
     margin-top: 3rem;
     padding-top: 2.5rem;
     border-top: 2px solid #e0e0e0;
 }
 .contact-info-page h4 {
-    font-size: 1.1rem;
     margin-bottom: 1rem;
     color: var(--dark-brown);
 }
@@ -1225,7 +1241,7 @@ footer {
 /* ============================= */
 /* About Page Hero */
 .about-hero {
-    padding: 2.5rem 2rem;
+    padding: 1.8rem 1.8rem;
     background-color: #FBF6EE;
     border-bottom: 2px solid #E6D7C3;
 }
@@ -1248,12 +1264,6 @@ footer {
 .about-text-detail h2 {
     display: none; /* Hide duplicate ABOUT US heading */
 }
-.about-text-detail p {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: #1E1E1E;
-    font-weight: 500;
-}
 /* Dog + Product Image Styling */
 .about-image-large img {
     max-width: 260px;
@@ -1270,21 +1280,6 @@ footer {
     background-color: transparent;
     box-shadow: none;
     padding: 0;
-}
-.mission-box-large h2,
-.vision-box-large h2 {
-    font-size: 1.75rem;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: #1E1E1E;
-    margin-bottom: 0.75rem;
-}
-.mission-box-large p,
-.vision-box-large p {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: #333;
-    max-width: 700px;
 }
 /* Footer Clean-Up (Matches Mockup) */
 .footer-content img#B_logo{

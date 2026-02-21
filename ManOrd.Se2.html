@@ -289,211 +289,122 @@
     </script>
 
     <!-- SIDEBAR -->
-    <aside class="admin-sidebar">
-      <div class="sidebar-logo">
-        <img src="images/B_logo_black.png" id="B_logo" />
-        <img src="images/Logo - Black.png" />
-      </div>
-      <ul class="sidebar-nav">
-        <li>
-          <a href="ManProd.Se2.html"
-            ><i class="fas fa-box"></i> Manage Products</a
-          >
-        </li>
-        <li>
-          <a href="ManCon.Se2.html"
-            ><i class="fas fa-file-alt"></i> Manage Content</a
-          >
-        </li>
-        <li>
-          <a href="ManOrd.Se2.html" class="active"
-            ><i class="fas fa-clipboard-list"></i> Manage Order</a
-          >
-        </li>
-      </ul>
-      <div class="sidebar-user">
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="admin-styles.Se2.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="admin-sidebar">
+    <div class="sidebar-logo">
+                <img src="images/Logo - Black.png" alt="The Barkery Logo">
+    </div>
+    <ul class="sidebar-nav">
+        <li><a href="ManProd.Se2.html"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
+        <li><a href="ManCon.Se2.html" ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a></li>
+        <li><a href="ManOrd.Se2.html" class="active"><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a></li>
+    </ul>
+    <div class="sidebar-user">
         <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
         <div class="sidebar-user-info">
-          <span class="user-name">ADMIN</span>
-          <span class="user-email">admin@gmail.com</span>
+            <span class="user-name">ADMIN</span>
+            <span class="user-email">admin@gmail.com</span>
         </div>
-      </div>
-    </aside>
+    </div>
+</aside>
 
-    <!-- MAIN -->
-    <div class="admin-main">
-      <div class="admin-topbar"><h3>Orders</h3></div>
-      <div class="admin-content">
+<!-- MAIN -->
+<div class="admin-main">
+    <div class="admin-topbar">
+        <h3>Orders</h3>
+    </div>
+
+    <div class="admin-content">
+        <!-- Toolbar: search + icons -->
         <div class="orders-toolbar">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search..."
-            oninput="filterOrders()"
-          />
-          <div class="toolbar-icons">
-            <button title="Filter"><i class="fas fa-filter"></i></button>
-            <button title="Add" onclick="openAddModal()">
-              <i class="fas fa-plus"></i>
-            </button>
-            <button title="Refresh" onclick="refreshOrders()">
-              <i class="fas fa-sync-alt"></i>
-            </button>
-          </div>
+            <input type="text" id="searchInput" placeholder="Search..." oninput="filterOrders()">
+            <div class="toolbar-icons">
+                <button title="Filter"><i class="fas fa-filter"></i></button>
+                <button title="Sort"><i class="fas fa-sort"></i></button>
+                <button title="Refresh" onclick="renderTable()"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
+
+        <!-- Orders Table -->
         <div class="orders-table-wrap">
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Order Date</th>
-                <th>Name of Item</th>
-                <th>Qty</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="ordersBody"></tbody>
-          </table>
-          <div class="orders-table-footer" id="tableFooter"></div>
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Name of Item</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <!-- rows injected by JS -->
+                </tbody>
+            </table>
+            <div class="orders-table-footer" id="tableFooter"></div>
         </div>
-      </div>
     </div>
+</div>
 
-    <!-- ORDER MODAL -->
-    <div class="modal-overlay" id="orderModal">
-      <div class="order-info-modal">
-        <button class="modal-close-btn" onclick="closeOrderModal()">
-          &times;
-        </button>
+<!-- ORDER INFO MODAL -->
+<div class="modal-overlay" id="orderModal">
+    <div class="order-info-modal">
+        <button class="modal-close-btn" onclick="closeOrderModal()">&times;</button>
         <h5>Order Information</h5>
-
-        <div id="displayFields">
-          <div class="info-row">
-            <span class="info-label">Order Id:</span
-            ><span class="info-value" id="mOrderId"></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Order date:</span
-            ><span class="info-value" id="mOrderDate"></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Name of item:</span
-            ><span class="info-value" id="mItemName"></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Qty:</span
-            ><span class="info-value" id="mQty"></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Total:</span
-            ><span class="info-value" id="mTotal"></span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Status:</span
-            ><span class="info-value" id="mStatus"></span>
-          </div>
+        
+        <div class="info-row">
+            <span class="info-label">Order Id:</span>
+            <span class="info-value" id="mOrderId"></span>
         </div>
-
-        <div id="editFields" class="d-none">
-          <input id="eOrderDate" class="form-control mb-2" />
-          <input id="eItemName" class="form-control mb-2" />
-          <input id="eQty" type="number" class="form-control mb-2" />
-          <input id="eTotal" type="number" class="form-control mb-2" />
-          <select id="eStatus" class="form-select mb-2">
-            <option>PROCESSING</option>
-            <option>COMPLETE</option>
-            <option>CANCEL</option>
-          </select>
+        
+        <div class="info-row">
+            <span class="info-label">Order date:</span>
+            <span class="info-value" id="mOrderDate"></span>
         </div>
-
-        <div class="d-flex justify-content-end gap-2 mt-3">
-          <button class="btn btn-warning" onclick="enableEdit()">Edit</button>
-          <button class="btn btn-success" onclick="saveEdit()">
-            Save Changes
-          </button>
+        
+        <div class="info-row">
+            <span class="info-label">Name of item:</span>
+            <span class="info-value" id="mItemName"></span>
         </div>
-      </div>
+        
+        <div class="info-row">
+            <span class="info-label">Customer name:</span>
+            <span class="info-value" id="mCustomer"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Address:</span>
+            <span class="info-value" id="mAddress"></span>
+        </div>
+        
+        <hr class="info-divider">
+        
+        <div class="info-row">
+            <span class="info-label">Total:</span>
+            <span class="info-value" id="mTotal"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Status:</span>
+            <span class="info-value" id="mStatus"></span>
+        </div>
     </div>
+</div>
 
-    <!-- ADD ORDER MODAL -->
-    <div class="modal-overlay" id="addOrderModal">
-      <div class="order-info-modal">
-        <button class="modal-close-btn" onclick="closeAddModal()">
-          &times;
-        </button>
-        <h5>Add Order</h5>
-        <input
-          id="addOrderId"
-          placeholder="Order ID"
-          class="form-control mb-2"
-        />
-        <input id="addOrderDate" type="date" class="form-control mb-2" />
-        <input
-          id="addItemName"
-          placeholder="Item Name"
-          class="form-control mb-2"
-        />
-        <input
-          id="addQty"
-          type="number"
-          placeholder="Qty"
-          class="form-control mb-2"
-        />
-        <input
-          id="addTotal"
-          type="number"
-          placeholder="Total"
-          class="form-control mb-2"
-        />
-        <select id="addStatus" class="form-control mb-3">
-          <option value="PROCESSING">PROCESSING</option>
-          <option value="COMPLETE">COMPLETE</option>
-          <option value="CANCEL">CANCEL</option>
-        </select>
-        <button class="btn btn-dark w-100" onclick="saveOrder()">
-          Save Order
-        </button>
-      </div>
-    </div>
+<!-- TOAST -->
+<div class="admin-toast" id="adminToast"></div>
 
-    <!-- FILTER MODAL -->
-    <div class="modal-overlay" id="filterModal">
-      <div class="order-info-modal">
-        <button class="modal-close-btn" onclick="closeFilterModal()">
-          &times;
-        </button>
-        <h5>Filter Orders</h5>
-        <input
-          id="fItemName"
-          placeholder="Item Name"
-          class="form-control mb-2"
-        />
-        <input id="fDate" type="date" class="form-control mb-2" />
-        <input
-          id="fQty"
-          type="number"
-          placeholder="Qty"
-          class="form-control mb-2"
-        />
-        <select id="fStatus" class="form-select mb-3">
-          <option value="">All Statuses</option>
-          <option value="PROCESSING">PROCESSING</option>
-          <option value="COMPLETE">COMPLETE</option>
-          <option value="CANCEL">CANCEL</option>
-        </select>
-        <div class="d-flex justify-content-between">
-          <button class="btn btn-secondary" onclick="resetFilter()">
-            Reset
-          </button>
-          <button class="btn btn-primary" onclick="applyFilter()">
-            Apply Filter
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- TOAST -->
-    <div class="admin-toast" id="adminToast"></div>
-  </body>
 </html>
