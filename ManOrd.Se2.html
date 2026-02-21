@@ -1,200 +1,499 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manage Orders - The Barkery</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="admin-styles.Se2.css" rel="stylesheet">
-</head>
-<body>
 
-<!-- SIDEBAR -->
-<aside class="admin-sidebar">
-    <div class="sidebar-logo">
-        <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
-                <img src="images/Logo - Black.png" alt="The Barkery Logo">
-    </div>
-    <ul class="sidebar-nav">
-        <li><a href="ManProd.Se2.html"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
-        <li><a href="ManCon.Se2.html" ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a></li>
-        <li><a href="ManOrd.Se2.html" class="active"><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a></li>
-    </ul>
-    <div class="sidebar-user">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="admin-styles.Se2.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- FIREBASE -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        doc,
+        updateDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+
+      window.db = db;
+      window.collection = collection;
+      window.addDoc = addDoc;
+      window.getDocs = getDocs;
+      window.doc = doc;
+      window.updateDoc = updateDoc;
+
+      let orders = [];
+      let visibleOrders = [];
+      let currentEditingOrder = null;
+
+      // FETCH ORDERS
+      async function fetchOrders() {
+        if (!window.db) return;
+        const snapshot = await getDocs(collection(db, "orders"));
+        orders = [];
+        snapshot.forEach((document) => {
+          orders.push({
+            firestoreId: document.id,
+            ...document.data(),
+          });
+        });
+        visibleOrders = [...orders];
+        renderTable();
+      }
+
+      // RENDER TABLE
+      function renderTable(data) {
+        const list = data || visibleOrders;
+        const tbody = document.getElementById("ordersBody");
+        tbody.innerHTML = "";
+        list.forEach((o) => {
+          tbody.innerHTML += `
+            <tr onclick="openOrderModal('${o.id}')">
+              <td>${o.id}</td>
+              <td>${o.date}</td>
+              <td>${o.item}</td>
+              <td>${o.qty}</td>
+              <td>₱${o.total}.00</td>
+              <td>${badgeHtml(o.status)}</td>
+            </tr>`;
+        });
+        document.getElementById("tableFooter").textContent =
+          list.length + " orders";
+      }
+
+      function badgeHtml(status) {
+        const cls =
+          status === "PROCESSING"
+            ? "badge-processing"
+            : status === "COMPLETE"
+              ? "badge-complete"
+              : "badge-cancel";
+        return `<span class="${cls}">${status}</span>`;
+      }
+
+      // SEARCH
+      function filterOrders() {
+        const q = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+        if (!q) {
+          visibleOrders = [...orders];
+          renderTable();
+          return;
+        }
+        visibleOrders = orders.filter((o) => {
+          return (
+            (o.id && o.id.toLowerCase().includes(q)) ||
+            (o.date && o.date.toLowerCase().includes(q)) ||
+            (o.item && o.item.toLowerCase().includes(q)) ||
+            (o.status && o.status.toLowerCase().includes(q)) ||
+            (o.qty && o.qty.toString().includes(q)) ||
+            (o.total && o.total.toString().includes(q))
+          );
+        });
+        renderTable(visibleOrders);
+      }
+
+      // ADD ORDER
+      function clearAddForm() {
+        document.getElementById("addOrderId").value = "";
+        document.getElementById("addOrderDate").value = "";
+        document.getElementById("addItemName").value = "";
+        document.getElementById("addQty").value = "";
+        document.getElementById("addTotal").value = "";
+        document.getElementById("addStatus").value = "PROCESSING";
+      }
+
+      async function saveOrder() {
+        const newOrder = {
+          id: document.getElementById("addOrderId").value,
+          date: document.getElementById("addOrderDate").value,
+          item: document.getElementById("addItemName").value,
+          qty: Number(document.getElementById("addQty").value),
+          total: Number(document.getElementById("addTotal").value),
+          status: document.getElementById("addStatus").value,
+        };
+        await addDoc(collection(db, "orders"), newOrder);
+        clearAddForm();
+        closeAddModal();
+        showToast("Order Added Successfully");
+        fetchOrders();
+      }
+
+      function openAddModal() {
+        clearAddForm();
+        document.getElementById("addOrderModal").classList.add("show");
+      }
+      function closeAddModal() {
+        document.getElementById("addOrderModal").classList.remove("show");
+      }
+
+      // ORDER MODAL
+      function openOrderModal(orderId) {
+        const o = orders.find((x) => x.id === orderId);
+        if (!o) return;
+        currentEditingOrder = o;
+
+        document.getElementById("mOrderId").textContent = o.id;
+        document.getElementById("mOrderDate").textContent = o.date;
+        document.getElementById("mItemName").textContent = o.item;
+        document.getElementById("mQty").textContent = o.qty;
+        document.getElementById("mTotal").textContent = "₱" + o.total;
+        document.getElementById("mStatus").textContent = o.status;
+
+        document.getElementById("orderModal").classList.add("show");
+        document.getElementById("displayFields").classList.remove("d-none");
+        document.getElementById("editFields").classList.add("d-none");
+      }
+      function closeOrderModal() {
+        document.getElementById("orderModal").classList.remove("show");
+        currentEditingOrder = null;
+      }
+
+      function enableEdit() {
+        if (!currentEditingOrder) return;
+        document.getElementById("displayFields").classList.add("d-none");
+        document.getElementById("editFields").classList.remove("d-none");
+
+        document.getElementById("eOrderDate").value = currentEditingOrder.date;
+        document.getElementById("eItemName").value = currentEditingOrder.item;
+        document.getElementById("eQty").value = currentEditingOrder.qty;
+        document.getElementById("eTotal").value = currentEditingOrder.total;
+        document.getElementById("eStatus").value = currentEditingOrder.status;
+      }
+
+      async function saveEdit() {
+        if (!currentEditingOrder) return;
+        const updatedData = {
+          date: document.getElementById("eOrderDate").value,
+          item: document.getElementById("eItemName").value,
+          qty: Number(document.getElementById("eQty").value),
+          total: Number(document.getElementById("eTotal").value),
+          status: document.getElementById("eStatus").value,
+        };
+        const ref = doc(db, "orders", currentEditingOrder.firestoreId);
+        await updateDoc(ref, updatedData);
+
+        showToast("Order Updated Successfully");
+        closeOrderModal();
+        fetchOrders();
+      }
+
+      // TOAST
+      function showToast(msg) {
+        const t = document.getElementById("adminToast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2500);
+      }
+
+      // FILTER MODAL
+      function openFilterModal() {
+        document.getElementById("filterModal").classList.add("show");
+      }
+      function closeFilterModal() {
+        document.getElementById("filterModal").classList.remove("show");
+      }
+      function resetFilter() {
+        document.getElementById("fItemName").value = "";
+        document.getElementById("fDate").value = "";
+        document.getElementById("fQty").value = "";
+        document.getElementById("fStatus").value = "";
+        visibleOrders = [...orders];
+        renderTable();
+        closeFilterModal();
+      }
+      function applyFilter() {
+        const name = document
+          .getElementById("fItemName")
+          .value.toLowerCase()
+          .trim();
+        const date = document.getElementById("fDate").value;
+        const qty = document.getElementById("fQty").value;
+        const status = document.getElementById("fStatus").value;
+
+        visibleOrders = orders.filter((o) => {
+          return (
+            (!name || (o.item && o.item.toLowerCase().includes(name))) &&
+            (!date || (o.date && o.date === date)) &&
+            (!qty || (o.qty && o.qty == qty)) &&
+            (!status || (o.status && o.status === status))
+          );
+        });
+
+        renderTable();
+        closeFilterModal();
+      }
+
+      // REFRESH AS RESET
+      function refreshOrders() {
+        // Reset filter inputs
+        document.getElementById("fItemName").value = "";
+        document.getElementById("fDate").value = "";
+        document.getElementById("fQty").value = "";
+        document.getElementById("fStatus").value = "";
+        document.getElementById("searchInput").value = "";
+
+        // Fetch all latest orders
+        fetchOrders();
+      }
+
+      // EXPORT FUNCTIONS TO GLOBAL
+      window.openAddModal = openAddModal;
+      window.closeAddModal = closeAddModal;
+      window.saveOrder = saveOrder;
+      window.openOrderModal = openOrderModal;
+      window.closeOrderModal = closeOrderModal;
+      window.enableEdit = enableEdit;
+      window.saveEdit = saveEdit;
+      window.openFilterModal = openFilterModal;
+      window.closeFilterModal = closeFilterModal;
+      window.resetFilter = resetFilter;
+      window.applyFilter = applyFilter;
+      window.refreshOrders = refreshOrders;
+
+      // FILTER BUTTON LINK
+      document.querySelector('button[title="Filter"]').onclick =
+        openFilterModal;
+
+      fetchOrders();
+    </script>
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <img src="images/B_logo_black.png" id="B_logo" />
+        <img src="images/Logo - Black.png" />
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="ManProd.Se2.html"
+            ><i class="fas fa-box"></i> Manage Products</a
+          >
+        </li>
+        <li>
+          <a href="ManCon.Se2.html"
+            ><i class="fas fa-file-alt"></i> Manage Content</a
+          >
+        </li>
+        <li>
+          <a href="ManOrd.Se2.html" class="active"
+            ><i class="fas fa-clipboard-list"></i> Manage Order</a
+          >
+        </li>
+      </ul>
+      <div class="sidebar-user">
         <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
         <div class="sidebar-user-info">
-            <span class="user-name">ADMIN</span>
-            <span class="user-email">admin@gmail.com</span>
+          <span class="user-name">ADMIN</span>
+          <span class="user-email">admin@gmail.com</span>
         </div>
-    </div>
-</aside>
+      </div>
+    </aside>
 
-<!-- MAIN -->
-<div class="admin-main">
-    <div class="admin-topbar">
-        <h3>Orders</h3>
-    </div>
-
-    <div class="admin-content">
-        <!-- Toolbar: search + icons -->
+    <!-- MAIN -->
+    <div class="admin-main">
+      <div class="admin-topbar"><h3>Orders</h3></div>
+      <div class="admin-content">
         <div class="orders-toolbar">
-            <input type="text" id="searchInput" placeholder="Search..." oninput="filterOrders()">
-            <div class="toolbar-icons">
-                <button title="Filter"><i class="fas fa-filter"></i></button>
-                <button title="Sort"><i class="fas fa-sort"></i></button>
-                <button title="Refresh" onclick="renderTable()"><i class="fas fa-sync-alt"></i></button>
-            </div>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search..."
+            oninput="filterOrders()"
+          />
+          <div class="toolbar-icons">
+            <button title="Filter"><i class="fas fa-filter"></i></button>
+            <button title="Add" onclick="openAddModal()">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button title="Refresh" onclick="refreshOrders()">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
         </div>
-
-        <!-- Orders Table -->
         <div class="orders-table-wrap">
-            <table class="orders-table">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Order Date</th>
-                        <th>Name of Item</th>
-                        <th>Qty</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="ordersBody">
-                    <!-- rows injected by JS -->
-                </tbody>
-            </table>
-            <div class="orders-table-footer" id="tableFooter"></div>
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Name of Item</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+          <div class="orders-table-footer" id="tableFooter"></div>
         </div>
+      </div>
     </div>
-</div>
 
-<!-- ORDER INFO MODAL -->
-<div class="modal-overlay" id="orderModal">
-    <div class="order-info-modal">
-        <button class="modal-close-btn" onclick="closeOrderModal()">&times;</button>
+    <!-- ORDER MODAL -->
+    <div class="modal-overlay" id="orderModal">
+      <div class="order-info-modal">
+        <button class="modal-close-btn" onclick="closeOrderModal()">
+          &times;
+        </button>
         <h5>Order Information</h5>
-        
-        <div class="info-row">
-            <span class="info-label">Order Id:</span>
-            <span class="info-value" id="mOrderId"></span>
+
+        <div id="displayFields">
+          <div class="info-row">
+            <span class="info-label">Order Id:</span
+            ><span class="info-value" id="mOrderId"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Order date:</span
+            ><span class="info-value" id="mOrderDate"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Name of item:</span
+            ><span class="info-value" id="mItemName"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Qty:</span
+            ><span class="info-value" id="mQty"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Total:</span
+            ><span class="info-value" id="mTotal"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Status:</span
+            ><span class="info-value" id="mStatus"></span>
+          </div>
         </div>
-        
-        <div class="info-row">
-            <span class="info-label">Order date:</span>
-            <span class="info-value" id="mOrderDate"></span>
+
+        <div id="editFields" class="d-none">
+          <input id="eOrderDate" class="form-control mb-2" />
+          <input id="eItemName" class="form-control mb-2" />
+          <input id="eQty" type="number" class="form-control mb-2" />
+          <input id="eTotal" type="number" class="form-control mb-2" />
+          <select id="eStatus" class="form-select mb-2">
+            <option>PROCESSING</option>
+            <option>COMPLETE</option>
+            <option>CANCEL</option>
+          </select>
         </div>
-        
-        <div class="info-row">
-            <span class="info-label">Name of item:</span>
-            <span class="info-value" id="mItemName"></span>
+
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button class="btn btn-warning" onclick="enableEdit()">Edit</button>
+          <button class="btn btn-success" onclick="saveEdit()">
+            Save Changes
+          </button>
         </div>
-        
-        <div class="info-row">
-            <span class="info-label">Customer name:</span>
-            <span class="info-value" id="mCustomer"></span>
-        </div>
-        
-        <div class="info-row">
-            <span class="info-label">Address:</span>
-            <span class="info-value" id="mAddress"></span>
-        </div>
-        
-        <hr class="info-divider">
-        
-        <div class="info-row">
-            <span class="info-label">Total:</span>
-            <span class="info-value" id="mTotal"></span>
-        </div>
-        
-        <div class="info-row">
-            <span class="info-label">Status:</span>
-            <span class="info-value" id="mStatus"></span>
-        </div>
+      </div>
     </div>
-</div>
 
-<!-- TOAST -->
-<div class="admin-toast" id="adminToast"></div>
+    <!-- ADD ORDER MODAL -->
+    <div class="modal-overlay" id="addOrderModal">
+      <div class="order-info-modal">
+        <button class="modal-close-btn" onclick="closeAddModal()">
+          &times;
+        </button>
+        <h5>Add Order</h5>
+        <input
+          id="addOrderId"
+          placeholder="Order ID"
+          class="form-control mb-2"
+        />
+        <input id="addOrderDate" type="date" class="form-control mb-2" />
+        <input
+          id="addItemName"
+          placeholder="Item Name"
+          class="form-control mb-2"
+        />
+        <input
+          id="addQty"
+          type="number"
+          placeholder="Qty"
+          class="form-control mb-2"
+        />
+        <input
+          id="addTotal"
+          type="number"
+          placeholder="Total"
+          class="form-control mb-2"
+        />
+        <select id="addStatus" class="form-control mb-3">
+          <option value="PROCESSING">PROCESSING</option>
+          <option value="COMPLETE">COMPLETE</option>
+          <option value="CANCEL">CANCEL</option>
+        </select>
+        <button class="btn btn-dark w-100" onclick="saveOrder()">
+          Save Order
+        </button>
+      </div>
+    </div>
 
-<script>
-// ─── Sample order data ───
-const orders = [
-    { id:"85693292", date:"03/12/25", item:"Pork Liver",    qty:1, total:20, status:"PROCESSING", customer:"PAWFECT BITES", address:"548 tras st, Pampanga city" },
-    { id:"85693347", date:"03/12/25", item:"Pork Liver",    qty:2, total:40, status:"CANCEL",     customer:"Happy Paws",    address:"12 Rizal Ave, Angeles City" },
-    { id:"87744453", date:"03/12/25", item:"Chicken Feet",  qty:1, total:50, status:"PROCESSING", customer:"Fur Baby Mom",   address:"201 Mabini St, Clark" },
-    { id:"85766042", date:"03/12/25", item:"Chicken Feet",  qty:3, total:150,status:"COMPLETE",   customer:"Dog Lovers PH",  address:"77 Del Pilar Rd, Mabalacat" },
-    { id:"85993407", date:"03/12/25", item:"Chicken Feet",  qty:1, total:50, status:"COMPLETE",   customer:"PawStation",     address:"33 Bonifacio St, San Fernando" },
-    { id:"85233040", date:"03/12/25", item:"Pork Liver",    qty:6, total:420,status:"COMPLETE",   customer:"Barkshop PH",    address:"99 Quezon Blvd, Angeles City" }
-];
+    <!-- FILTER MODAL -->
+    <div class="modal-overlay" id="filterModal">
+      <div class="order-info-modal">
+        <button class="modal-close-btn" onclick="closeFilterModal()">
+          &times;
+        </button>
+        <h5>Filter Orders</h5>
+        <input
+          id="fItemName"
+          placeholder="Item Name"
+          class="form-control mb-2"
+        />
+        <input id="fDate" type="date" class="form-control mb-2" />
+        <input
+          id="fQty"
+          type="number"
+          placeholder="Qty"
+          class="form-control mb-2"
+        />
+        <select id="fStatus" class="form-select mb-3">
+          <option value="">All Statuses</option>
+          <option value="PROCESSING">PROCESSING</option>
+          <option value="COMPLETE">COMPLETE</option>
+          <option value="CANCEL">CANCEL</option>
+        </select>
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-secondary" onclick="resetFilter()">
+            Reset
+          </button>
+          <button class="btn btn-primary" onclick="applyFilter()">
+            Apply Filter
+          </button>
+        </div>
+      </div>
+    </div>
 
-// Track which row is currently displayed
-let visibleOrders = [...orders];
-
-// ─── Render table ───
-function renderTable(data) {
-    const list = data || visibleOrders;
-    const tbody = document.getElementById('ordersBody');
-    tbody.innerHTML = '';
-    list.forEach(o => {
-        tbody.innerHTML += `
-        <tr onclick="openOrderModal('${o.id}')">
-            <td><span class="clickable">${o.id}</span></td>
-            <td>${o.date}</td>
-            <td>${o.item}</td>
-            <td>${o.qty}</td>
-            <td>₱${o.total}.00</td>
-            <td>${badgeHtml(o.status)}</td>
-        </tr>`;
-    });
-    document.getElementById('tableFooter').textContent = list.length + ' out of ' + orders.length + ' orders';
-}
-
-function badgeHtml(status) {
-    const cls = status === 'PROCESSING' ? 'badge-processing' : status === 'COMPLETE' ? 'badge-complete' : 'badge-cancel';
-    return `<span class="${cls}">${status}</span>`;
-}
-
-// ─── Search / Filter ───
-function filterOrders() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    visibleOrders = orders.filter(o =>
-        o.id.includes(q) ||
-        o.item.toLowerCase().includes(q) ||
-        o.status.toLowerCase().includes(q) ||
-        o.customer.toLowerCase().includes(q)
-    );
-    renderTable(visibleOrders);
-}
-
-// ─── Open order detail modal ───
-function openOrderModal(orderId) {
-    const o = orders.find(x => x.id === orderId);
-    if (!o) return;
-    document.getElementById('mOrderId').textContent    = o.id;
-    document.getElementById('mOrderDate').textContent  = o.date;
-    document.getElementById('mItemName').textContent   = o.item;
-    document.getElementById('mCustomer').textContent   = o.customer;
-    document.getElementById('mAddress').textContent    = o.address;
-    document.getElementById('mTotal').textContent      = 'PHP ' + o.total;
-    document.getElementById('mStatus').textContent     = o.status;
-    document.getElementById('orderModal').classList.add('show');
-}
-
-function closeOrderModal() {
-    document.getElementById('orderModal').classList.remove('show');
-}
-
-// ─── Toast ───
-function showToast(msg) {
-    const t = document.getElementById('adminToast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ─── Init ───
-renderTable();
-</script>
-</body>
+    <!-- TOAST -->
+    <div class="admin-toast" id="adminToast"></div>
+  </body>
 </html>
