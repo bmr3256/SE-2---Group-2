@@ -50,33 +50,31 @@
     <!-- MAIN -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>All Products</h3></div>
-
       <div class="admin-content">
         <!-- Toolbar -->
         <div class="products-toolbar">
           <button class="btn-admin-primary" onclick="openAddModal()">
             <i class="fas fa-plus"></i> Add Product
           </button>
-          <button class="btn-admin-danger" onclick="promptDelete()">
+          <button class="btn-admin-danger" onclick="openDeleteModal()">
             <i class="fas fa-trash"></i> Delete Product
           </button>
           <button class="btn-admin-outline" onclick="openEditModal()">
-            <i class="fas fa-pen"></i> Edit stock
+            <i class="fas fa-pen"></i> Edit Product
           </button>
         </div>
-
         <!-- Product Cards -->
         <div class="product-cards" id="productCards"></div>
       </div>
     </div>
 
-    <!-- ADD PRODUCT MODAL -->
+    <!-- ADD/EDIT PRODUCT MODAL -->
     <div class="modal-overlay" id="addModal">
       <div class="order-info-modal" style="width: 400px; max-width: 92%">
         <button class="modal-close-btn" onclick="closeModal('addModal')">
           &times;
         </button>
-        <h5>Add New Product</h5>
+        <h5 id="modalTitle">Add New Product</h5>
         <div class="form-group mb-2">
           <label>Product Name</label>
           <input
@@ -132,6 +130,34 @@
       </div>
     </div>
 
+    <!-- DELETE CONFIRM MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+      <div class="order-info-modal" style="width: 340px; max-width: 92%">
+        <button class="modal-close-btn" onclick="closeModal('deleteModal')">
+          &times;
+        </button>
+        <h5>Delete Product(s)</h5>
+        <p
+          style="
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+          "
+        >
+          Are you sure you want to delete the selected product(s)?
+        </p>
+        <div style="text-align: right; margin-top: 1rem">
+          <button
+            class="btn-admin-outline me-2"
+            onclick="closeModal('deleteModal')"
+          >
+            Cancel
+          </button>
+          <button class="btn-admin-danger" id="confirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TOAST -->
     <div class="admin-toast" id="adminToast"></div>
 
@@ -145,36 +171,80 @@
         getDocs,
         query,
         orderBy,
+        deleteDoc,
+        doc,
+        updateDoc,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-      // ── Firebase config ──
+      /* ---------- FIREBASE ---------- */
       const firebaseConfig = {
-        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        apiKey: "YOUR_FIREBASE_KEY",
         authDomain: "grp2-se.firebaseapp.com",
         projectId: "grp2-se",
         storageBucket: "grp2-se.appspot.com",
         messagingSenderId: "488325990404",
         appId: "1:488325990404:web:2f885df16b18d9057a8d51",
-        measurementId: "G-PDT5LV9JX1",
       };
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
       const productCards = document.getElementById("productCards");
       const toast = document.getElementById("adminToast");
+      const addBtn = document.querySelector(".btn-admin-primary");
+      const editBtn = document.querySelector(".btn-admin-outline");
+      const deleteBtn = document.querySelector(".btn-admin-danger");
+      const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 
-      // ── Helpers ──
+      let selectedProducts = new Map();
+
+      /* ---------- TOAST ---------- */
       window.showToast = (msg) => {
         toast.textContent = msg;
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2500);
       };
-      window.openAddModal = () =>
+
+      /* ---------- MODALS ---------- */
+      window.openAddModal = () => {
+        if (selectedProducts.size > 1) return;
+        document.getElementById("modalTitle").textContent = "Add New Product";
+        document.getElementById("addProductBtn").textContent = "Add Product";
+        document.getElementById("addProductBtn").onclick = addProduct;
+        clearModalInputs();
         document.getElementById("addModal").classList.add("show");
+      };
       window.closeModal = (id) =>
         document.getElementById(id).classList.remove("show");
+      window.openDeleteModal = () => {
+        if (selectedProducts.size === 0)
+          return showToast("Select product(s) to delete");
+        document.getElementById("deleteModal").classList.add("show");
+      };
 
-      // ── Fetch Products ──
+      function clearModalInputs() {
+        document.getElementById("newName").value = "";
+        document.getElementById("newPrice").value = "";
+        document.getElementById("newStock").value = "";
+        document.getElementById("newDesc").value = "";
+        document.getElementById("newImg").value = "";
+      }
+
+      /* ---------- CLOUDINARY ---------- */
+      const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";
+      const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
+      async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+          { method: "POST", body: formData },
+        );
+        const data = await res.json();
+        return data.secure_url;
+      }
+
+      /* ---------- FETCH PRODUCTS ---------- */
       async function fetchProducts() {
         productCards.innerHTML = "";
         const q = query(collection(db, "products"), orderBy("name", "asc"));
@@ -187,79 +257,144 @@
               : p.stock <= 15
                 ? "stock-badge-medium"
                 : "stock-badge-good";
-          productCards.innerHTML += `
-            <div class="product-card">
-              <div class="product-card-image"><img src="${p.img}" onerror="this.style.display='none'"/></div>
-              <div class="product-card-body">
-                <div class="product-card-header">
-                  <div class="product-name-price"><h4>${p.name}</h4><div class="product-price">₱${p.price}</div></div>
-                  <div class="stock-badge ${stockClass}"><i class="fas fa-box"></i> In Stock: ${p.stock}</div>
+
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+            <div class="product-card-image">
+              <img src="${p.img}" onerror="this.style.display='none'"/>
+            </div>
+            <div class="product-card-body">
+              <div class="product-card-header">
+                <div class="product-name-price">
+                  <h4>${p.name}</h4>
+                  <div class="product-price">₱${p.price}</div>
                 </div>
-                <span class="details-label">Details</span>
-                <p>${p.desc}</p>
+                <div class="stock-badge ${stockClass}">
+                  <i class="fas fa-box"></i> In Stock: ${p.stock}
+                </div>
               </div>
-            </div>`;
+              <span class="details-label">Details</span>
+              <p>${p.desc}</p>
+            </div>
+          `;
+
+          card.onclick = (event) => {
+            const id = docSnap.id;
+            if (event.ctrlKey) {
+              if (selectedProducts.has(id)) {
+                selectedProducts.delete(id);
+                card.classList.remove("selected");
+              } else {
+                selectedProducts.set(id, p);
+                card.classList.add("selected");
+              }
+            } else {
+              document
+                .querySelectorAll(".product-card")
+                .forEach((c) => c.classList.remove("selected"));
+              selectedProducts.clear();
+              selectedProducts.set(id, p);
+              card.classList.add("selected");
+            }
+            updateButtonStates();
+          };
+
+          productCards.appendChild(card);
         });
+        updateButtonStates();
       }
 
-      // ── Cloudinary Unsigned Upload ──
-      const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME"; // Replace
-      const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET"; // Replace
-
-      async function uploadToCloudinary(file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-        const res = await fetch(
-          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-          {
-            method: "POST",
-            body: formData,
-          },
-        );
-        const data = await res.json();
-        return data.secure_url;
+      /* ---------- BUTTON STATES ---------- */
+      function updateButtonStates() {
+        const count = selectedProducts.size;
+        if (count === 0) {
+          editBtn.classList.add("btn-disabled");
+          deleteBtn.classList.add("btn-disabled");
+          addBtn.classList.remove("btn-disabled");
+        } else if (count === 1) {
+          editBtn.classList.remove("btn-disabled");
+          deleteBtn.classList.remove("btn-disabled");
+          addBtn.classList.remove("btn-disabled");
+        } else {
+          editBtn.classList.add("btn-disabled");
+          deleteBtn.classList.remove("btn-disabled");
+          addBtn.classList.add("btn-disabled");
+        }
       }
 
-      // ── Add Product ──
-      document
-        .getElementById("addProductBtn")
-        .addEventListener("click", async () => {
+      /* ---------- ADD PRODUCT ---------- */
+      async function addProduct() {
+        const name = document.getElementById("newName").value.trim();
+        const price = document.getElementById("newPrice").value.trim();
+        const stock = document.getElementById("newStock").value.trim();
+        const desc = document.getElementById("newDesc").value.trim();
+        const imgFile = document.getElementById("newImg").files[0];
+        if (!name || !price || !stock || !imgFile)
+          return showToast("Fill all fields and select an image");
+        showToast("Uploading image...");
+        const imgURL = await uploadToCloudinary(imgFile);
+        await addDoc(collection(db, "products"), {
+          name,
+          price: Number(price),
+          stock: Number(stock),
+          desc: desc || "No description",
+          img: imgURL,
+        });
+        showToast("Product added successfully!");
+        closeModal("addModal");
+        fetchProducts();
+      }
+
+      /* ---------- EDIT PRODUCT ---------- */
+      window.openEditModal = () => {
+        if (selectedProducts.size !== 1)
+          return showToast("Select exactly one product to edit");
+        const [id, product] = selectedProducts.entries().next().value;
+        document.getElementById("modalTitle").textContent = "Edit Product";
+        document.getElementById("addProductBtn").textContent = "Update Product";
+        document.getElementById("newName").value = product.name;
+        document.getElementById("newPrice").value = product.price;
+        document.getElementById("newStock").value = product.stock;
+        document.getElementById("newDesc").value = product.desc;
+        document.getElementById("addProductBtn").onclick = async () => {
           const name = document.getElementById("newName").value.trim();
           const price = document.getElementById("newPrice").value.trim();
           const stock = document.getElementById("newStock").value.trim();
           const desc = document.getElementById("newDesc").value.trim();
           const imgFile = document.getElementById("newImg").files[0];
-
-          if (!name || !price || !stock || !imgFile)
-            return showToast("Fill all fields and select an image");
-
-          showToast("Uploading image...");
-          const imgURL = await uploadToCloudinary(imgFile);
-
-          await addDoc(collection(db, "products"), {
+          let imgURL = product.img;
+          if (imgFile) {
+            showToast("Uploading image...");
+            imgURL = await uploadToCloudinary(imgFile);
+          }
+          await updateDoc(doc(db, "products", id), {
             name,
             price: Number(price),
             stock: Number(stock),
-            desc: desc || "No description",
+            desc,
             img: imgURL,
           });
-
-          showToast("Product added successfully!");
+          showToast("Product updated!");
           closeModal("addModal");
-
-          // Clear inputs
-          document.getElementById("newName").value = "";
-          document.getElementById("newPrice").value = "";
-          document.getElementById("newStock").value = "";
-          document.getElementById("newDesc").value = "";
-          document.getElementById("newImg").value = "";
-
+          selectedProducts.clear();
           fetchProducts();
-        });
+        };
+        document.getElementById("addModal").classList.add("show");
+      };
 
-      // ── Init ──
+      /* ---------- DELETE PRODUCT ---------- */
+      confirmDeleteBtn.onclick = async () => {
+        for (const [id] of selectedProducts) {
+          await deleteDoc(doc(db, "products", id));
+        }
+        showToast("Product(s) deleted!");
+        closeModal("deleteModal");
+        selectedProducts.clear();
+        fetchProducts();
+      };
+
+      /* ---------- INIT ---------- */
       fetchProducts();
     </script>
   </body>
