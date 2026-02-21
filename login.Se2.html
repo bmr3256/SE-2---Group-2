@@ -41,23 +41,52 @@
 
       window.addEventListener("DOMContentLoaded", () => {
         const loginForm = document.getElementById("loginForm");
-        const formMessage = document.getElementById("formMessage");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
         const btnText = document.querySelector(".btn-text");
         const btnLoader = document.querySelector(".btn-loader");
+        const formMessage = document.getElementById("formMessage");
+
+        // Create custom error message below password
+        let customMessage = document.createElement("div");
+        customMessage.style.color = "red";
+        customMessage.style.marginTop = "0.25rem";
+        customMessage.style.fontSize = "0.875rem";
+        customMessage.id = "customErrorMessage";
+
+        const passwordFormGroup = passwordInput.closest(".form-group");
+        passwordFormGroup.appendChild(customMessage);
 
         loginForm.addEventListener("submit", async (e) => {
           e.preventDefault();
+          const email = emailInput.value.trim();
+          const password = passwordInput.value;
 
-          const email = document.getElementById("email").value.trim();
-          const password = document.getElementById("password").value;
-
+          // Reset borders and messages
+          emailInput.style.border = "";
+          passwordInput.style.border = "";
+          customMessage.textContent = "";
           formMessage.innerHTML = "";
           btnText.style.display = "none";
           btnLoader.style.display = "inline-block";
 
+          // Check if fields are empty
+          if (!email || !password) {
+            emailInput.style.border = "1px solid red";
+            passwordInput.style.border = "1px solid red";
+            customMessage.textContent = "Please enter your credentials";
+            btnText.style.display = "inline-block";
+            btnLoader.style.display = "none";
+            return;
+          }
+
           try {
             await signInWithEmailAndPassword(auth, email, password);
 
+            // Success
+            emailInput.style.border = "";
+            passwordInput.style.border = "";
+            customMessage.textContent = "";
             formMessage.style.color = "green";
             formMessage.innerHTML = "Login successful! Redirecting...";
 
@@ -65,40 +94,32 @@
               window.location.href = "index.Se2.html";
             }, 1500);
           } catch (error) {
+            // Show red borders
+            emailInput.style.border = "1px solid red";
+            passwordInput.style.border = "1px solid red";
+
             btnText.style.display = "inline-block";
             btnLoader.style.display = "none";
 
-            let message = "Login failed. Please try again.";
+            let message = "Invalid email or password.";
+            if (error.code === "auth/invalid-email")
+              message = "Invalid email format.";
+            if (error.code === "auth/too-many-requests")
+              message = "Too many attempts. Try later.";
 
-            switch (error.code) {
-              case "auth/user-not-found":
-                message = "No account found with this email.";
-                break;
-              case "auth/wrong-password":
-                message = "Incorrect password.";
-                break;
-              case "auth/invalid-email":
-                message = "Invalid email format.";
-                break;
-              case "auth/too-many-requests":
-                message = "Too many failed attempts. Try again later.";
-                break;
-            }
-
-            formMessage.style.color = "red";
-            formMessage.innerHTML = message;
+            customMessage.textContent = message;
           }
         });
 
+        // Forgot Password
         const forgotForm = document.getElementById("forgotPasswordForm");
-
         forgotForm.addEventListener("submit", async (e) => {
           e.preventDefault();
-
-          const emailInput = forgotForm.querySelector("input").value.trim();
-
+          const emailInputValue = forgotForm
+            .querySelector("input")
+            .value.trim();
           try {
-            await sendPasswordResetEmail(auth, emailInput);
+            await sendPasswordResetEmail(auth, emailInputValue);
             alert("Password reset link sent to your email.");
             forgotForm.reset();
           } catch (error) {
@@ -107,7 +128,6 @@
         });
       });
     </script>
-
     <nav class="breadcrumb-nav">
       <div class="breadcrumb-container">
         <a href="index.Se2.html" class="breadcrumb-link">
