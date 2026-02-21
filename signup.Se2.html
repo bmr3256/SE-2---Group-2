@@ -13,21 +13,8 @@
       rel="stylesheet"
     />
     <link href="auth-styles.Se2.css" rel="stylesheet" />
-    <style>
-      /* Inline field error style */
-      input.error {
-        border-color: red;
-        color: red;
-      }
-      .password-error-message {
-        color: red;
-        font-size: 0.8em;
-        margin-top: 4px;
-      }
-    </style>
   </head>
   <body>
-    <!--connection to firebase with signup feature-->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
@@ -56,12 +43,18 @@
 
       const form = document.getElementById("signupForm");
 
-      // reveal icon function
       window.togglePassword = function (id) {
         const input = document.getElementById(id);
-        const type = input.type === "password" ? "text" : "password";
-        input.type = type;
+        input.type = input.type === "password" ? "text" : "password";
       };
+
+      function showToast() {
+        const toast = document.getElementById("signupToast");
+        toast.style.display = "block";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 4000);
+      }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -72,65 +65,89 @@
         const password = document.getElementById("password");
         const confirmPassword = document.getElementById("confirmPassword");
         const terms = document.getElementById("terms");
-        const passwordError = document.getElementById("passwordError");
 
-        [fname, lname, email, password, confirmPassword].forEach((el) => {
-          el.classList.remove("error");
-        });
-        passwordError.textContent = "";
+        // Remove old errors
+        [fname, lname, email, password, confirmPassword, terms].forEach(
+          (el) => {
+            el.classList.remove("error");
+            const msg = el
+              .closest(".form-group, .form-check-group")
+              ?.querySelector(".error-message");
+            if (msg) msg.remove();
+          },
+        );
 
-        // fnam/lname field validation
         let hasError = false;
-
-        if (fname.value.trim().length < 2) {
-          fname.classList.add("error");
-          hasError = true;
-        }
-        if (lname.value.trim().length < 2) {
-          lname.classList.add("error");
-          hasError = true;
-        }
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email.value.trim())) {
+
+        // Empty field validation
+        const fields = [
+          { el: fname, msg: "First Name required" },
+          { el: lname, msg: "Last Name required" },
+          { el: email, msg: "Email required" },
+          { el: password, msg: "Password required" },
+          { el: confirmPassword, msg: "Confirm Password required" },
+        ];
+        fields.forEach(({ el, msg }) => {
+          if (!el.value.trim()) {
+            el.classList.add("error");
+            const errorDiv = document.createElement("div");
+            errorDiv.classList.add("error-message");
+            errorDiv.textContent = msg;
+            const formGroup = el.closest(".form-group");
+            if (formGroup) formGroup.appendChild(errorDiv);
+            hasError = true;
+          }
+        });
+
+        // Email format
+        if (email.value.trim() && !emailPattern.test(email.value.trim())) {
           email.classList.add("error");
+          const errorDiv = document.createElement("div");
+          errorDiv.classList.add("error-message");
+          errorDiv.textContent = "Email is incorrect";
+          const formGroup = email.closest(".form-group");
+          if (formGroup) formGroup.appendChild(errorDiv);
           hasError = true;
         }
 
-        // password validation
-        const pwVal = password.value;
-        const pwRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-        if (!pwRegex.test(pwVal)) {
-          password.classList.add("error");
-          let message = "Password must include:";
-          if (pwVal.length < 8) message += " 8 characters,";
-          if (!/[A-Z]/.test(pwVal)) message += " 1 uppercase,";
-          if (!/[a-z]/.test(pwVal)) message += " 1 lowercase,";
-          if (!/\d/.test(pwVal)) message += " 1 number,";
-          message = message.replace(/,$/, "");
-          passwordError.textContent = message;
-          hasError = true;
-        }
-
-        if (pwVal !== confirmPassword.value) {
+        // Confirm password match
+        if (
+          password.value &&
+          confirmPassword.value &&
+          password.value !== confirmPassword.value
+        ) {
           confirmPassword.classList.add("error");
-          passwordError.textContent = "Passwords do not match!";
+          const errorDiv = document.createElement("div");
+          errorDiv.classList.add("error-message");
+          errorDiv.textContent = "Passwords do not match";
+          const formGroup = confirmPassword.closest(".form-group");
+          if (formGroup) formGroup.appendChild(errorDiv);
           hasError = true;
         }
 
+        // Terms checkbox
+        const termsWrapper = terms.closest(".form-check-group");
         if (!terms.checked) {
-          alert(
-            "You must agree to the Terms & Conditions to create an account.",
-          );
+          terms.classList.add("error");
+          termsWrapper.classList.add("error");
+          if (!termsWrapper.querySelector(".error-message")) {
+            const errorDiv = document.createElement("div");
+            errorDiv.classList.add("error-message");
+            errorDiv.textContent = "You must agree to the Terms & Conditions";
+            termsWrapper.appendChild(errorDiv);
+          }
           hasError = true;
         }
 
         if (hasError) return;
 
+        // Firebase signup
         try {
           const userCredential = await createUserWithEmailAndPassword(
             auth,
             email.value.trim(),
-            pwVal,
+            password.value,
           );
           const user = userCredential.user;
 
@@ -138,19 +155,19 @@
             fname: fname.value.trim(),
             lname: lname.value.trim(),
             email: email.value.trim(),
-            password: pwVal,
+            password: password.value,
             createdAt: new Date(),
           });
 
-          alert("Account successfully created!");
           form.reset();
+          showToast();
         } catch (error) {
-          alert(error.message);
           console.error(error);
         }
       });
     </script>
 
+    <!-- Breadcrumb -->
     <nav class="breadcrumb-nav">
       <div class="breadcrumb-container">
         <a href="index.Se2.html" class="breadcrumb-link">
@@ -190,9 +207,6 @@
                   >First Name <span class="required">*</span></label
                 >
               </div>
-              <div class="invalid-feedback">
-                First name must be at least 2 characters
-              </div>
             </div>
 
             <div class="form-group">
@@ -210,9 +224,6 @@
                   >Last Name <span class="required">*</span></label
                 >
               </div>
-              <div class="invalid-feedback">
-                Last name must be at least 2 characters
-              </div>
             </div>
 
             <div class="form-group">
@@ -226,9 +237,6 @@
                   autocomplete="email"
                 />
                 <label for="email">Email <span class="required">*</span></label>
-              </div>
-              <div class="invalid-feedback">
-                Please enter a valid email address
               </div>
             </div>
 
@@ -264,11 +272,6 @@
                 </button>
               </div>
               <div class="password-error-message" id="passwordError"></div>
-              <div class="password-strength" id="passwordStrength"></div>
-              <div class="invalid-feedback">
-                Password must be at least 8 characters with uppercase,
-                lowercase, and number
-              </div>
             </div>
 
             <div class="form-group">
@@ -293,28 +296,26 @@
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
-              <div class="invalid-feedback">Passwords do not match</div>
             </div>
 
             <div class="form-check-group">
               <input type="checkbox" id="terms" name="terms" required />
-              <label for="terms">
-                I agree to the
+              <label for="terms"
+                >I agree to the
                 <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal"
                   >Terms & Conditions</a
                 >
-                <span class="required">*</span>
-              </label>
+                <span class="required">*</span></label
+              >
             </div>
 
             <button type="submit" class="btn-auth">
               <span class="btn-text">SIGN UP</span>
-              <span class="btn-loader" style="display: none">
-                <i class="fas fa-spinner fa-spin"></i> Creating account...
-              </span>
+              <span class="btn-loader" style="display: none"
+                ><i class="fas fa-spinner fa-spin"></i> Creating
+                account...</span
+              >
             </button>
-
-            <div class="form-message" id="formMessage"></div>
           </form>
 
           <div class="auth-links">
@@ -339,6 +340,27 @@
       </div>
     </div>
 
+    <!-- Toast -->
+    <div
+      id="signupToast"
+      class="toast align-items-center text-bg-success border-0"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
+      <div class="d-flex">
+        <div class="toast-body">Account successfully created!</div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          onclick="
+            document.getElementById('signupToast').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
+
+    <!-- Footer and Modals remain unchanged -->
     <footer class="auth-footer">
       <div class="footer-content">
         <div class="footer-logo">
