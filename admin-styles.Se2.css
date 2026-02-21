@@ -846,3 +846,21 @@ body {
         flex-direction: column;
     }
 }
+
+/* product management selector*/
+.product-card {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.product-card.selected {
+  border: 2px solid #c9a876; /* change color if you want */
+  box-shadow: 0 0 10px rgba(255, 122, 0, 0.3);
+}
+
+/* Disabled buttons */
+.btn-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
