@@ -668,3 +668,30 @@ body {
     font-family: var(--font-body);
     font-weight: 700;
 }
+
+/* sign up error features*/
+input.error {
+  border-color: red;
+  color: inherit;
+}
+.error-message {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 4px;
+}
+.form-check-group.error label a {
+  color: inherit;
+}
+.password-error-message {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 4px;
+}
+#signupToast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  min-width: 250px;
+  z-index: 1055;
+  display: none;
+}
