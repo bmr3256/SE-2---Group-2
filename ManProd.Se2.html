@@ -14,7 +14,7 @@
 <aside class="admin-sidebar">
     <div class="sidebar-logo">
         <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
-                <img src="images/Logo - Black.png" alt="The Barkery Logo">
+        <img src="images/Logo - Black.png" alt="The Barkery Logo">
     </div>
     <ul class="sidebar-nav">
         <li><a href="ManProd.Se2.html" class="active"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
@@ -65,6 +65,10 @@
             <input type="number" id="newPrice" class="form-control form-control-sm" placeholder="70">
         </div>
         <div class="form-group mb-2">
+            <label style="font-size:0.82rem; color:var(--text-gray);">Stock Quantity</label>
+            <input type="number" id="newStock" class="form-control form-control-sm" placeholder="50">
+        </div>
+        <div class="form-group mb-2">
             <label style="font-size:0.82rem; color:var(--text-gray);">Description</label>
             <textarea id="newDesc" class="form-control form-control-sm" rows="2" placeholder="Short description..."></textarea>
         </div>
@@ -83,7 +87,7 @@
 <div class="modal-overlay" id="editModal">
     <div class="order-info-modal" style="width:380px; max-width:92%;">
         <button class="modal-close-btn" onclick="closeModal('editModal')">&times;</button>
-        <h5>Edit Stock</h5>
+        <h5>Edit Stock Quantity</h5>
         <div id="editStockList"></div>
         <div style="text-align:right; margin-top:1rem;">
             <button class="btn-admin-outline me-2" onclick="closeModal('editModal')">Cancel</button>
@@ -111,9 +115,9 @@
 <script>
 // ─── Sample data (acts as "database") ───
 let products = [
-    { id: 1, name: "Pork Liver", price: 70, desc: "Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.", img: "liver_product.png" },
-    { id: 2, name: "Chicken Feet", price: 50, desc: "Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.", img: "chickenfeet_product.png" },
-    { id: 3, name: "Beef Bones", price: 80, desc: "Our beef bones are perfect for aggressive chewers and provide hours of entertainment. They help clean teeth naturally and are an excellent source of calcium and other minerals.", img: "pbutter_product.png" },
+    { id: 1, name: "Pork Liver", price: 70, stock: 15, desc: "Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.", img: "liver_product.png" },
+    { id: 2, name: "Chicken Feet", price: 50, stock: 32, desc: "Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.", img: "chickenfeet_product.png" },
+    { id: 3, name: "Beef Bones", price: 80, stock: 8, desc: "Our beef bones are perfect for aggressive chewers and provide hours of entertainment. They help clean teeth naturally and are an excellent source of calcium and other minerals.", img: "pbutter_product.png" },
 ];
 
 // ─── Render product cards ───
@@ -121,6 +125,11 @@ function renderProducts() {
     const container = document.getElementById('productCards');
     container.innerHTML = '';
     products.forEach(p => {
+        // Determine stock badge color
+        let stockClass = 'stock-badge-good';
+        if (p.stock <= 5) stockClass = 'stock-badge-low';
+        else if (p.stock <= 15) stockClass = 'stock-badge-medium';
+        
         container.innerHTML += `
         <div class="product-card">
             <div class="product-card-image">
@@ -128,8 +137,13 @@ function renderProducts() {
             </div>
             <div class="product-card-body">
                 <div class="product-card-header">
-                    <h4>${p.name}</h4>
-                    <div class="product-price-badge">₱${p.price}</div>
+                    <div class="product-name-price">
+                        <h4>${p.name}</h4>
+                        <div class="product-price">₱${p.price}</div>
+                    </div>
+                    <div class="stock-badge ${stockClass}">
+                        <i class="fas fa-box"></i> In Stock: ${p.stock}
+                    </div>
                 </div>
                 <span class="details-label">Details</span>
                 <p>${p.desc}</p>
@@ -143,7 +157,14 @@ function renderProducts() {
 
 // ─── Add to cart placeholder ───
 function addToCart(id) {
-    showToast('Added ' + products.find(p => p.id === id).name + ' to cart!');
+    const product = products.find(p => p.id === id);
+    if (product.stock > 0) {
+        product.stock--;
+        renderProducts();
+        showToast('Added ' + product.name + ' to cart! Stock remaining: ' + product.stock);
+    } else {
+        showToast('Out of stock!');
+    }
 }
 
 // ─── ADD product ───
@@ -152,13 +173,28 @@ function openAddModal() { document.getElementById('addModal').classList.add('sho
 function addProduct() {
     const name  = document.getElementById('newName').value.trim();
     const price = document.getElementById('newPrice').value.trim();
+    const stock = document.getElementById('newStock').value.trim();
     const desc  = document.getElementById('newDesc').value.trim();
     const img   = document.getElementById('newImg').value.trim();
-    if (!name || !price) { showToast('Please fill in name and price.'); return; }
-    products.push({ id: Date.now(), name, price: Number(price), desc: desc || 'No description.', img: img || 'liver_product.png' });
+    
+    if (!name || !price || !stock) { 
+        showToast('Please fill in name, price, and stock quantity.'); 
+        return; 
+    }
+    
+    products.push({ 
+        id: Date.now(), 
+        name, 
+        price: Number(price), 
+        stock: Number(stock),
+        desc: desc || 'No description.', 
+        img: img || 'liver_product.png' 
+    });
+    
     closeModal('addModal');
     document.getElementById('newName').value = '';
     document.getElementById('newPrice').value = '';
+    document.getElementById('newStock').value = '';
     document.getElementById('newDesc').value = '';
     document.getElementById('newImg').value = '';
     renderProducts();
@@ -171,7 +207,7 @@ function promptDelete() {
     list.innerHTML = '';
     products.forEach(p => {
         list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.35rem 0; border-bottom:1px solid #f0ebe4;">
-            <span style="font-size:0.85rem;">${p.name} — ₱${p.price}</span>
+            <span style="font-size:0.85rem;">${p.name} — ₱${p.price} (Stock: ${p.stock})</span>
             <button class="btn-admin-danger" style="padding:0.25rem 0.6rem; font-size:0.75rem;" onclick="confirmDelete(${p.id})">Delete</button>
         </div>`;
     });
@@ -192,7 +228,7 @@ function openEditModal() {
     products.forEach(p => {
         list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid #f0ebe4;">
             <span style="font-size:0.85rem;">${p.name}</span>
-            <input type="number" class="form-control form-control-sm" style="width:80px;" value="${p.price}" data-id="${p.id}">
+            <input type="number" class="form-control form-control-sm" style="width:80px;" value="${p.stock}" data-id="${p.id}" min="0">
         </div>`;
     });
     document.getElementById('editModal').classList.add('show');
@@ -203,7 +239,7 @@ function saveStock() {
         const id = Number(inp.dataset.id);
         const val = Number(inp.value);
         const prod = products.find(p => p.id === id);
-        if (prod && val > 0) prod.price = val;
+        if (prod && val >= 0) prod.stock = val;
     });
     closeModal('editModal');
     renderProducts();
