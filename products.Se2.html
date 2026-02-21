@@ -1,200 +1,251 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Products - The Barkery</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="style.Se2.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.Se2.html">
-                <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot">
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.Se2.css" rel="stylesheet" />
+
+    <style>
+      /* Ensure FAQ drop-down works */
+      .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      .faq-item.active .faq-answer {
+        max-height: 500px; /* enough to show content */
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Load products after DOM is ready
+      window.addEventListener("DOMContentLoaded", async () => {
+        const container = document.querySelector(".products-detail-container");
+        if (!container) return console.error("Products container not found");
+
+        try {
+          const snapshot = await getDocs(collection(db, "products"));
+          if (snapshot.empty) {
+            container.innerHTML = "<p>No products found</p>";
+            return;
+          }
+
+          snapshot.forEach((doc) => {
+            const product = doc.data();
+
+            const card = document.createElement("div");
+            card.classList.add("product-detail-card");
+
+            card.innerHTML = `
+            <div class="product-detail-left">
+            <div class="product-img">
+                <img src="${product.img}" alt="${product.name}">
+            </div>
+            <div class="product-detail-price">₱${product.price}</div>
+            <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price})">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
             </button>
-            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="index.Se2.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.Se2.html">About Us</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="products.Se2.html">Products</a></li>
-                    <li class="nav-item"><a class="nav-link" href="feedback.Se2.html">Feedback</a></li>
-                </ul>
             </div>
-            <div class="navbar-actions">
-                <button class="btn-help" data-bs-toggle="modal" data-bs-target="#helpModal" title="Need help?">
-                    <i class="fas fa-question-circle"></i>
-                </button>
-                <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge">0</span>
-                </a>
-                <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
-                    <i class="fas fa-user-circle"></i>
-                </a>
+          <div class="product-detail-right">
+            <h2><i class="${product.icon || ""}"></i> ${product.name.toUpperCase()}</h2>
+            <div class="faq-item">
+              <div class="faq-question" onclick="toggleFAQ(this)">
+                <span>Details</span>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+              <div class="faq-answer">${product.desc || ""}</div>
             </div>
+            <div class="product-benefits-box">
+              <p><strong>Benefits of ${product.name}:</strong></p>
+              <ul>${Array.isArray(product.benefits) ? product.benefits.map((b) => `<li>${b}</li>`).join("") : ""}</ul>
+            </div>
+          </div>
+        `;
+            container.appendChild(card);
+          });
+        } catch (err) {
+          console.error("Error loading products:", err);
+          container.innerHTML = `<p>Failed to load products: ${err.message}</p>`;
+        }
+      });
+
+      // Toggle FAQ drop-down
+      window.toggleFAQ = function (element) {
+        const faqItem = element.closest(".faq-item");
+        const answer = faqItem.querySelector(".faq-answer");
+        const question = faqItem.querySelector(".faq-question");
+
+        // Toggle active state on question icon
+        question.classList.toggle("active");
+
+        // Toggle the answer
+        if (answer.classList.contains("show")) {
+          answer.classList.remove("show");
+          answer.style.maxHeight = null;
+          answer.style.opacity = 0;
+        } else {
+          answer.classList.add("show");
+          answer.style.maxHeight = answer.scrollHeight + "px";
+          answer.style.opacity = 1;
+        }
+      };
+
+      // Add to cart function
+      window.addToCart = function (name, price) {
+        alert(`Added ${name} (₱${price}) to cart`);
+      };
+    </script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.Se2.html">
+          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div
+          class="collapse navbar-collapse justify-content-center"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.Se2.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.Se2.html">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="products.Se2.html">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="feedback.Se2.html">Feedback</a>
+            </li>
+          </ul>
         </div>
+        <div class="navbar-actions">
+          <button
+            class="btn-help"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+            title="Need help?"
+          >
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+          </a>
+          <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+            <i class="fas fa-user-circle"></i>
+          </a>
+        </div>
+      </div>
     </nav>
 
+    <!-- Page Hero -->
     <section class="page-hero">
-
-            <img src="images/productsbanner.png" alt="Banner Image">
-        
+      <img src="images/productsbanner.png" alt="Banner Image" />
     </section>
 
+    <!-- Products Section -->
     <section class="products-detail-section">
-        <div class="products-detail-container">
-          
+      <div class="products-detail-container">
+        <!-- Products will be injected here -->
+      </div>
 
-            <div class="product-detail-card">
-                <div class="product-detail-left">
-                    <div class="product-detail-image">
-                        <image src="images/liver_product.png" alt="Pork Liver Treats">
-                    </div>
-                    <div class="product-detail-price">₱70</div>
-                    <button class="btn-add-cart-detail" onclick="addToCart('Pork Liver', 70)">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>
-                </div>
-                <div class="product-detail-right">
-                    <h2><i class="fas fa-drumstick-bite"></i> PORK LIVER</h2>
-                    <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Details</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                        Pork Liver is a nutrient-dense protein treat packed with essential vitamins and minerals, perfect for any dog. However, it's best used in moderation as too much can cause digestive upset. Always store pork liver dog treats in an airtight container to maintain freshness.                </div>
-                </div>
-                    
-                    <div class="product-benefits-box">
-                        <p><strong>Benefits of Pork Liver:</strong></p>
-                        <ul>
-                            <li>Rich in protein and nutrients</li>
-                            <li>Supports healthy muscles and immune system</li>
-                            <li>High in vitamins A and B</li>
-                            <li>Great for training treats due to strong aroma</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="product-detail-card">
-                <div class="product-detail-left">
-                    <div class="product-detail-image">
-                        <image src="images/chickenfeet_product.png" alt="Chicken Feet Treats">
-                    </div>
-                    <div class="product-detail-price">₱50</div>
-                    <button class="btn-add-cart-detail" onclick="addToCart('Chicken Feet', 50)">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>
-                </div>
-                <div class="product-detail-right">
-                    <h2><i class=""></i> CHICKEN FEET</h2>
-                    <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Details</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                        Chicken feet are naturally rich in glucosamine and chondroitin, which are great for joint health. They also provide a satisfying crunch that dogs love. This treat is especially beneficial for older dogs or breeds prone to joint issues.                </div>
-                </div>
-
-                    <div class="product-benefits-box">
-                        <p><strong>Benefits of Chicken Feet:</strong></p>
-                        <ul>
-                            <li>Natural source of glucosamine for joint health</li>
-                            <li>Supports mobility in senior dogs</li>
-                            <li>Dental benefits from natural chewing action</li>
-                            <li>High in protein and collagen</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="product-detail-card">
-                <div class="product-detail-left">
-                    <div class="product-detail-image">
-                        <image src="images/pbutter_product.png" alt="Pawnut Butter Treats">
-                    </div>
-                    <div class="product-detail-price">₱80</div>
-                    <button class="btn-add-cart-detail" onclick="addToCart('Pawnut Butter', 80)">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>
-                </div>
-                <div class="product-detail-right">
-                    <h2><i class="fas fa-cookie-bite"></i> PAWNUT BUTTER</h2>
-                   <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Details</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                        Pawnut Butter is a healthy treat made from natural ingredients. It's safe, delicious, and promotes a shiny coat. Great for training or as a reward for your furry friends.                </div>
-                </div>
-                    <div class="product-benefits-box">
-                        <p><strong>Benefits of Pawnut Butter:</strong></p>
-                        <ul>
-                            <li>Rich in protein and healthy fats</li>
-                            <li>Provides sustained energy for active dogs</li>
-                            <li>Rich in calcium and essential minerals</li>
-                            <li>Reduces anxiety and boredom</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            
-            </div>
-
-            <div class="proceed-checkout-container">
-                <button class="btn-proceed-checkout" onclick="alert('Proceeding to checkout...')">
-                    Proceed to Checkout <i class="fas fa-arrow-right"></i>
-                </button>
-            </div>
-        </div>
+      <div class="proceed-checkout-container">
+        <button
+          class="btn-proceed-checkout"
+          onclick="alert('Proceeding to checkout...')"
+        >
+          Proceed to Checkout <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
     </section>
 
+    <!-- Footer -->
     <footer>
-        <div class="footer-content">
-            <div class="footer-logo">
-                <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B">
-                <img src="images/Logo - Black.png" alt="The Barkery Logo">
-            </div>
-            <div class="footer-copyright">
-                © 2025 The Barkery
-            </div>
-            <div class="footer-location">
-                Angeles City, Pampanga
-            </div>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
         </div>
+        <div>© 2025 The Barkery</div>
+        <div>Angeles City, Pampanga</div>
+      </div>
     </footer>
 
+    <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Need Help?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>Quick Guide:</h6>
-                    <ul>
-                        <li><strong>Ordering:</strong> Click "Add to Cart" on any product, then "Proceed to Checkout"</li>
-                        <li><strong>Account:</strong> Sign up to track orders and save preferences</li>
-                        <li><strong>Questions?</strong> Check our FAQ section on the homepage</li>
-                        <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
-                    </ul>
-                </div>
-            </div>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Need Help?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Quick Guide:</h6>
+            <ul>
+              <li>
+                <strong>Ordering:</strong> Click "Add to Cart" on any product,
+                then "Proceed to Checkout"
+              </li>
+              <li>
+                <strong>Account:</strong> Sign up to track orders and save
+                preferences
+              </li>
+              <li>
+                <strong>Questions?</strong> Check our FAQ section on the
+                homepage
+              </li>
+              <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
+            </ul>
+          </div>
         </div>
+      </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script src="script.Se2.js"></script>
-</body>
+  </body>
 </html>
