@@ -39,7 +39,7 @@ body {
 
 /* Breadcrumb Navigation */
 .breadcrumb-nav {
-    background-color: white;
+    background-color: var(--lighter-cream);
     padding: 1rem 2rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
@@ -104,6 +104,10 @@ body {
 
 .auth-logo a {
     text-decoration: none;
+}
+
+.auth-logo p{
+    font-size:2rem;
 }
 
 .auth-logo h1 {
@@ -463,12 +467,16 @@ body {
 /* Right Side - Product Showcase */
 .auth-right {
     flex: 1;
-    background: url('images/designtreats.png') center/cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
     position: relative;
+}
+
+.auth-right img {
+    width: 100%;
+    height: auto;
 }
 
 .product-showcase {
@@ -631,6 +639,10 @@ body {
 @media (max-width: 480px) {
     .auth-logo h1 {
         font-size: 1.5rem;
+    }
+
+    .auth-logo p {
+    font-size: 1.5rem;
     }
     
     .signup-title {
