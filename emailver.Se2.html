@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Code - The Barkery</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="auth-styles.Se2.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-nav">
+        <div class="breadcrumb-container">
+            <a href="index.Se2.html" class="breadcrumb-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Verify Code</span>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-left">
+                <div class="auth-logo">
+                    <a href="index.Se2.html" title="Back to Home">
+                        <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+                    </a>
+                    <p class="tagline">Where happy tails and healthy treats meet!</p>
+                </div>
+                
+                <div class="verification-content">
+                    <div class="verification-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    
+                    <h2 class="verification-title">Enter Verification Code</h2>
+                    
+                    <p class="verification-message">
+                        We've sent a 6-digit code to<br>
+                        <strong id="userEmail">your email address</strong>
+                    </p>
+                    
+                    <!-- PIN Input Form -->
+                    <form id="pinForm" class="pin-form">
+                        <div class="pin-inputs">
+                            <input type="text" maxlength="1" class="pin-box" id="pin1" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                            <input type="text" maxlength="1" class="pin-box" id="pin2" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                            <input type="text" maxlength="1" class="pin-box" id="pin3" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                            <input type="text" maxlength="1" class="pin-box" id="pin4" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                            <input type="text" maxlength="1" class="pin-box" id="pin5" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                            <input type="text" maxlength="1" class="pin-box" id="pin6" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                        </div>
+                        
+                        <div id="errorMessage" class="pin-error" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="errorText">Invalid code. Please try again.</span>
+                        </div>
+                        
+                        <button type="submit" class="btn-auth">
+                            <span class="btn-text">VERIFY CODE</span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Verifying...
+                            </span>
+                        </button>
+                    </form>
+                    
+                    <div class="resend-section">
+                        <p class="resend-text">Didn't receive the code?</p>
+                        <button type="button" class="btn-resend" id="resendBtn" onclick="resendCode()">
+                            <i class="fas fa-paper-plane"></i> Resend Code
+                        </button>
+                        <p class="resend-timer" id="resendTimer" style="display: none;">
+                            You can resend in <span id="countdown">60</span> seconds
+                        </p>
+                    </div>
+                    
+                    <div class="auth-links">
+                        <a href="login.html" class="back-link">
+                            <i class="fas fa-arrow-left"></i> Back to Login
+                        </a>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <button class="btn-help-inline" data-bs-toggle="modal" data-bs-target="#verificationHelpModal">
+                        <i class="fas fa-question-circle"></i> Need help?
+                    </button>
+                </div>
+            </div>
+            
+            <div class="auth-right">
+                <div class="product-showcase">
+                    <div class="showcase-text">
+                        <h3>Secure Your Account</h3>
+                        <p>We're keeping your furry friend's treats safe!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="auth-footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span class="logo-icon">B</span>
+                <span class="logo-text">THE BARKERY</span>
+            </div>
+            <div class="footer-copyright">
+                © 2025 The Barkery
+            </div>
+            <div class="footer-location">
+                Angeles City, Pampanga
+            </div>
+        </div>
+    </footer>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="verificationHelpModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Verification Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h6>Can't find the code?</h6>
+                    <ul>
+                        <li><strong>Check your spam folder:</strong> The email might be filtered</li>
+                        <li><strong>Wait a moment:</strong> Codes can take 1-2 minutes to arrive</li>
+                        <li><strong>Check the email address:</strong> Make sure it's correct</li>
+                        <li><strong>Resend the code:</strong> Click the "Resend Code" button below</li>
+                    </ul>
+                    <h6 class="mt-3">Code expired?</h6>
+                    <p>Verification codes expire after 10 minutes. Request a new code if yours has expired.</p>
+                    <h6 class="mt-3">Still having issues?</h6>
+                    <p>Contact us at <a href="mailto:hello@barkery.ph">hello@barkery.ph</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="successToast" class="toast" role="alert">
+            <div class="toast-body">
+                <i class="fas fa-check-circle text-success"></i>
+                <span id="toastMessage">Code sent!</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Get email from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        if (email) {
+            document.getElementById('userEmail').textContent = email;
+        }
+
+        // PIN Input handling
+        const pinBoxes = document.querySelectorAll('.pin-box');
+        
+        pinBoxes.forEach((box, index) => {
+            // Auto-focus next box on input
+            box.addEventListener('input', (e) => {
+                const value = e.target.value;
+                
+                // Only allow numbers
+                if (!/^\d$/.test(value)) {
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Move to next box
+                if (value && index < pinBoxes.length - 1) {
+                    pinBoxes[index + 1].focus();
+                }
+                
+                // Clear error when typing
+                document.getElementById('errorMessage').style.display = 'none';
+                box.classList.remove('error');
+            });
+            
+            // Handle backspace
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                    pinBoxes[index - 1].focus();
+                }
+            });
+            
+            // Handle paste
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
+                
+                if (pastedData.length === 6) {
+                    pinBoxes.forEach((b, i) => {
+                        b.value = pastedData[i] || '';
+                    });
+                    pinBoxes[5].focus();
+                }
+            });
+        });
+        
+        // Focus first box on load
+        window.addEventListener('load', () => {
+            pinBoxes[0].focus();
+        });
+
+        // Form submission
+        document.getElementById('pinForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get PIN code
+            const pin = Array.from(pinBoxes).map(box => box.value).join('');
+            
+            if (pin.length !== 6) {
+                showError('Please enter all 6 digits');
+                return;
+            }
+            
+            // Show loading
+            const btnText = this.querySelector('.btn-text');
+            const btnLoader = this.querySelector('.btn-loader');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            btnText.style.display = 'none';
+            btnLoader.style.display = 'inline-flex';
+            submitBtn.disabled = true;
+            
+            // Simulate verification (replace with actual API call)
+            setTimeout(() => {
+                // For demo: accept "123456" as valid code
+                if (pin === '123456') {
+                    // Success - redirect to dashboard or home
+                    showToast('Verification successful!');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    // Error
+                    btnText.style.display = 'inline';
+                    btnLoader.style.display = 'none';
+                    submitBtn.disabled = false;
+                    
+                    showError('Invalid code. Please try again.');
+                    
+                    // Clear boxes and refocus
+                    pinBoxes.forEach(box => {
+                        box.value = '';
+                        box.classList.add('error');
+                    });
+                    pinBoxes[0].focus();
+                }
+            }, 1500);
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.style.display = 'flex';
+        }
+
+        // Resend code functionality
+        let canResend = true;
+        let countdownInterval;
+
+        function resendCode() {
+            if (!canResend) return;
+            
+            canResend = false;
+            const resendBtn = document.getElementById('resendBtn');
+            const resendTimer = document.getElementById('resendTimer');
+            
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            // Simulate sending code
+            setTimeout(() => {
+                showToast('New code sent! Check your email.');
+                
+                // Clear PIN boxes
+                pinBoxes.forEach(box => {
+                    box.value = '';
+                    box.classList.remove('error');
+                });
+                pinBoxes[0].focus();
+                
+                // Start countdown
+                resendBtn.style.display = 'none';
+                resendTimer.style.display = 'block';
+                
+                let seconds = 60;
+                document.getElementById('countdown').textContent = seconds;
+                
+                countdownInterval = setInterval(() => {
+                    seconds--;
+                    document.getElementById('countdown').textContent = seconds;
+                    
+                    if (seconds <= 0) {
+                        clearInterval(countdownInterval);
+                        canResend = true;
+                        resendBtn.disabled = false;
+                        resendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Resend Code';
+                        resendBtn.style.display = 'block';
+                        resendTimer.style.display = 'none';
+                    }
+                }, 1000);
+            }, 1500);
+        }
+
+        function showToast(message) {
+            document.getElementById('toastMessage').textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById('successToast'));
+            toast.show();
+        }
+    </script>
+</body>
+</html>
