@@ -18,6 +18,7 @@
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
+        <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
       </div>
       <ul class="sidebar-nav">
@@ -87,14 +88,6 @@
           <input
             type="number"
             id="newPrice"
-            class="form-control form-control-sm"
-          />
-        </div>
-        <div class="form-group mb-2">
-          <label>Stock Quantity</label>
-          <input
-            type="number"
-            id="newStock"
             class="form-control form-control-sm"
           />
         </div>
@@ -223,7 +216,6 @@
       function clearModalInputs() {
         document.getElementById("newName").value = "";
         document.getElementById("newPrice").value = "";
-        document.getElementById("newStock").value = "";
         document.getElementById("newDesc").value = "";
         document.getElementById("newImg").value = "";
       }
@@ -250,12 +242,6 @@
         const snapshot = await getDocs(q);
         snapshot.forEach((docSnap) => {
           const p = docSnap.data();
-          const stockClass =
-            p.stock <= 5
-              ? "stock-badge-low"
-              : p.stock <= 15
-                ? "stock-badge-medium"
-                : "stock-badge-good";
 
           const card = document.createElement("div");
           card.className = "product-card";
@@ -268,9 +254,6 @@
                 <div class="product-name-price">
                   <h4>${p.name}</h4>
                   <div class="product-price">₱${p.price}</div>
-                </div>
-                <div class="stock-badge ${stockClass}">
-                  <i class="fas fa-box"></i> In Stock: ${p.stock}
                 </div>
               </div>
               <span class="details-label">Details</span>
@@ -326,17 +309,15 @@
       async function addProduct() {
         const name = document.getElementById("newName").value.trim();
         const price = document.getElementById("newPrice").value.trim();
-        const stock = document.getElementById("newStock").value.trim();
         const desc = document.getElementById("newDesc").value.trim();
         const imgFile = document.getElementById("newImg").files[0];
-        if (!name || !price || !stock || !imgFile)
+        if (!name || !price || !imgFile)
           return showToast("Fill all fields and select an image");
         showToast("Uploading image...");
         const imgURL = await uploadToCloudinary(imgFile);
         await addDoc(collection(db, "products"), {
           name,
           price: Number(price),
-          stock: Number(stock),
           desc: desc || "No description",
           img: imgURL,
         });
@@ -354,12 +335,10 @@
         document.getElementById("addProductBtn").textContent = "Update Product";
         document.getElementById("newName").value = product.name;
         document.getElementById("newPrice").value = product.price;
-        document.getElementById("newStock").value = product.stock;
         document.getElementById("newDesc").value = product.desc;
         document.getElementById("addProductBtn").onclick = async () => {
           const name = document.getElementById("newName").value.trim();
           const price = document.getElementById("newPrice").value.trim();
-          const stock = document.getElementById("newStock").value.trim();
           const desc = document.getElementById("newDesc").value.trim();
           const imgFile = document.getElementById("newImg").files[0];
           let imgURL = product.img;
@@ -370,7 +349,6 @@
           await updateDoc(doc(db, "products", id), {
             name,
             price: Number(price),
-            stock: Number(stock),
             desc,
             img: imgURL,
           });
