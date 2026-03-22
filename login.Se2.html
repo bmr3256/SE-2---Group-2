@@ -92,6 +92,11 @@
               </span>
             </button>
 
+            <div class="signup-link">
+              Don't Have an Account Yet?
+              <a href="signup.Se2.html"><strong>Sign Up</strong></a>
+            </div>
+
             <div class="form-message" id="formMessage"></div>
           </form>
         </div>
@@ -141,14 +146,13 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-    <!-- YOUR ORIGINAL MODULE SCRIPT (UNCHANGED) -->
+    <!-- FIREBASE LOGIN + LOCKOUT + OTP FLOW -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
       import {
         getAuth,
         signInWithEmailAndPassword,
-        sendPasswordResetEmail,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
       const firebaseConfig = {
@@ -174,45 +178,15 @@
         const formMessage = document.getElementById("formMessage");
         const loginButton = loginForm.querySelector("button[type='submit']");
 
-        let customMessage = document.createElement("div");
-        customMessage.style.color = "red";
-        customMessage.style.marginTop = "0.25rem";
-        customMessage.style.fontSize = "0.875rem";
-        customMessage.id = "customErrorMessage";
-
-        const passwordFormGroup = passwordInput.closest(".form-group");
-        passwordFormGroup.appendChild(customMessage);
-
-        let lockoutToast = document.createElement("div");
-        lockoutToast.id = "lockoutToast";
-        lockoutToast.className =
-          "toast align-items-center text-bg-danger border-0";
-        lockoutToast.role = "alert";
-        lockoutToast.ariaLive = "assertive";
-        lockoutToast.ariaAtomic = "true";
-        lockoutToast.style.position = "fixed";
-        lockoutToast.style.bottom = "1rem";
-        lockoutToast.style.right = "1rem";
-        lockoutToast.style.display = "none";
-        lockoutToast.innerHTML = `
-      <div class="d-flex">
-        <div class="toast-body">Too many failed attempts. Try again in 5 minutes.</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="document.getElementById('lockoutToast').style.display='none'"></button>
-      </div>
-    `;
-        document.body.appendChild(lockoutToast);
-
         let failedAttempts =
           parseInt(localStorage.getItem("failedAttempts")) || 0;
-
         const lockUntil = parseInt(localStorage.getItem("lockUntil"));
         if (lockUntil && Date.now() < lockUntil) {
           loginButton.disabled = true;
-          lockoutToast.style.display = "block";
-
+          document.getElementById("lockoutToast").style.display = "block";
           setTimeout(() => {
             loginButton.disabled = false;
-            lockoutToast.style.display = "none";
+            document.getElementById("lockoutToast").style.display = "none";
             localStorage.removeItem("lockUntil");
             failedAttempts = 0;
             localStorage.setItem("failedAttempts", failedAttempts);
@@ -222,21 +196,11 @@
         loginForm.addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const lockUntil = parseInt(localStorage.getItem("lockUntil"));
-          if (lockUntil && Date.now() < lockUntil) {
-            lockoutToast.style.display = "block";
-            emailInput.style.border = "1px solid red";
-            passwordInput.style.border = "1px solid red";
-            loginButton.disabled = true;
-            return;
-          }
-
           const email = emailInput.value.trim();
           const password = passwordInput.value;
 
           emailInput.style.border = "";
           passwordInput.style.border = "";
-          customMessage.textContent = "";
           formMessage.innerHTML = "";
           btnText.style.display = "none";
           btnLoader.style.display = "inline-block";
@@ -244,25 +208,36 @@
           if (!email || !password) {
             emailInput.style.border = "1px solid red";
             passwordInput.style.border = "1px solid red";
-            customMessage.textContent = "Please enter your credentials";
+            formMessage.style.color = "red";
+            formMessage.textContent = "Please enter your credentials";
             btnText.style.display = "inline-block";
             btnLoader.style.display = "none";
             return;
           }
 
           try {
+            // Firebase login
             await signInWithEmailAndPassword(auth, email, password);
 
-            failedAttempts = 0;
-            localStorage.setItem("failedAttempts", failedAttempts);
-            localStorage.removeItem("lockUntil");
+            // OTP addition: call backend to send code
+            const response = await fetch("sendotp.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: "email=" + encodeURIComponent(email),
+            });
 
-            formMessage.style.color = "green";
-            formMessage.innerHTML = "Login successful! Redirecting...";
+            const result = await response.text();
 
-            setTimeout(() => {
-              window.location.href = "index.Se2.html";
-            }, 1500);
+            if (result === "OTP_SENT") {
+              // Redirect to EmailVerif.html with email param
+              window.location.href =
+                "EmailVerif.html?email=" + encodeURIComponent(email);
+            } else {
+              btnText.style.display = "inline-block";
+              btnLoader.style.display = "none";
+              formMessage.style.color = "red";
+              formMessage.textContent = "Failed to send OTP. Try again.";
+            }
           } catch (error) {
             emailInput.style.border = "1px solid red";
             passwordInput.style.border = "1px solid red";
@@ -276,18 +251,18 @@
             if (error.code === "auth/invalid-email")
               message = "Invalid email format.";
 
-            customMessage.textContent = message;
+            formMessage.style.color = "red";
+            formMessage.textContent = message;
 
             if (failedAttempts >= 3) {
               const lockTime = 5 * 60 * 1000;
               const unlockAt = Date.now() + lockTime;
               localStorage.setItem("lockUntil", unlockAt);
               loginButton.disabled = true;
-              lockoutToast.style.display = "block";
-
+              document.getElementById("lockoutToast").style.display = "block";
               setTimeout(() => {
                 loginButton.disabled = false;
-                lockoutToast.style.display = "none";
+                document.getElementById("lockoutToast").style.display = "none";
                 failedAttempts = 0;
                 localStorage.setItem("failedAttempts", failedAttempts);
                 localStorage.removeItem("lockUntil");
@@ -295,27 +270,10 @@
             }
           }
         });
-
-        const forgotForm = document.getElementById("forgotPasswordForm");
-        if (forgotForm) {
-          forgotForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const emailInputValue = forgotForm
-              .querySelector("input")
-              .value.trim();
-            try {
-              await sendPasswordResetEmail(auth, emailInputValue);
-              alert("Password reset link sent to your email.");
-              forgotForm.reset();
-            } catch (error) {
-              alert("Error: " + error.message);
-            }
-          });
-        }
       });
     </script>
 
-    <!-- ONLY ADDITION: GLOBAL PASSWORD TOGGLE -->
+    <!-- PASSWORD TOGGLE -->
     <script>
       function togglePassword(inputId) {
         const input = document.getElementById(inputId);
