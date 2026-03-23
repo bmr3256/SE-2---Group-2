@@ -13,6 +13,7 @@ $otp = rand(100000, 999999);
 
 $_SESSION['otp'] = $otp;
 $_SESSION['otp_email'] = $email;
+$_SESSION['otp_time'] = time();
 
 $mail = new PHPMailer(true);
 
