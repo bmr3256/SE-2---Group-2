@@ -13,119 +13,9 @@
       rel="stylesheet"
     />
     <link href="style.Se2.css" rel="stylesheet" />
-
-    <style>
-      /* Ensure FAQ drop-down works */
-      .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-      }
-      .faq-item.active .faq-answer {
-        max-height: 500px; /* enough to show content */
-      }
-    </style>
   </head>
+
   <body>
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        getDocs,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
-        authDomain: "grp2-se.firebaseapp.com",
-        projectId: "grp2-se",
-        storageBucket: "grp2-se.firebasestorage.app",
-        messagingSenderId: "488325990404",
-        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
-        measurementId: "G-PDT5LV9JX1",
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-
-      // Load products after DOM is ready
-      window.addEventListener("DOMContentLoaded", async () => {
-        const container = document.querySelector(".products-detail-container");
-        if (!container) return console.error("Products container not found");
-
-        try {
-          const snapshot = await getDocs(collection(db, "products"));
-          if (snapshot.empty) {
-            container.innerHTML = "<p>No products found</p>";
-            return;
-          }
-
-          snapshot.forEach((doc) => {
-            const product = doc.data();
-
-            const card = document.createElement("div");
-            card.classList.add("product-detail-card");
-
-            card.innerHTML = `
-            <div class="product-detail-left">
-            <div class="product-img">
-                <img src="${product.img}" alt="${product.name}">
-            </div>
-            <div class="product-detail-price">₱${product.price}</div>
-            <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price})">
-                <i class="fas fa-shopping-cart"></i> Add to Cart
-            </button>
-            </div>
-          <div class="product-detail-right">
-            <h2><i class="${product.icon || ""}"></i> ${product.name.toUpperCase()}</h2>
-            <div class="faq-item">
-              <div class="faq-question" onclick="toggleFAQ(this)">
-                <span>Details</span>
-                <i class="fas fa-chevron-down"></i>
-              </div>
-              <div class="faq-answer">${product.desc || ""}</div>
-            </div>
-            <div class="product-benefits-box">
-              <p><strong>Benefits of ${product.name}:</strong></p>
-              <ul>${Array.isArray(product.benefits) ? product.benefits.map((b) => `<li>${b}</li>`).join("") : ""}</ul>
-            </div>
-          </div>
-        `;
-            container.appendChild(card);
-          });
-        } catch (err) {
-          console.error("Error loading products:", err);
-          container.innerHTML = `<p>Failed to load products: ${err.message}</p>`;
-        }
-      });
-
-      // Toggle FAQ drop-down
-      window.toggleFAQ = function (element) {
-        const faqItem = element.closest(".faq-item");
-        const answer = faqItem.querySelector(".faq-answer");
-        const question = faqItem.querySelector(".faq-question");
-
-        // Toggle active state on question icon
-        question.classList.toggle("active");
-
-        // Toggle the answer
-        if (answer.classList.contains("show")) {
-          answer.classList.remove("show");
-          answer.style.maxHeight = null;
-          answer.style.opacity = 0;
-        } else {
-          answer.classList.add("show");
-          answer.style.maxHeight = answer.scrollHeight + "px";
-          answer.style.opacity = 1;
-        }
-      };
-
-      // Add to cart function
-      window.addToCart = function (name, price) {
-        alert(`Added ${name} (₱${price}) to cart`);
-      };
-    </script>
-
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
@@ -175,6 +65,20 @@
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
+          <!-- Hidden by default, shown when logged in -->
+          <button
+            id="logoutBtn"
+            class="nav-icon"
+            title="Logout"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
         </div>
       </div>
     </nav>
@@ -247,5 +151,132 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // ── Load products ──
+      const container = document.querySelector(".products-detail-container");
+      if (container) {
+        try {
+          const snapshot = await getDocs(collection(db, "products"));
+          if (snapshot.empty) {
+            container.innerHTML = "<p>No products found</p>";
+          } else {
+            snapshot.forEach((d) => {
+              const product = d.data();
+              const card = document.createElement("div");
+              card.classList.add("product-detail-card");
+              card.innerHTML = `
+            <div class="product-detail-left">
+              <div class="product-img">
+                <img src="${product.img}" alt="${product.name}">
+              </div>
+              <div class="product-detail-price">₱${product.price}</div>
+              <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price})">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
+              </button>
+            </div>
+            <div class="product-detail-right">
+              <h2><i class="${product.icon || ""}"></i> ${product.name.toUpperCase()}</h2>
+              <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                  <span>Details</span>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">${product.desc || ""}</div>
+              </div>
+              <div class="product-benefits-box">
+                <p><strong>Benefits of ${product.name}:</strong></p>
+                <ul>${Array.isArray(product.benefits) ? product.benefits.map((b) => `<li>${b}</li>`).join("") : ""}</ul>
+              </div>
+            </div>
+          `;
+              container.appendChild(card);
+            });
+          }
+        } catch (err) {
+          console.error("Error loading products:", err);
+          container.innerHTML = `<p>Failed to load products: ${err.message}</p>`;
+        }
+      }
+
+      // ── Toggle FAQ ──
+      window.toggleFAQ = function (element) {
+        const faqItem = element.closest(".faq-item");
+        const answer = faqItem.querySelector(".faq-answer");
+        const question = faqItem.querySelector(".faq-question");
+        question.classList.toggle("active");
+        if (answer.classList.contains("show")) {
+          answer.classList.remove("show");
+          answer.style.maxHeight = null;
+          answer.style.opacity = 0;
+        } else {
+          answer.classList.add("show");
+          answer.style.maxHeight = answer.scrollHeight + "px";
+          answer.style.opacity = 1;
+        }
+      };
+
+      // ── Add to cart ──
+      window.addToCart = function (name, price) {
+        alert(`Added ${name} (₱${price}) to cart`);
+      };
+
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          const fullName = docSnap.exists()
+            ? `${docSnap.data().fname} ${docSnap.data().lname}`
+            : user.email;
+
+          userIcon.href = "profile.html";
+          userIcon.title = fullName;
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          logoutBtn.style.display = "inline-block"; // show logout button
+
+          logoutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.href = "login.Se2.html";
+          };
+        } else {
+          userIcon.href = "login.Se2.html";
+          userIcon.title = "Login / Sign Up";
+          userIcon.querySelector("i").className = "fas fa-user-circle";
+          logoutBtn.style.display = "none"; // hide logout button
+        }
+      });
+    </script>
   </body>
 </html>
