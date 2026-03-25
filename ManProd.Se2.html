@@ -53,6 +53,10 @@
         <div class="sidebar-user-info">
           <span class="user-name">ADMIN</span>
           <span class="user-email">admin@gmail.com</span>
+
+          <button class="btn btn-danger btn-sm mt-2 w-100" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
         </div>
       </div>
     </aside>
@@ -231,8 +235,8 @@
       }
 
       /* ---------- CLOUDINARY ---------- */
-      const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";
-      const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
+      const CLOUDINARY_CLOUD_NAME = "dfppbhbr3";
+      const CLOUDINARY_UPLOAD_PRESET = "finals";
       async function uploadToCloudinary(file) {
         const formData = new FormData();
         formData.append("file", file);
@@ -244,6 +248,19 @@
         const data = await res.json();
         return data.secure_url;
       }
+
+      // ---------- LOGOUT ----------
+      window.addEventListener("load", () => {
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "Adminlogin.Se2.html"; // adjust if needed
+          });
+        }
+      });
 
       /* ---------- FETCH PRODUCTS ---------- */
       async function fetchProducts() {
