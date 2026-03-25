@@ -327,67 +327,32 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
     <script>
-      // Show confirmation modal
       function showConfirmationModal() {
         const form = document.getElementById("orderForm");
-
-        // Validate form first
         if (!form.checkValidity()) {
           form.reportValidity();
           return;
         }
-
-        // Show modal
         const modal = new bootstrap.Modal(
           document.getElementById("confirmOrderModal"),
         );
         modal.show();
       }
 
-      // Process order
       function processOrder() {
-        const form = document.getElementById("orderForm");
-        const formData = new FormData(form);
-
-        // Get order data
-        const orderData = {
-          email: formData.get("email"),
-          firstName: formData.get("firstName"),
-          lastName: formData.get("lastName"),
-          address: formData.get("address"),
-          city: formData.get("city"),
-          zipCode: formData.get("zipCode"),
-          phone: formData.get("phone"),
-          payment: formData.get("payment"),
-          total: document.getElementById("totalAmount").textContent,
-        };
-
-        // Close modal
         const modal = bootstrap.Modal.getInstance(
           document.getElementById("confirmOrderModal"),
         );
         modal.hide();
-
-        // Show success message
         setTimeout(() => {
           alert(
-            "Order placed successfully! Order ID: #" +
-              Math.floor(Math.random() * 90000000) +
-              10000000 +
-              "\n\nWe will contact you at " +
-              orderData.email +
-              " with shipping details.",
+            "Order placed successfully! We will contact you with shipping details.",
           );
-
-          // Clear cart and redirect
-          localStorage.setItem("cartCount", "0");
-          window.location.href = "index.html";
+          window.location.href = "index.Se2.html";
         }, 300);
       }
     </script>
-    <!-- Firebase auth state -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
@@ -397,8 +362,13 @@
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
       import {
         getFirestore,
+        collection,
+        getDocs,
         doc,
         getDoc,
+        deleteDoc,
+        setDoc,
+        serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -415,6 +385,96 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
+      // ── Load cart items ──
+      async function loadCart(user) {
+        const snapshot = await getDocs(
+          collection(db, "carts", user.uid, "items"),
+        );
+        const summaryBox = document.querySelector(".order-summary-box");
+
+        if (snapshot.empty) {
+          summaryBox.innerHTML = `
+            <h3>Order Summary</h3>
+            <p>Your cart is empty.</p>
+            <a href="products.Se2.html" class="btn-place-order" style="text-align:center; display:block;">Shop Now</a>
+          `;
+          document
+            .querySelectorAll(".cart-badge")
+            .forEach((b) => (b.textContent = 0));
+          return;
+        }
+
+        let itemsHTML = "";
+        let total = 0;
+
+        snapshot.forEach((d) => {
+          const item = d.data();
+          const subtotal = item.price * item.quantity;
+          total += subtotal;
+          itemsHTML += `
+        <div class="cart-item" style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <img src="${item.img}" alt="${item.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+          <div style="flex:1">
+            <strong>${item.name}</strong><br>
+            ₱${item.price} x ${item.quantity} = ₱${subtotal}
+          </div>
+          <div style="display:flex; align-items:center; gap:5px;">
+            <button onclick="changeQty('${item.name}', ${item.quantity}, ${item.price}, '${item.img}', -1)" style="border:none; background:#eee; padding:2px 8px; cursor:pointer; border-radius:4px;">−</button>
+            <span>${item.quantity}</span>
+            <button onclick="changeQty('${item.name}', ${item.quantity}, ${item.price}, '${item.img}', 1)" style="border:none; background:#eee; padding:2px 8px; cursor:pointer; border-radius:4px;">+</button>
+            <button onclick="removeItem('${item.name}')" style="border:none; background:none; color:red; cursor:pointer; margin-left:5px;"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `;
+        });
+
+        const shipping = 50;
+        summaryBox.innerHTML = `
+      <h3>Order Summary</h3>
+      ${itemsHTML}
+      <hr>
+      <div style="display:flex; justify-content:space-between;"><span>Subtotal</span><span>₱${total}</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>Shipping</span><span>₱${shipping}</span></div>
+      <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:8px;"><span>Total</span><span id="totalAmount">₱${total + shipping}</span></div>
+      <button type="button" class="btn-place-order" style="margin-top:16px; width:100%;" onclick="showConfirmationModal()">Place Order</button>
+    `;
+
+        // Update badge
+        let totalQty = 0;
+        snapshot.forEach((d) => (totalQty += d.data().quantity || 1));
+        document
+          .querySelectorAll(".cart-badge")
+          .forEach((b) => (b.textContent = totalQty));
+      }
+
+      // ── Change quantity ──
+      window.changeQty = async function (name, currentQty, price, img, delta) {
+        const user = auth.currentUser;
+        const itemRef = doc(db, "carts", user.uid, "items", name);
+        const newQty = currentQty + delta;
+
+        if (newQty <= 0) {
+          await deleteDoc(itemRef);
+        } else {
+          await setDoc(itemRef, {
+            name,
+            price,
+            img,
+            quantity: newQty,
+            updatedAt: serverTimestamp(),
+          });
+        }
+        loadCart(user);
+      };
+
+      // ── Remove item ──
+      window.removeItem = async function (name) {
+        const user = auth.currentUser;
+        await deleteDoc(doc(db, "carts", user.uid, "items", name));
+        loadCart(user);
+      };
+
+      // ── Auth state / navbar ──
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -422,25 +482,30 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
+          // Auto-fill form with user data
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
-          const fullName = docSnap.exists()
-            ? `${docSnap.data().fname} ${docSnap.data().lname}`
-            : user.email;
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            document.getElementById("email").value = data.email || "";
+            document.getElementById("firstName").value = data.fname || "";
+            document.getElementById("lastName").value = data.lname || "";
+            const fullName = `${data.fname} ${data.lname}`;
+            userIcon.href = "profile.html";
+            userIcon.title = fullName;
+          }
 
-          userIcon.href = "profile.html";
-          userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
-          logoutBtn.style.display = "inline-block"; // show logout button
-
+          logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
             window.location.href = "login.Se2.html";
           };
+
+          loadCart(user); // ✅ load cart items
         } else {
-          userIcon.href = "login.Se2.html";
-          userIcon.title = "Login / Sign Up";
-          userIcon.querySelector("i").className = "fas fa-user-circle";
-          logoutBtn.style.display = "none"; // hide logout button
+          // Not logged in — redirect to login
+          window.location.href = "login.Se2.html";
+          logoutBtn.style.display = "none";
         }
       });
     </script>
