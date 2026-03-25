@@ -319,10 +319,14 @@
       window.applyFilter = applyFilter;
       window.refreshOrders = refreshOrders;
 
-      document.querySelector('button[title="Filter"]').onclick =
-        openFilterModal;
-
-      fetchOrders();
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelector('button[title="Filter"]').onclick =
+          openFilterModal;
+        document
+          .getElementById("searchInput")
+          .addEventListener("input", filterOrders);
+        fetchOrders();
+      });
     </script>
 
     <!-- SIDEBAR -->
@@ -347,11 +351,6 @@
             ><i class="fas fa-clipboard-list"></i> Manage Order</a
           >
         </li>
-        <li>
-          <a href="ManStock.Se2.html"
-            ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
-          >
-        </li>
       </ul>
       <div class="sidebar-user">
         <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
@@ -367,12 +366,7 @@
       <div class="admin-topbar"><h3>Orders</h3></div>
       <div class="admin-content">
         <div class="orders-toolbar">
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Search..."
-            oninput="filterOrders()"
-          />
+          <input type="text" id="searchInput" placeholder="Search..." />
           <div class="toolbar-icons">
             <button title="Filter"><i class="fas fa-filter"></i></button>
             <button title="Add" onclick="openAddModal()">
