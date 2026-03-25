@@ -95,12 +95,9 @@
       </div>
 
       <div class="proceed-checkout-container">
-        <button
-          class="btn-proceed-checkout"
-          onclick="alert('Proceeding to checkout...')"
-        >
+        <a href="cart.Se2.html" class="btn-proceed-checkout">
           Proceed to Checkout <i class="fas fa-arrow-right"></i>
-        </button>
+        </a>
       </div>
     </section>
 
@@ -151,13 +148,12 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
         getAuth,
         onAuthStateChanged,
+        signOut,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
       import {
         getFirestore,
@@ -165,6 +161,8 @@
         getDocs,
         doc,
         getDoc,
+        setDoc,
+        serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -199,7 +197,7 @@
                 <img src="${product.img}" alt="${product.name}">
               </div>
               <div class="product-detail-price">₱${product.price}</div>
-              <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price})">
+              <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price}, '${product.img}')">
                 <i class="fas fa-shopping-cart"></i> Add to Cart
               </button>
             </div>
@@ -245,9 +243,56 @@
       };
 
       // ── Add to cart ──
-      window.addToCart = function (name, price) {
-        alert(`Added ${name} (₱${price}) to cart`);
+      // ── Add to cart ──
+      window.addToCart = async function (name, price, img) {
+        const user = auth.currentUser;
+        if (!user) {
+          window.location.href = "login.Se2.html";
+          return;
+        }
+
+        try {
+          const itemRef = doc(db, "carts", user.uid, "items", name);
+          const itemSnap = await getDoc(itemRef);
+
+          if (itemSnap.exists()) {
+            // Already in cart — increment quantity
+            await setDoc(itemRef, {
+              name,
+              price,
+              img,
+              quantity: itemSnap.data().quantity + 1,
+              updatedAt: serverTimestamp(),
+            });
+          } else {
+            // New item
+            await setDoc(itemRef, {
+              name,
+              price,
+              img,
+              quantity: 1,
+              addedAt: serverTimestamp(),
+            });
+          }
+
+          updateCartBadge(user);
+        } catch (err) {
+          console.error("Error adding to cart:", err);
+        }
       };
+
+      // ── Update cart badge ──
+      async function updateCartBadge(user) {
+        if (!user) return;
+        const snapshot = await getDocs(
+          collection(db, "carts", user.uid, "items"),
+        );
+        let totalQty = 0;
+        snapshot.forEach((d) => (totalQty += d.data().quantity || 1));
+        document
+          .querySelectorAll(".cart-badge")
+          .forEach((b) => (b.textContent = totalQty));
+      }
 
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
@@ -264,17 +309,18 @@
           userIcon.href = "profile.html";
           userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
-          logoutBtn.style.display = "inline-block"; // show logout button
-
+          logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
             window.location.href = "login.Se2.html";
           };
+
+          updateCartBadge(user); // ✅ load badge on page load
         } else {
           userIcon.href = "login.Se2.html";
           userIcon.title = "Login / Sign Up";
           userIcon.querySelector("i").className = "fas fa-user-circle";
-          logoutBtn.style.display = "none"; // hide logout button
+          logoutBtn.style.display = "none";
         }
       });
     </script>
