@@ -226,17 +226,22 @@
               body: "email=" + encodeURIComponent(email),
             });
 
-            const result = await response.text();
+            const resultRaw = (await response.text()).trim();
+            console.log("sendotp response:", resultRaw);
+            const result = resultRaw.includes("OTP_SENT")
+              ? "OTP_SENT"
+              : resultRaw;
 
-            if (result === "OTP_SENT") {
-              // Redirect to EmailVerif.html with email param
+            if (response.ok && result === "OTP_SENT") {
+              // Redirect to email verification with email param
               window.location.href =
-                "EmailVerif.html?email=" + encodeURIComponent(email);
+                "emailver.Se2.html?email=" + encodeURIComponent(email);
             } else {
               btnText.style.display = "inline-block";
               btnLoader.style.display = "none";
               formMessage.style.color = "red";
-              formMessage.textContent = "Failed to send OTP. Try again.";
+              formMessage.textContent =
+                "Failed to send OTP. Try again. (" + result + ")";
             }
           } catch (error) {
             emailInput.style.border = "1px solid red";
