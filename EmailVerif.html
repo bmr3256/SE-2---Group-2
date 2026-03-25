@@ -136,7 +136,7 @@
             </div>
 
             <div class="auth-links">
-              <a href="login.html" class="back-link">
+              <a href="login.Se2.html" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Login
               </a>
             </div>
@@ -232,13 +232,55 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Get email from URL parameter
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        createUserWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Get URL params
       const urlParams = new URLSearchParams(window.location.search);
       const email = urlParams.get("email");
+      const mode = urlParams.get("mode"); // "signup" or null (login)
+
       if (email) {
         document.getElementById("userEmail").textContent = email;
       }
+
+      // Track the Firebase user (only relevant for login mode)
+      let currentUser = null;
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+        } else {
+          // Only redirect to login if we're NOT in signup mode
+          if (mode !== "signup") {
+            window.location.href = "login.Se2.html";
+          }
+        }
+      });
 
       // PIN Input handling
       const pinBoxes = document.querySelectorAll(".pin-box");
@@ -273,7 +315,7 @@
         pinBoxes[0].focus();
       });
 
-      // Form submission - real verification
+      // Form submission
       document
         .getElementById("pinForm")
         .addEventListener("submit", function (e) {
@@ -294,7 +336,6 @@
           btnLoader.style.display = "inline-flex";
           submitBtn.disabled = true;
 
-          // Call verifyotp.php
           fetch("verifyotp.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -302,19 +343,55 @@
               "otp=" +
               encodeURIComponent(pin) +
               "&email=" +
-              encodeURIComponent(email),
+              encodeURIComponent(email) +
+              "&uid=" +
+              encodeURIComponent(currentUser ? currentUser.uid : ""),
           })
             .then((res) => res.text())
-            .then((data) => {
+            .then(async (data) => {
               btnText.style.display = "inline";
               btnLoader.style.display = "none";
               submitBtn.disabled = false;
 
               if (data === "VERIFIED") {
-                showToast("Verification successful!");
-                setTimeout(() => {
-                  window.location.href = "index.Se2.html";
-                }, 1000);
+                if (mode === "signup") {
+                  // ── Create the account now ──
+                  try {
+                    const signupData = JSON.parse(
+                      sessionStorage.getItem("signupData"),
+                    );
+
+                    const userCredential = await createUserWithEmailAndPassword(
+                      auth,
+                      signupData.email,
+                      signupData.password,
+                    );
+                    const user = userCredential.user;
+
+                    await setDoc(doc(db, "accounts", user.uid), {
+                      fname: signupData.fname,
+                      lname: signupData.lname,
+                      email: signupData.email,
+                      password: signupData.password,
+                      createdAt: new Date(),
+                    });
+
+                    sessionStorage.removeItem("signupData"); // clean up
+                    showToast("Account created successfully!");
+                    setTimeout(() => {
+                      window.location.href = "login.Se2.html";
+                    }, 1500);
+                  } catch (err) {
+                    console.error("Signup error:", err);
+                    showError("Failed to create account. " + err.message);
+                  }
+                } else {
+                  // ── Normal login flow ──
+                  showToast("Verification successful!");
+                  setTimeout(() => {
+                    window.location.href = "index.Se2.html";
+                  }, 1000);
+                }
               } else if (data === "EXPIRED") {
                 showError("OTP expired. Please resend code.");
               } else {
@@ -334,18 +411,10 @@
             });
         });
 
-      function showError(message) {
-        const errorDiv = document.getElementById("errorMessage");
-        const errorText = document.getElementById("errorText");
-        errorText.textContent = message;
-        errorDiv.style.display = "flex";
-      }
-
-      // Resend code functionality
+      // Resend code
       let canResend = true;
       function resendCode() {
         if (!canResend) return;
-
         canResend = false;
         const resendBtn = document.getElementById("resendBtn");
         const resendTimer = document.getElementById("resendTimer");
@@ -354,7 +423,7 @@
         resendBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-        fetch("send_otp.php", {
+        fetch("sendotp.php", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "email=" + encodeURIComponent(email),
@@ -404,12 +473,21 @@
           });
       }
 
+      window.resendCode = resendCode;
+
       function showToast(message) {
         document.getElementById("toastMessage").textContent = message;
         const toast = new bootstrap.Toast(
           document.getElementById("successToast"),
         );
         toast.show();
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        const errorText = document.getElementById("errorText");
+        errorText.textContent = message;
+        errorDiv.style.display = "flex";
       }
     </script>
   </body>
