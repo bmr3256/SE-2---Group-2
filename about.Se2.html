@@ -234,7 +234,7 @@
             ? `${docSnap.data().fname} ${docSnap.data().lname}`
             : user.email;
 
-          userIcon.href = "profile.html";
+          userIcon.href = "profile.Se2.html";
           userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
           logoutBtn.style.display = "inline-block"; // show logout button
@@ -250,6 +250,52 @@
           logoutBtn.style.display = "none"; // hide logout button
         }
       });
+
+      async function loadAboutContent() {
+        try {
+          const snap = await getDoc(doc(db, "managecon", "aboutus_info"));
+
+          if (snap.exists() && snap.data().fields) {
+            const fields = snap.data().fields;
+
+            const about = fields.find((f) => f.title === "About Us");
+            const mission = fields.find((f) => f.title === "Mission");
+            const vision = fields.find((f) => f.title === "Vision");
+
+            if (about && about.contents.some((c) => c.trim())) {
+              const textDetail = document.querySelector(".about-text-detail");
+              textDetail.querySelectorAll("p").forEach((p) => p.remove());
+              about.contents
+                .filter((c) => c.trim())
+                .forEach((c) => {
+                  const p = document.createElement("p");
+                  p.innerHTML = c.replace(/\n/g, "<br>");
+                  textDetail.appendChild(p);
+                });
+            }
+
+            if (mission && mission.contents.some((c) => c.trim())) {
+              document.querySelector(".mission-box-large p").innerHTML =
+                mission.contents
+                  .filter((c) => c.trim())
+                  .map((c) => c.replace(/\n/g, "<br>"))
+                  .join("<br><br>");
+            }
+
+            if (vision && vision.contents.some((c) => c.trim())) {
+              document.querySelector(".vision-box-large p").innerHTML =
+                vision.contents
+                  .filter((c) => c.trim())
+                  .map((c) => c.replace(/\n/g, "<br>"))
+                  .join("<br><br>");
+            }
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      loadAboutContent();
     </script>
   </body>
 </html>
