@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creating Account - The Barkery</title>
+</head>
+<body>
+    <div style="text-align: center; padding: 4rem;">
+        <h2>Creating your account...</h2>
+        <p>Please wait while we set up your account.</p>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // Get signup data from sessionStorage
+      const signupData = JSON.parse(sessionStorage.getItem('signupData'));
+      
+      if (!signupData) {
+          alert('No signup data found. Please start over.');
+          window.location.href = 'signup.Se2.html';
+      }
+
+      async function createAccount() {
+          try {
+              // Step 1: Create Firebase Auth account (uses bcrypt internally)
+              const userCredential = await createUserWithEmailAndPassword(
+                  auth, 
+                  signupData.email, 
+                  signupData.password
+              );
+              
+              const userId = userCredential.user.uid;
+
+              // Step 2: Store SHA-256 hash in Firestore
+              await setDoc(doc(db, "users", userId), {
+                  firstName: signupData.fname,
+                  lastName: signupData.lname,
+                  email: signupData.email,
+                  sha256Salt: signupData.sha256Salt,
+                  sha256Hash: signupData.sha256Hash,
+                  createdAt: new Date(),
+                  role: 'customer'
+              });
+
+              // Clear sessionStorage
+              sessionStorage.removeItem('signupData');
+
+              // Success! Redirect to login
+              alert('Account created successfully!');
+              window.location.href = 'login.Se2.html';
+
+          } catch (error) {
+              console.error('Error creating account:', error);
+              alert('Error creating account: ' + error.message);
+              window.location.href = 'signup.Se2.html';
+          }
+      }
+
+      // Execute account creation on page load
+      createAccount();
+    </script>
+</body>
+</html>

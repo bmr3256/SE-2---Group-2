@@ -474,8 +474,8 @@ body {
 }
 
 .auth-right img {
-  background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-  backdrop-filter: blur(10px);          /* Blurs the image behind it */
+  background: #ffffff47; /* Semi-transparent white */
+  backdrop-filter: blur(3px);          /* Blurs the image behind it */
   padding: 20px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.3);
