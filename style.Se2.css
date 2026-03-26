@@ -1928,3 +1928,291 @@ button,
   width: 120px;
   height: 18px;
 }
+.btn-cancel-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 13px;
+  border: 1.5px solid #fca5a5;
+  border-radius: 20px;
+  background: white;
+  color: #dc2626;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-cancel-order:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+.orders-page-section {
+  padding: 4rem 2rem;
+  background-color: var(--light-cream);
+  min-height: 60vh;
+}
+
+.orders-page-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Toolbar */
+.orders-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.orders-search {
+  flex: 1;
+  min-width: 180px;
+  max-width: 340px;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 25px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: white
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' fill='%236B6B6B' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z'/%3E%3C/svg%3E")
+    no-repeat 12px center;
+  color: var(--dark-brown);
+  transition: border-color 0.2s;
+  outline: none;
+}
+.orders-search:focus {
+  border-color: var(--button-tan);
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 25px;
+  background: white;
+  color: var(--dark-brown);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.toolbar-btn:hover {
+  background: var(--primary-tan);
+  border-color: var(--button-tan);
+}
+
+/* Table Wrapper */
+.orders-table-wrap {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body);
+  font-size: 0.925rem;
+}
+
+.orders-table thead tr {
+  background-color: var(--primary-tan);
+}
+.orders-table thead th {
+  padding: 14px 20px;
+  text-align: left;
+  font-family: var(--font-bold);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dark-brown);
+  font-weight: 400;
+}
+
+.orders-table tbody tr {
+  border-bottom: 1px solid #f2ece3;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.orders-table tbody tr:last-child {
+  border-bottom: none;
+}
+.orders-table tbody tr:hover {
+  background: var(--light-cream);
+}
+
+.orders-table tbody td {
+  padding: 14px 20px;
+  color: var(--dark-brown);
+  vertical-align: middle;
+}
+
+.order-id-cell {
+  font-weight: 700;
+  font-size: 0.83rem;
+  color: var(--orange);
+}
+
+/* Status Badges */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 0.04em;
+}
+.badge-status::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.badge-processing {
+  background: #fef3c7;
+  color: #d97706;
+}
+.badge-complete {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.badge-cancel {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Empty / Loading states */
+.state-box {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-gray);
+  font-family: var(--font-body);
+}
+.state-box i {
+  font-size: 2.5rem;
+  color: var(--button-tan);
+  opacity: 0.5;
+  margin-bottom: 12px;
+  display: block;
+}
+.state-box p {
+  font-size: 1rem;
+  margin: 0;
+}
+.state-box a {
+  color: var(--orange);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--primary-tan);
+  border-top-color: var(--button-tan);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 12px;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table footer */
+.orders-table-footer {
+  padding: 12px 20px;
+  font-size: 0.82rem;
+  color: var(--text-gray);
+  border-top: 1px solid #f2ece3;
+  font-family: var(--font-body);
+}
+
+/* ── ORDER DETAIL MODAL ───────────────────────── */
+.order-detail-modal .modal-content {
+  background-color: var(--cream);
+  border: none;
+  border-radius: 15px;
+}
+.order-detail-modal .modal-header {
+  background-color: var(--primary-tan);
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+  padding: 1.25rem 1.5rem;
+}
+.order-detail-modal .modal-title {
+  font-family: var(--font-bold);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--dark-brown);
+  letter-spacing: 0.5px;
+}
+.order-detail-modal .modal-body {
+  padding: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ede5d8;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+}
+.detail-row:last-child {
+  border-bottom: none;
+}
+.detail-label {
+  color: var(--text-gray);
+  font-weight: 500;
+}
+.detail-value {
+  font-weight: 600;
+  color: var(--dark-brown);
+  text-align: right;
+}
+
+/* ── FILTER MODAL ─────────────────────────────── */
+.filter-modal-content {
+  background-color: var(--cream);
+  border: none;
+  border-radius: 15px;
+}
+.filter-modal-header {
+  background-color: var(--primary-tan);
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+  padding: 1.25rem 1.5rem;
+}
+.filter-modal-header .modal-title {
+  font-family: var(--font-bold);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--dark-brown);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .orders-page-section {
+    padding: 2rem 1rem;
+  }
+  .orders-table thead th:nth-child(3),
+  .orders-table tbody td:nth-child(3) {
+    display: none;
+  }
+}
