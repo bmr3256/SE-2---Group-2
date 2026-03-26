@@ -18,7 +18,6 @@
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
-        <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
       </div>
       <ul class="sidebar-nav">
@@ -34,11 +33,6 @@
         </li>
         <li>
           <a href="ManOrd.Se2.html"
-            ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
-          >
-        </li>
-        <li>
-          <a href="ManStock.Se2.html"
             ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
           >
         </li>
@@ -235,8 +229,8 @@
       }
 
       /* ---------- CLOUDINARY ---------- */
-      const CLOUDINARY_CLOUD_NAME = "dfppbhbr3";
-      const CLOUDINARY_UPLOAD_PRESET = "finals";
+      const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";
+      const CLOUDINARY_UPLOAD_PRESET = "YOUR_UNSIGNED_PRESET";
       async function uploadToCloudinary(file) {
         const formData = new FormData();
         formData.append("file", file);
@@ -248,7 +242,7 @@
         const data = await res.json();
         return data.secure_url;
       }
-
+      
       // ---------- LOGOUT ----------
       window.addEventListener("load", () => {
         const logoutBtn = document.getElementById("logoutBtn");

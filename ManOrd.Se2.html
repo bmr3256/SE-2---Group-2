@@ -379,8 +379,8 @@
       window.resetFilter = resetFilter;
       window.applyFilter = applyFilter;
       window.refreshOrders = refreshOrders;
-
-      document.addEventListener("DOMContentLoaded", () => {
+      
+        document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('button[title="Filter"]').onclick =
           openFilterModal;
 
@@ -401,27 +401,26 @@
         fetchOrders();
       });
     </script>
-
+    
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
-        <img src="images/B_logo_black.png" id="B_logo" />
         <img src="images/Logo - Black.png" />
       </div>
       <ul class="sidebar-nav">
         <li>
-          <a href="ManProd.Se2.html"
-            ><i class="fas fa-box"></i> Manage Products</a
+          <a href="ManProd.Se2.html" 
+            ><i class="fas fa-box"></i> <span>Manage Products</span></a
           >
         </li>
         <li>
           <a href="ManCon.Se2.html"
-            ><i class="fas fa-file-alt"></i> Manage Content</a
+            ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a
           >
         </li>
         <li>
-          <a href="ManOrd.Se2.html" class="active"
-            ><i class="fas fa-clipboard-list"></i> Manage Order</a
+          <a href="ManOrd.Se2.html"class="active"
+            ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
           >
         </li>
         <li>
