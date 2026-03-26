@@ -224,9 +224,11 @@
         </form>
 
         <!-- Related Words / Delivery / Socials section now dynamic -->
-        <div class="contact-info-page">
-          <!-- Will be replaced dynamically with Firebase fields -->
-        </div>
+        <div
+          class="contact-info-page"
+          id="contactInfoSection"
+          style="margin-top: 2rem"
+        ></div>
       </div>
     </section>
 
@@ -279,20 +281,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="script.Se2.js"></script>
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
       import {
         getAuth,
         onAuthStateChanged,
         signOut,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-      import {
-        getFirestore,
-        collection,
-        getDocs,
-        doc,
-        getDoc,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
@@ -305,62 +304,60 @@
       };
 
       const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-      const auth = getAuth(app);
       const db = getFirestore(app);
+      const auth = getAuth(app);
 
-      // ── Feedback info loader ──
-      async function loadFeedbackInfo() {
+      async function loadContactInfo() {
         try {
-          const snapshot = await getDocs(collection(db, "feedback_info"));
-          if (snapshot.empty) return;
-
-          const data = snapshot.docs[0].data();
-          const infoDiv = document.querySelector(".contact-info-page");
-          if (!infoDiv) return;
-
-          infoDiv.innerHTML = "";
-
-          for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-              const value = data[key];
-              const el = document.createElement("p");
-              if (
-                key.toLowerCase().includes("title") ||
-                key.toLowerCase().includes("socials")
-              ) {
-                el.innerHTML = `<strong>${value}</strong>`;
-              } else {
-                el.textContent = "• " + value;
-              }
-              infoDiv.appendChild(el);
-            }
+          const snap = await getDoc(doc(db, "managecon", "feedback_info"));
+          const section = document.getElementById("contactInfoSection");
+          if (!snap.exists() || !snap.data().fields?.length) {
+            section.innerHTML = "";
+            return;
           }
+
+          section.innerHTML = "";
+          snap.data().fields.forEach((field) => {
+            const fieldDiv = document.createElement("div");
+            fieldDiv.style.marginBottom = "1.2rem";
+
+            const titleEl = document.createElement("p");
+            titleEl.style.fontWeight = "700";
+            titleEl.style.marginBottom = "4px";
+            titleEl.textContent = field.title;
+            fieldDiv.appendChild(titleEl);
+
+            field.contents?.forEach((content) => {
+              if (!content.trim()) return;
+              const item = document.createElement("p");
+              item.style.margin = "0 0 2px 0";
+              item.textContent = "• " + content;
+              fieldDiv.appendChild(item);
+            });
+
+            section.appendChild(fieldDiv);
+          });
         } catch (err) {
-          console.error("Error fetching feedback_info:", err);
+          console.error("Error loading contact info:", err);
         }
       }
 
-      window.addEventListener("DOMContentLoaded", loadFeedbackInfo);
+      window.addEventListener("DOMContentLoaded", loadContactInfo);
 
-      // ── Auth state / navbar ──
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
         );
         const logoutBtn = document.getElementById("logoutBtn");
-
         if (user) {
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           const fullName = docSnap.exists()
             ? `${docSnap.data().fname} ${docSnap.data().lname}`
             : user.email;
-
           userIcon.href = "profile.Se2.html";
           userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
-          logoutBtn.style.display = "inline-block"; // show logout button
-
+          logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
             window.location.href = "login.Se2.html";
@@ -369,7 +366,7 @@
           userIcon.href = "login.Se2.html";
           userIcon.title = "Login / Sign Up";
           userIcon.querySelector("i").className = "fas fa-user-circle";
-          logoutBtn.style.display = "none"; // hide logout button
+          logoutBtn.style.display = "none";
         }
       });
     </script>
