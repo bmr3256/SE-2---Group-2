@@ -2216,3 +2216,9 @@ button,
     display: none;
   }
 }
+
+.faq-answer.show {
+  max-height: 500px;
+  opacity: 1;
+  padding: 1rem 0;
+}
