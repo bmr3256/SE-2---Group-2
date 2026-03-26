@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Profile - The Barkery</title>
+    <title>Products - The Barkery</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
       rel="stylesheet"
@@ -14,148 +14,13 @@
     />
     <link href="style.Se2.css" rel="stylesheet" />
   </head>
+
   <body>
-    <!-- FIREBASE -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
-      import {
-        getAuth,
-        onAuthStateChanged,
-        signOut,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-      import {
-        getFirestore,
-        doc,
-        getDoc,
-        updateDoc,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
-        authDomain: "grp2-se.firebaseapp.com",
-        projectId: "grp2-se",
-        storageBucket: "grp2-se.firebasestorage.app",
-        messagingSenderId: "488325990404",
-        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
-        measurementId: "G-PDT5LV9JX1",
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-
-      // ── AUTH STATE ─────────────────────────────────
-      onAuthStateChanged(auth, async (user) => {
-        const userIcon = document.querySelector(
-          '.navbar-actions a[href="login.Se2.html"]',
-        );
-        const logoutBtn = document.getElementById("logoutBtn");
-
-        if (user) {
-          userIcon.querySelector("i").className = "fas fa-user-check";
-          userIcon.href = "profile.Se2.html";
-          userIcon.title = "My Profile";
-          logoutBtn.style.display = "inline-block";
-
-          // Fetch from accounts collection (same as cart page)
-          const docSnap = await getDoc(doc(db, "accounts", user.uid));
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            const fullName = `${data.fname || ""} ${data.lname || ""}`.trim();
-
-            // Avatar initials
-            const initials = (
-              (data.fname?.[0] || "") + (data.lname?.[0] || "")
-            ).toUpperCase();
-            document.getElementById("avatarInitials").textContent =
-              initials || "?";
-
-            // Header card
-            document.getElementById("profileName").textContent =
-              fullName || "—";
-            document.getElementById("profileEmail").textContent =
-              data.email || user.email || "—";
-
-            // Info rows
-            document.getElementById("infoFirstName").textContent =
-              data.fname || "—";
-            document.getElementById("infoLastName").textContent =
-              data.lname || "—";
-            document.getElementById("infoEmail").textContent =
-              data.email || user.email || "—";
-            document.getElementById("infoPhone").textContent =
-              data.phone || "—";
-          } else {
-            // Fallback to Auth data only
-            document.getElementById("avatarInitials").textContent = "?";
-            document.getElementById("profileName").textContent =
-              user.displayName || "Customer";
-            document.getElementById("profileEmail").textContent =
-              user.email || "—";
-            document.getElementById("infoEmail").textContent =
-              user.email || "—";
-          }
-
-          // Logout handler (navbar button)
-          logoutBtn.onclick = () => handleLogout();
-
-          // Logout action card
-          document.getElementById("logoutActionCard").onclick = () =>
-            handleLogout();
-        } else {
-          // Not logged in — redirect to login
-          window.location.href = "login.Se2.html";
-        }
-      });
-
-      async function handleLogout() {
-        await signOut(auth);
-        window.location.href = "login.Se2.html";
-      }
-
-      // ── EDIT PROFILE MODAL LOGIC ─────────────────
-      const editModal = document.getElementById("editProfileModal");
-
-      editModal.addEventListener("show.bs.modal", async () => {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const docSnap = await getDoc(doc(db, "accounts", user.uid));
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-
-          document.getElementById("editFname").value = data.fname || "";
-          document.getElementById("editLname").value = data.lname || "";
-          document.getElementById("editPhone").value = data.phone || "";
-        }
-      });
-
-      // SAVE (you can expand later)
-      document.getElementById("saveProfileBtn").onclick = async () => {
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const fname = document.getElementById("editFname").value;
-        const lname = document.getElementById("editLname").value;
-        const phone = document.getElementById("editPhone").value;
-
-        await updateDoc(doc(db, "accounts", user.uid), {
-          fname,
-          lname,
-          phone,
-        });
-
-        location.reload(); // refresh to reflect changes
-      };
-    </script>
-
-    <!-- ── NAVBAR ── -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
-          <img src="images/Logo - Black.png" alt="The Barkery" />
+          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />
         </a>
         <button
           class="navbar-toggler"
@@ -177,7 +42,7 @@
               <a class="nav-link" href="about.Se2.html">About Us</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="products.Se2.html">Products</a>
+              <a class="nav-link active" href="products.Se2.html">Products</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="feedback.Se2.html">Feedback</a>
@@ -197,9 +62,10 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge">0</span>
           </a>
-          <a href="login.Se2.html" class="nav-icon" title="My Profile">
+          <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
+          <!-- Hidden by default, shown when logged in -->
           <button
             id="logoutBtn"
             class="nav-icon"
@@ -217,136 +83,37 @@
       </div>
     </nav>
 
-    <!-- ── PAGE HERO ── -->
+    <!-- Page Hero -->
     <section class="page-hero">
-      <div class="hero-content-center" style="padding: 2rem">
-        <h1>MY PROFILE</h1>
-        <p>Manage your account details</p>
+      <img src="images/productsbanner.png" alt="Banner Image" />
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-detail-section">
+      <div class="products-detail-container">
+        <!-- Products will be injected here -->
+      </div>
+
+      <div class="proceed-checkout-container">
+        <a href="cart.Se2.html" class="btn-proceed-checkout">
+          Proceed to Checkout <i class="fas fa-arrow-right"></i>
+        </a>
       </div>
     </section>
 
-    <!-- ── PROFILE CONTENT ── -->
-    <section class="profile-page-section">
-      <div class="profile-page-container">
-        <!-- Avatar Card -->
-        <div class="profile-avatar-card">
-          <div class="avatar-circle">
-            <span
-              id="avatarInitials"
-              style="font-family: var(--font-bold); font-size: 1.8rem"
-            >
-              <span
-                class="skeleton skeleton-name"
-                style="height: 40px; width: 40px; border-radius: 50%"
-              ></span>
-            </span>
-          </div>
-          <div class="profile-name" id="profileName">
-            <span class="skeleton skeleton-name"></span>
-          </div>
-          <div class="profile-email" id="profileEmail">
-            <span class="skeleton skeleton-email"></span>
-          </div>
-        </div>
-
-        <!-- Account Info Card -->
-        <div class="profile-info-card">
-          <div class="card-header-bar">
-            <h3>Account Information</h3>
-          </div>
-          <div class="info-row">
-            <span class="info-label">First Name</span>
-            <span class="info-value" id="infoFirstName">
-              <span class="skeleton skeleton-val"></span>
-            </span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Last Name</span>
-            <span class="info-value" id="infoLastName">
-              <span class="skeleton skeleton-val"></span>
-            </span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Email</span>
-            <span class="info-value" id="infoEmail">
-              <span class="skeleton skeleton-val"></span>
-            </span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Phone</span>
-            <span class="info-value" id="infoPhone">
-              <span class="skeleton skeleton-val"></span>
-            </span>
-          </div>
-        </div>
-
-        <!-- Action Cards -->
-        <div class="profile-actions">
-          <!-- My Orders -->
-          <a href="MyOrd.Se2.html" class="action-card">
-            <div class="action-card-left">
-              <div class="action-icon orders">
-                <i class="fas fa-clipboard-list"></i>
-              </div>
-              <div class="action-card-text">
-                <strong>My Orders</strong>
-                <span>View your order history and status</span>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right action-chevron"></i>
-          </a>
-
-          <!-- Edit Profile -->
-          <button
-            class="action-card"
-            data-bs-toggle="modal"
-            data-bs-target="#editProfileModal"
-          >
-            <div class="action-card-left">
-              <div
-                class="action-icon"
-                style="background: #dbeafe; color: #1e40af"
-              >
-                <i class="fas fa-user-edit"></i>
-              </div>
-              <div class="action-card-text">
-                <strong>Edit Profile</strong>
-                <span>Update your account details</span>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right action-chevron"></i>
-          </button>
-
-          <!-- Logout -->
-          <button id="logoutActionCard" class="action-card logout-card">
-            <div class="action-card-left">
-              <div class="action-icon logout">
-                <i class="fas fa-sign-out-alt"></i>
-              </div>
-              <div class="action-card-text">
-                <strong>Log Out</strong>
-                <span>Sign out of your account</span>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right action-chevron"></i>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ── FOOTER ── -->
+    <!-- Footer -->
     <footer>
       <div class="footer-content">
         <div class="footer-logo">
           <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
           <img src="images/Logo - Black.png" alt="The Barkery Logo" />
         </div>
-        <div class="footer-copyright">© 2025 The Barkery</div>
-        <div class="footer-location">Angeles City, Pampanga</div>
+        <div>© 2025 The Barkery</div>
+        <div>Angeles City, Pampanga</div>
       </div>
     </footer>
 
-    <!-- ── HELP MODAL ── -->
+    <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -361,14 +128,19 @@
           <div class="modal-body">
             <h6>Quick Guide:</h6>
             <ul>
-              <li><strong>Profile:</strong> View your account details here</li>
               <li>
-                <strong>My Orders:</strong> Track your order history and status
+                <strong>Ordering:</strong> Click "Add to Cart" on any product,
+                then "Proceed to Checkout"
               </li>
-              <li><strong>Log Out:</strong> Sign out of your account safely</li>
               <li>
-                <strong>Questions?</strong> Contact us at hello@barkery.ph
+                <strong>Account:</strong> Sign up to track orders and save
+                preferences
               </li>
+              <li>
+                <strong>Questions?</strong> Check our FAQ section on the
+                homepage
+              </li>
+              <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
             </ul>
           </div>
         </div>
@@ -376,49 +148,181 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        setDoc,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    <!-- ── EDIT PROFILE MODAL ── -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Edit Profile</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-            ></button>
-          </div>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
 
-          <div class="modal-body">
-            <form id="editProfileForm">
-              <div class="mb-3">
-                <label class="form-label">First Name</label>
-                <input type="text" id="editFname" class="form-control" />
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // ── Load products ──
+      const container = document.querySelector(".products-detail-container");
+      if (container) {
+        try {
+          const snapshot = await getDocs(collection(db, "products"));
+          if (snapshot.empty) {
+            container.innerHTML = "<p>No products found</p>";
+          } else {
+            snapshot.forEach((d) => {
+              const product = d.data();
+              const card = document.createElement("div");
+              card.classList.add("product-detail-card");
+              card.innerHTML = `
+            <div class="product-detail-left">
+              <div class="product-img">
+                <img src="${product.img}" alt="${product.name}">
               </div>
-
-              <div class="mb-3">
-                <label class="form-label">Last Name</label>
-                <input type="text" id="editLname" class="form-control" />
+              <div class="product-detail-price">₱${product.price}</div>
+              <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price}, '${product.img}')">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
+              </button>
+            </div>
+            <div class="product-detail-right">
+              <h2><i class="${product.icon || ""}"></i> ${product.name.toUpperCase()}</h2>
+              <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                  <span>Details</span>
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">${product.desc || ""}</div>
               </div>
-
-              <div class="mb-3">
-                <label class="form-label">Phone</label>
-                <input type="text" id="editPhone" class="form-control" />
+              <div class="product-benefits-box">
+                <p><strong>Benefits of ${product.name}:</strong></p>
+                <ul>${Array.isArray(product.benefits) ? product.benefits.map((b) => `<li>${b}</li>`).join("") : ""}</ul>
               </div>
-            </form>
-          </div>
+            </div>
+          `;
+              container.appendChild(card);
+            });
+          }
+        } catch (err) {
+          console.error("Error loading products:", err);
+          container.innerHTML = `<p>Failed to load products: ${err.message}</p>`;
+        }
+      }
 
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">
-              Cancel
-            </button>
-            <button class="btn btn-primary" id="saveProfileBtn">
-              Save Changes
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+      // ── Toggle FAQ ──
+      window.toggleFAQ = function (element) {
+        const faqItem = element.closest(".faq-item");
+        const answer = faqItem.querySelector(".faq-answer");
+        const question = faqItem.querySelector(".faq-question");
+        question.classList.toggle("active");
+        if (answer.classList.contains("show")) {
+          answer.classList.remove("show");
+          answer.style.maxHeight = null;
+          answer.style.opacity = 0;
+        } else {
+          answer.classList.add("show");
+          answer.style.maxHeight = answer.scrollHeight + "px";
+          answer.style.opacity = 1;
+        }
+      };
+
+      // ── Add to cart ──
+      // ── Add to cart ──
+      window.addToCart = async function (name, price, img) {
+        const user = auth.currentUser;
+        if (!user) {
+          window.location.href = "login.Se2.html";
+          return;
+        }
+
+        try {
+          const itemRef = doc(db, "carts", user.uid, "items", name);
+          const itemSnap = await getDoc(itemRef);
+
+          if (itemSnap.exists()) {
+            // Already in cart — increment quantity
+            await setDoc(itemRef, {
+              name,
+              price,
+              img,
+              quantity: itemSnap.data().quantity + 1,
+              updatedAt: serverTimestamp(),
+            });
+          } else {
+            // New item
+            await setDoc(itemRef, {
+              name,
+              price,
+              img,
+              quantity: 1,
+              addedAt: serverTimestamp(),
+            });
+          }
+
+          updateCartBadge(user);
+        } catch (err) {
+          console.error("Error adding to cart:", err);
+        }
+      };
+
+      // ── Update cart badge ──
+      async function updateCartBadge(user) {
+        if (!user) return;
+        const snapshot = await getDocs(
+          collection(db, "carts", user.uid, "items"),
+        );
+        let totalQty = 0;
+        snapshot.forEach((d) => (totalQty += d.data().quantity || 1));
+        document
+          .querySelectorAll(".cart-badge")
+          .forEach((b) => (b.textContent = totalQty));
+      }
+
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          const fullName = docSnap.exists()
+            ? `${docSnap.data().fname} ${docSnap.data().lname}`
+            : user.email;
+
+          userIcon.href = "profile.Se2.html";
+          userIcon.title = fullName;
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          logoutBtn.style.display = "inline-block";
+          logoutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.href = "login.Se2.html";
+          };
+
+          updateCartBadge(user); // ✅ load badge on page load
+        } else {
+          userIcon.href = "login.Se2.html";
+          userIcon.title = "Login / Sign Up";
+          userIcon.querySelector("i").className = "fas fa-user-circle";
+          logoutBtn.style.display = "none";
+        }
+      });
+    </script>
   </body>
 </html>
