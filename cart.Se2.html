@@ -346,10 +346,7 @@
         );
         modal.hide();
         setTimeout(() => {
-          alert(
-            "Order placed successfully! We will contact you with shipping details.",
-          );
-          window.location.href = "index.Se2.html";
+          window.saveOrder(); // ✅ calls the module function
         }, 300);
       }
     </script>
@@ -368,6 +365,7 @@
         getDoc,
         deleteDoc,
         setDoc,
+        addDoc,
         serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
@@ -472,6 +470,80 @@
         const user = auth.currentUser;
         await deleteDoc(doc(db, "carts", user.uid, "items", name));
         loadCart(user);
+      };
+
+      // ── Save order to Firestore ──
+      window.saveOrder = async function () {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        // Get form values
+        const email = document.getElementById("email").value;
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const address = document.getElementById("address").value;
+        const city = document.getElementById("city").value;
+        const zipCode = document.getElementById("zipCode").value;
+        const phone = document.getElementById("phone").value;
+
+        // Get cart items
+        const snapshot = await getDocs(
+          collection(db, "carts", user.uid, "items"),
+        );
+        const items = [];
+        let subtotal = 0;
+
+        snapshot.forEach((d) => {
+          const item = d.data();
+          items.push({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            img: item.img,
+          });
+          subtotal += item.price * item.quantity;
+        });
+
+        const shipping = 50;
+        const total = subtotal + shipping;
+
+        // Save to Firestore orders collection
+        try {
+          await addDoc(collection(db, "orders"), {
+            userId: user.uid,
+            email,
+            firstName,
+            lastName,
+            address,
+            city,
+            zipCode,
+            phone,
+            items,
+            subtotal,
+            shipping,
+            total,
+            status: "PROCESSING",
+            payment: "Cash on Delivery",
+            date: serverTimestamp(),
+          });
+
+          // Clear cart after order
+          const deletePromises = [];
+          snapshot.forEach((d) => {
+            deletePromises.push(
+              deleteDoc(doc(db, "carts", user.uid, "items", d.id)),
+            );
+          });
+          await Promise.all(deletePromises);
+
+          alert(
+            "Order placed successfully! We will contact you with shipping details.",
+          );
+          window.location.href = "index.Se2.html";
+        } catch (err) {
+          console.error("Error saving order:", err);
+          alert("Failed to place order. Please try again.");
+        }
       };
 
       // ── Auth state / navbar ──
