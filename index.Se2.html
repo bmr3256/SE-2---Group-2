@@ -108,7 +108,7 @@
       <div class="story-content">
         <div class="story-text">
           <h2>Our Story</h2>
-          <p>
+          <p id="storyText" style="min-height: 48px">
             At the Barkery, we offer transparency in all of our products. The
             health benefits are that we use natural and human-grade ingredients.
           </p>
@@ -145,117 +145,7 @@
 
     <section class="faq-section" id="faq">
       <h2>Frequently Asked Questions</h2>
-      <div class="faq-container">
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>What ingredients do you use in your dog treats?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            We use only natural, human-grade ingredients in all our treats. Each
-            product lists specific ingredients on the packaging.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>Are your dog treats suitable for all breeds and sizes?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            Yes! Our treats come in a variety of sizes to accommodate dogs of
-            all breeds, ages, and sizes. If you’re unsure, feel free to ask us
-            for recommendations based on your pet's needs.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>How should I store your dog treats?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            To maintain freshness, store the treats in a cool, dry place, away
-            from direct sunlight. For long-term storage, some treats may be
-            frozen—check the packaging for specific instructions.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>Do the treats have a specific expiration date?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            Yes, we make sure that the storage use of the treats is long term
-            and we make fresh batches weekly.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span
-              >How do we ensure the ingredients contained in the treats are
-              allergen free?</span
-            >
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            We ensure transparency for your fur babies so the ingredients and
-            health benefits are visible in the packaging.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>How do I place an order?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            To place an order, simply browse our products, select the treats you
-            want, and click Add to Cart. Once you’re done shopping, proceed to
-            checkout and follow the instructions to place your order.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>Do I need to create an account to order?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            Yes, an account is required to place an order. This helps us provide
-            a smoother checkout experience, order tracking, and timely updates
-            on your purchases.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>What payment methods are available?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            At the moment, we offer Cash on Delivery (COD) through J&T Express.
-            This allows you to pay safely and conveniently once your order
-            arrives.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>Can I modify or cancel my order after placing it?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            Orders can only be modified or canceled within a limited time after
-            checkout. Please contact us as soon as possible so we can assist you
-            before your order is processed.
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question" onclick="toggleFAQ(this)">
-            <span>How will I know if my order is confirmed?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            Once your order is successfully placed, you will receive a
-            confirmation via email with your order details.
-          </div>
-        </div>
-      </div>
+      <div class="faq-container" id="faqContainer"></div>
     </section>
 
     <footer>
@@ -306,17 +196,17 @@
     <script src="script.Se2.js"></script>
     <!-- Firebase auth state -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
       import {
         getAuth,
         onAuthStateChanged,
         signOut,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
       import {
         getFirestore,
         doc,
         getDoc,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
@@ -332,23 +222,93 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
+      async function loadStoryText() {
+        try {
+          const snap = await getDoc(doc(db, "managecon", "home_info"));
+          if (snap.exists() && snap.data().storyText) {
+            document.getElementById("storyText").textContent =
+              snap.data().storyText;
+          }
+        } catch (err) {
+          console.error("Error loading story text:", err);
+        }
+      }
+
+      async function loadDynamicFaqs() {
+        try {
+          const snap = await getDoc(doc(db, "managecon", "home_faqs"));
+          const container = document.getElementById("faqContainer");
+          container.innerHTML = "";
+          if (!snap.exists() || !snap.data().fields?.length) return;
+
+          snap.data().fields.forEach((field) => {
+            const item = document.createElement("div");
+            item.className = "faq-item";
+
+            const question = document.createElement("div");
+            question.className = "faq-question";
+            question.innerHTML = `<span>${field.title}</span><i class="fas fa-chevron-down"></i>`;
+
+            const answer = document.createElement("div");
+            answer.className = "faq-answer";
+            answer.textContent = field.contents?.[0] || "";
+
+            question.addEventListener("click", () => {
+              const isCurrentlyOpen = answer.classList.contains("show");
+
+              // Close all others
+              document
+                .querySelectorAll(".faq-answer")
+                .forEach((a) => a.classList.remove("show"));
+              document.querySelectorAll(".faq-question").forEach((q) => {
+                q.classList.remove("active");
+                const icon = q.querySelector("i");
+                if (icon) {
+                  icon.classList.remove("fa-chevron-up");
+                  icon.classList.add("fa-chevron-down");
+                }
+              });
+
+              // Toggle current
+              if (!isCurrentlyOpen) {
+                answer.classList.add("show");
+                question.classList.add("active");
+                const icon = question.querySelector("i");
+                if (icon) {
+                  icon.classList.remove("fa-chevron-down");
+                  icon.classList.add("fa-chevron-up");
+                }
+              }
+            });
+
+            item.appendChild(question);
+            item.appendChild(answer);
+            container.appendChild(item);
+          });
+        } catch (err) {
+          console.error("Error loading FAQs:", err);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        loadStoryText();
+        loadDynamicFaqs();
+      });
+
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
         );
         const logoutBtn = document.getElementById("logoutBtn");
-
         if (user) {
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           const fullName = docSnap.exists()
             ? `${docSnap.data().fname} ${docSnap.data().lname}`
             : user.email;
-
           userIcon.href = "profile.Se2.html";
           userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
-          logoutBtn.style.display = "inline-block"; // show logout button
-
+          logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
             window.location.href = "login.Se2.html";
@@ -357,7 +317,7 @@
           userIcon.href = "login.Se2.html";
           userIcon.title = "Login / Sign Up";
           userIcon.querySelector("i").className = "fas fa-user-circle";
-          logoutBtn.style.display = "none"; // hide logout button
+          logoutBtn.style.display = "none";
         }
       });
     </script>
