@@ -77,28 +77,41 @@
         const tbody = document.getElementById("ordersBody");
         tbody.innerHTML = "";
         list.forEach((o) => {
+          const itemNames = Array.isArray(o.items)
+            ? o.items.map((i) => `${i.name} x${i.quantity}`).join(", ")
+            : o.item || "—";
+          const totalQty = Array.isArray(o.items)
+            ? o.items.reduce((sum, i) => sum + i.quantity, 0)
+            : o.qty || "—";
+          const date = o.date
+            ? o.date
+            : o.createdAt?.toDate
+              ? o.createdAt.toDate().toLocaleDateString()
+              : "—";
+
           tbody.innerHTML += `
-            <tr onclick="openOrderModal('${o.id}')">
-              <td>${o.id}</td>
-              <td>${o.date}</td>
-              <td>${o.item}</td>
-              <td>${o.qty}</td>
-              <td>₱${o.total}.00</td>
-              <td>${badgeHtml(o.status)}</td>
-            </tr>`;
+      <tr onclick="openOrderModal('${o.firestoreId}')">
+        <td>${o.firestoreId}</td>
+        <td>${date}</td>
+        <td>${itemNames}</td>
+        <td>${totalQty}</td>
+        <td>₱${o.total || 0}</td>
+        <td>${badgeHtml(o.status)}</td>
+      </tr>`;
         });
         document.getElementById("tableFooter").textContent =
           list.length + " orders";
       }
 
       function badgeHtml(status) {
+        const s = (status || "").toUpperCase();
         const cls =
-          status === "PROCESSING"
+          s === "PROCESSING"
             ? "badge-processing"
-            : status === "COMPLETE"
+            : s === "COMPLETE"
               ? "badge-complete"
               : "badge-cancel";
-        return `<span class="${cls}">${status}</span>`;
+        return `<span class="${cls}">${s}</span>`;
       }
 
       // SEARCH
@@ -113,12 +126,16 @@
           return;
         }
         visibleOrders = orders.filter((o) => {
+          const itemNames = Array.isArray(o.items)
+            ? o.items
+                .map((i) => i.name)
+                .join(" ")
+                .toLowerCase()
+            : (o.item || "").toLowerCase();
           return (
-            (o.id && o.id.toLowerCase().includes(q)) ||
-            (o.date && o.date.toLowerCase().includes(q)) ||
-            (o.item && o.item.toLowerCase().includes(q)) ||
+            o.firestoreId?.toLowerCase().includes(q) ||
+            itemNames.includes(q) ||
             (o.status && o.status.toLowerCase().includes(q)) ||
-            (o.qty && o.qty.toString().includes(q)) ||
             (o.total && o.total.toString().includes(q))
           );
         });
@@ -160,15 +177,27 @@
       }
 
       // ORDER MODAL
-      function openOrderModal(orderId) {
-        const o = orders.find((x) => x.id === orderId);
+      function openOrderModal(firestoreId) {
+        const o = orders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
         currentEditingOrder = o;
 
-        document.getElementById("mOrderId").textContent = o.id;
-        document.getElementById("mOrderDate").textContent = o.date;
-        document.getElementById("mItemName").textContent = o.item;
-        document.getElementById("mQty").textContent = o.qty;
+        const itemNames = Array.isArray(o.items)
+          ? o.items.map((i) => `${i.name} x${i.quantity}`).join(", ")
+          : o.item || "—";
+        const totalQty = Array.isArray(o.items)
+          ? o.items.reduce((sum, i) => sum + i.quantity, 0)
+          : o.qty || "—";
+        const date = o.date
+          ? o.date
+          : o.createdAt?.toDate
+            ? o.createdAt.toDate().toLocaleDateString()
+            : "—";
+
+        document.getElementById("mOrderId").textContent = o.firestoreId;
+        document.getElementById("mOrderDate").textContent = date;
+        document.getElementById("mItemName").textContent = itemNames;
+        document.getElementById("mQty").textContent = totalQty;
         document.getElementById("mTotal").textContent = "₱" + o.total;
         document.getElementById("mStatus").textContent = o.status;
 
@@ -196,11 +225,28 @@
           .getElementById("saveBtn")
           .setAttribute("data-id", currentEditingOrder.firestoreId);
 
-        document.getElementById("eOrderDate").value = currentEditingOrder.date;
-        document.getElementById("eItemName").value = currentEditingOrder.item;
-        document.getElementById("eQty").value = currentEditingOrder.qty;
-        document.getElementById("eTotal").value = currentEditingOrder.total;
-        document.getElementById("eStatus").value = currentEditingOrder.status;
+        // ✅ handle both cart orders and manually added orders
+        const date = currentEditingOrder.date
+          ? currentEditingOrder.date
+          : currentEditingOrder.createdAt?.toDate
+            ? currentEditingOrder.createdAt.toDate().toLocaleDateString()
+            : "";
+        const itemNames = Array.isArray(currentEditingOrder.items)
+          ? currentEditingOrder.items
+              .map((i) => `${i.name} x${i.quantity}`)
+              .join(", ")
+          : currentEditingOrder.item || "";
+        const totalQty = Array.isArray(currentEditingOrder.items)
+          ? currentEditingOrder.items.reduce((sum, i) => sum + i.quantity, 0)
+          : currentEditingOrder.qty || "";
+
+        document.getElementById("eOrderDate").value = date;
+        document.getElementById("eItemName").value = itemNames;
+        document.getElementById("eQty").value = totalQty;
+        document.getElementById("eTotal").value =
+          currentEditingOrder.total || "";
+        document.getElementById("eStatus").value =
+          currentEditingOrder.status || "PROCESSING";
       }
 
       async function saveEdit() {
@@ -279,11 +325,26 @@
         const status = document.getElementById("fStatus").value;
 
         visibleOrders = orders.filter((o) => {
+          const itemNames = Array.isArray(o.items)
+            ? o.items
+                .map((i) => i.name)
+                .join(" ")
+                .toLowerCase()
+            : (o.item || "").toLowerCase();
+          const totalQty = Array.isArray(o.items)
+            ? o.items.reduce((sum, i) => sum + i.quantity, 0)
+            : o.qty || 0;
+          const orderDate = o.date
+            ? o.date
+            : o.createdAt?.toDate
+              ? o.createdAt.toDate().toLocaleDateString()
+              : "";
+
           return (
-            (!name || (o.item && o.item.toLowerCase().includes(name))) &&
-            (!date || (o.date && o.date === date)) &&
-            (!qty || (o.qty && o.qty == qty)) &&
-            (!status || (o.status && o.status === status))
+            (!name || itemNames.includes(name)) &&
+            (!date || orderDate === date) &&
+            (!qty || totalQty == qty) &&
+            (!status || o.status === status)
           );
         });
 
@@ -322,9 +383,21 @@
       document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('button[title="Filter"]').onclick =
           openFilterModal;
+
         document
           .getElementById("searchInput")
           .addEventListener("input", filterOrders);
+
+        // ✅ Logout button
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "Adminlogin.Se2.html";
+          });
+        }
+
         fetchOrders();
       });
     </script>
@@ -362,6 +435,10 @@
         <div class="sidebar-user-info">
           <span class="user-name">ADMIN</span>
           <span class="user-email">admin@gmail.com</span>
+
+          <button class="btn btn-danger btn-sm mt-2 w-100" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
         </div>
       </div>
     </aside>
