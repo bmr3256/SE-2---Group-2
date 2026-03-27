@@ -536,10 +536,10 @@
           });
           await Promise.all(deletePromises);
 
-          alert(
-            "Order placed successfully! We will contact you with shipping details.",
-          );
-          window.location.href = "index.Se2.html";
+          document.getElementById("successToast").style.display = "block";
+          setTimeout(() => {
+            window.location.href = "index.Se2.html";
+          }, 3000);
         } catch (err) {
           console.error("Error saving order:", err);
           alert("Failed to place order. Please try again.");
@@ -581,5 +581,33 @@
         }
       });
     </script>
+    <!-- Success Toast -->
+    <div
+      id="successToast"
+      class="toast align-items-center text-bg-success border-0"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      style="
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        display: none;
+        z-index: 1055;
+      "
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          Order placed successfully! We will contact you with shipping details.
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          onclick="
+            document.getElementById('successToast').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
   </body>
 </html>
