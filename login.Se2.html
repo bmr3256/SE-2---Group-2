@@ -53,6 +53,16 @@
               <div class="invalid-feedback">
                 Please enter a valid email address
               </div>
+              <div
+                class="field-error"
+                id="emailError"
+                style="
+                  color: red;
+                  font-size: 0.8rem;
+                  margin-top: 4px;
+                  display: none;
+                "
+              ></div>
             </div>
 
             <div class="form-group">
@@ -78,6 +88,16 @@
                 </button>
               </div>
               <div class="invalid-feedback">Password is required</div>
+              <div
+                class="field-error"
+                id="passwordError"
+                style="
+                  color: red;
+                  font-size: 0.8rem;
+                  margin-top: 4px;
+                  display: none;
+                "
+              ></div>
             </div>
 
             <div class="form-check-group">
@@ -177,6 +197,23 @@
         const btnLoader = document.querySelector(".btn-loader");
         const formMessage = document.getElementById("formMessage");
         const loginButton = loginForm.querySelector("button[type='submit']");
+        const passwordError = document.getElementById("passwordError");
+        const emailError = document.getElementById("emailError");
+
+        // Clear errors on input
+        emailInput.addEventListener("input", () => {
+          emailInput.style.border = "";
+          emailError.style.display = "none";
+          emailError.textContent = "";
+          formMessage.textContent = "";
+        });
+
+        passwordInput.addEventListener("input", () => {
+          passwordInput.style.border = "";
+          passwordError.style.display = "none";
+          passwordError.textContent = "";
+          formMessage.textContent = "";
+        });
 
         let failedAttempts =
           parseInt(localStorage.getItem("failedAttempts")) || 0;
@@ -184,9 +221,14 @@
         if (lockUntil && Date.now() < lockUntil) {
           loginButton.disabled = true;
           document.getElementById("lockoutToast").style.display = "block";
+          passwordError.style.display = "block";
+          passwordError.textContent =
+            "Too many failed attempts. Please wait 5 minutes.";
           setTimeout(() => {
             loginButton.disabled = false;
             document.getElementById("lockoutToast").style.display = "none";
+            passwordError.style.display = "none";
+            passwordError.textContent = "";
             localStorage.removeItem("lockUntil");
             failedAttempts = 0;
             localStorage.setItem("failedAttempts", failedAttempts);
@@ -199,27 +241,37 @@
           const email = emailInput.value.trim();
           const password = passwordInput.value;
 
+          // Reset all errors
           emailInput.style.border = "";
           passwordInput.style.border = "";
+          emailError.style.display = "none";
+          emailError.textContent = "";
+          passwordError.style.display = "none";
+          passwordError.textContent = "";
           formMessage.innerHTML = "";
+
           btnText.style.display = "none";
           btnLoader.style.display = "inline-block";
 
           if (!email || !password) {
-            emailInput.style.border = "1px solid red";
-            passwordInput.style.border = "1px solid red";
-            formMessage.style.color = "red";
-            formMessage.textContent = "Please enter your credentials";
+            if (!email) {
+              emailInput.style.border = "1px solid red";
+              emailError.style.display = "block";
+              emailError.textContent = "Email address is required.";
+            }
+            if (!password) {
+              passwordInput.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent = "Password is required.";
+            }
             btnText.style.display = "inline-block";
             btnLoader.style.display = "none";
             return;
           }
 
           try {
-            // Firebase login
             await signInWithEmailAndPassword(auth, email, password);
 
-            // OTP addition: call backend to send code
             const response = await fetch("sendotp.php", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -233,9 +285,8 @@
               : resultRaw;
 
             if (response.ok && result === "OTP_SENT") {
-              // Redirect to email verification with email param
               window.location.href =
-                "emailver.Se2.html?email=" + encodeURIComponent(email);
+                "EmailVerif.html?email=" + encodeURIComponent(email);
             } else {
               btnText.style.display = "inline-block";
               btnLoader.style.display = "none";
@@ -244,30 +295,62 @@
                 "Failed to send OTP. Try again. (" + result + ")";
             }
           } catch (error) {
-            emailInput.style.border = "1px solid red";
-            passwordInput.style.border = "1px solid red";
             btnText.style.display = "inline-block";
             btnLoader.style.display = "none";
 
             failedAttempts++;
             localStorage.setItem("failedAttempts", failedAttempts);
 
-            let message = "Invalid email or password.";
-            if (error.code === "auth/invalid-email")
-              message = "Invalid email format.";
+            const remaining = 3 - failedAttempts;
+            const attemptsText =
+              remaining > 0
+                ? ` ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.`
+                : "";
 
-            formMessage.style.color = "red";
-            formMessage.textContent = message;
+            console.log("Firebase error code:", error.code);
+
+            if (error.code === "auth/invalid-email") {
+              emailInput.style.border = "1px solid red";
+              emailError.style.display = "block";
+              emailError.textContent = "Invalid email format.";
+            } else if (error.code === "auth/user-not-found") {
+              emailInput.style.border = "1px solid red";
+              emailError.style.display = "block";
+              emailError.textContent = "No account found with this email.";
+            } else if (
+              error.code === "auth/wrong-password" ||
+              error.code === "auth/invalid-credential"
+            ) {
+              passwordInput.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Incorrect email or password." + attemptsText;
+            } else if (error.code === "auth/too-many-requests") {
+              passwordInput.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Too many failed attempts. Account temporarily locked.";
+            } else {
+              passwordInput.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Incorrect email or password." + attemptsText;
+            }
 
             if (failedAttempts >= 3) {
               const lockTime = 5 * 60 * 1000;
               const unlockAt = Date.now() + lockTime;
               localStorage.setItem("lockUntil", unlockAt);
               loginButton.disabled = true;
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Too many failed attempts. Please wait 5 minutes.";
               document.getElementById("lockoutToast").style.display = "block";
               setTimeout(() => {
                 loginButton.disabled = false;
                 document.getElementById("lockoutToast").style.display = "none";
+                passwordError.style.display = "none";
+                passwordError.textContent = "";
                 failedAttempts = 0;
                 localStorage.setItem("failedAttempts", failedAttempts);
                 localStorage.removeItem("lockUntil");
