@@ -366,6 +366,9 @@
         deleteDoc,
         setDoc,
         addDoc,
+        updateDoc,
+        query,
+        where,
         serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
@@ -529,12 +532,35 @@
 
           // Clear cart after order
           const deletePromises = [];
+          const stockPromises = [];
+
           snapshot.forEach((d) => {
+            const item = d.data();
             deletePromises.push(
               deleteDoc(doc(db, "carts", user.uid, "items", d.id)),
             );
+
+            // Fetch current stock and reduce it
+            stockPromises.push(
+              (async () => {
+                const productQuery = await getDocs(
+                  query(
+                    collection(db, "products"),
+                    where("name", "==", item.name),
+                  ),
+                );
+                productQuery.forEach(async (productDoc) => {
+                  const currentStock = productDoc.data().stock ?? 0;
+                  const newStock = Math.max(0, currentStock - item.quantity);
+                  await updateDoc(doc(db, "products", productDoc.id), {
+                    stock: newStock,
+                  });
+                });
+              })(),
+            );
           });
-          await Promise.all(deletePromises);
+
+          await Promise.all([...deletePromises, ...stockPromises]);
 
           document.getElementById("successToast").style.display = "block";
           setTimeout(() => {
