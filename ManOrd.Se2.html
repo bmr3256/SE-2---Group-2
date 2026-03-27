@@ -83,11 +83,9 @@
           const totalQty = Array.isArray(o.items)
             ? o.items.reduce((sum, i) => sum + i.quantity, 0)
             : o.qty || "—";
-          const date = o.date
-            ? o.date
-            : o.createdAt?.toDate
-              ? o.createdAt.toDate().toLocaleDateString()
-              : "—";
+          const date = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString()
+            : o.date || "—";
 
           tbody.innerHTML += `
       <tr onclick="openOrderModal('${o.firestoreId}')">
@@ -188,11 +186,9 @@
         const totalQty = Array.isArray(o.items)
           ? o.items.reduce((sum, i) => sum + i.quantity, 0)
           : o.qty || "—";
-        const date = o.date
-          ? o.date
-          : o.createdAt?.toDate
-            ? o.createdAt.toDate().toLocaleDateString()
-            : "—";
+        const date = o.date?.toDate
+          ? o.date.toDate().toLocaleDateString()
+          : o.date || "—";
 
         document.getElementById("mOrderId").textContent = o.firestoreId;
         document.getElementById("mOrderDate").textContent = date;
@@ -379,8 +375,8 @@
       window.resetFilter = resetFilter;
       window.applyFilter = applyFilter;
       window.refreshOrders = refreshOrders;
-      
-        document.addEventListener("DOMContentLoaded", () => {
+
+      document.addEventListener("DOMContentLoaded", () => {
         document.querySelector('button[title="Filter"]').onclick =
           openFilterModal;
 
@@ -401,7 +397,7 @@
         fetchOrders();
       });
     </script>
-    
+
     <!-- SIDEBAR -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
@@ -409,18 +405,18 @@
       </div>
       <ul class="sidebar-nav">
         <li>
-          <a href="ManProd.Se2.html" 
-            ><i class="fas fa-box"></i> <span>Manage Products</span></a
+          <a href="ManProd.Se2.html"
+            ><i class="fas fa-box"></i> Manage Products</a
           >
         </li>
         <li>
           <a href="ManCon.Se2.html"
-            ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a
+            ><i class="fas fa-file-alt"></i> Manage Content</a
           >
         </li>
         <li>
-          <a href="ManOrd.Se2.html"class="active"
-            ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
+          <a href="ManOrd.Se2.html" class="active"
+            ><i class="fas fa-clipboard-list"></i> Manage Order</a
           >
         </li>
         <li>
