@@ -368,13 +368,28 @@
                     );
                     const user = userCredential.user;
 
-                    await setDoc(doc(db, "accounts", user.uid), {
-                      fname: signupData.fname,
-                      lname: signupData.lname,
-                      email: signupData.email,
-                      password: signupData.password,
-                      createdAt: new Date(),
-                    });
+                
+                  // SHA-256 email hash helper
+              async function hashEmail(email) {
+              const encoder = new TextEncoder();
+              const data = encoder.encode(email.toLowerCase().trim());
+              const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+              return Array.from(new Uint8Array(hashBuffer))
+              .map(b => b.toString(16).padStart(2, '0'))
+              .join('');
+}
+
+              const emailHash = await hashEmail(signupData.email);
+
+              await setDoc(doc(db, "accounts", user.uid), {
+              fname: signupData.fname,
+              lname: signupData.lname,
+              email: signupData.email,
+              password: signupData.password,   // ← remove this entirely
+              emailHash: emailHash,
+              createdAt: new Date(),
+              // password intentionally omitted — Firebase Auth handles it
+});
 
                     sessionStorage.removeItem("signupData"); // clean up
                     showToast("Account created successfully!");
