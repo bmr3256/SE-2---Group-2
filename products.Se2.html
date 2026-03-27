@@ -188,34 +188,40 @@
             container.innerHTML = "<p>No products found</p>";
           } else {
             snapshot.forEach((d) => {
-              const product = d.data();
-              const card = document.createElement("div");
-              card.classList.add("product-detail-card");
+              const product = d.data(); // ← was missing
+              const card = document.createElement("div"); // ← was missing
+              card.classList.add("product-detail-card"); // ← was missing
+              const stock = product.stock ?? 0;
+              const isSoldOut = stock <= 0;
               card.innerHTML = `
-            <div class="product-detail-left">
-              <div class="product-img">
-                <img src="${product.img}" alt="${product.name}">
-              </div>
-              <div class="product-detail-price">₱${product.price}</div>
-              <button class="btn-add-cart-detail" onclick="addToCart('${product.name}', ${product.price}, '${product.img}')">
-                <i class="fas fa-shopping-cart"></i> Add to Cart
-              </button>
-            </div>
-            <div class="product-detail-right">
-              <h2><i class="${product.icon || ""}"></i> ${product.name.toUpperCase()}</h2>
-              <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                  <span>Details</span>
-                  <i class="fas fa-chevron-down"></i>
+                <div class="product-detail-left">
+                  <div class="product-img">
+                    <img src="${product.img}" alt="${product.name}">
+                  </div>
+                  <div class="product-detail-price">₱${product.price}</div>
+                  <div class="stock-status ${isSoldOut ? "sold-out" : "in-stock"}">
+                    ${isSoldOut ? "✕ Sold Out" : "✓ In Stock"}
+                  </div>
+                  <button class="btn-add-cart-detail" ${isSoldOut ? "disabled" : ""}
+                    onclick="addToCart('${product.name}', ${product.price}, '${product.img}', ${stock})">
+                    <i class="fas fa-shopping-cart"></i> ${isSoldOut ? "Sold Out" : "Add to Cart"}
+                  </button>
                 </div>
-                <div class="faq-answer">${product.desc || ""}</div>
-              </div>
-              <div class="product-benefits-box">
-                <p><strong>Benefits of ${product.name}:</strong></p>
-                <ul>${Array.isArray(product.benefits) ? product.benefits.map((b) => `<li>${b}</li>`).join("") : ""}</ul>
-              </div>
-            </div>
-          `;
+                <div class="product-detail-right">
+                  <h2><i class="${product.icon || ""}"></i> ${product.name.toUpperCase()}</h2>
+                  <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                      <span>Details</span>
+                      <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">${product.desc || ""}</div>
+                  </div>
+                  <div class="product-benefits-box">
+                    <p><strong>Benefits of ${product.name}:</strong></p>
+                    <ul>${Array.isArray(product.benefits) ? product.benefits.map((b) => `<li>${b}</li>`).join("") : ""}</ul>
+                  </div>
+                </div>
+              `;
               container.appendChild(card);
             });
           }
@@ -244,7 +250,7 @@
 
       // ── Add to cart ──
       // ── Add to cart ──
-      window.addToCart = async function (name, price, img) {
+      window.addToCart = async function (name, price, img, stock) {
         const user = auth.currentUser;
         if (!user) {
           window.location.href = "login.Se2.html";
@@ -254,26 +260,20 @@
         try {
           const itemRef = doc(db, "carts", user.uid, "items", name);
           const itemSnap = await getDoc(itemRef);
+          const currentQty = itemSnap.exists() ? itemSnap.data().quantity : 0;
 
-          if (itemSnap.exists()) {
-            // Already in cart — increment quantity
-            await setDoc(itemRef, {
-              name,
-              price,
-              img,
-              quantity: itemSnap.data().quantity + 1,
-              updatedAt: serverTimestamp(),
-            });
-          } else {
-            // New item
-            await setDoc(itemRef, {
-              name,
-              price,
-              img,
-              quantity: 1,
-              addedAt: serverTimestamp(),
-            });
+          if (currentQty >= stock) {
+            alert("Sorry, not enough stock available.");
+            return;
           }
+
+          await setDoc(itemRef, {
+            name,
+            price,
+            img,
+            quantity: currentQty + 1,
+            updatedAt: serverTimestamp(),
+          });
 
           updateCartBadge(user);
         } catch (err) {
