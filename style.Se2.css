@@ -2222,3 +2222,21 @@ button,
   opacity: 1;
   padding: 1rem 0;
 }
+
+.stock-status {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.stock-status.in-stock {
+  color: green;
+}
+.stock-status.sold-out {
+  color: red;
+}
+
+.btn-add-cart-detail:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #999;
+}
