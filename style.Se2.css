@@ -763,7 +763,6 @@ footer {
 }
 /* About Detail Page */
 .about-detail-section {
-  padding: 4rem 2rem;
   background-color: var(--light-cream);
 }
 .about-detail-content {
@@ -800,7 +799,7 @@ footer {
 }
 /* Mission & Vision Section */
 .mission-vision-section {
-  padding: 4rem 2rem;
+  padding-bottom: 2rem;
   background-color: var(--light-cream);
 }
 .mission-vision-container {
@@ -829,6 +828,42 @@ footer {
   line-height: 1.8;
   color: var(--text-gray);
 }
+
+/* =============================================
+   MISSION & VISION – TWO-COLUMN LAYOUT WITH IMAGE
+   ============================================= */
+.mission-vision-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+}
+
+.mission-vision-image {
+  text-align: center;
+}
+
+.mission-vision-image img {
+  max-width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
+}
+
+@media (max-width: 992px) {
+  .mission-vision-wrapper {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .mission-vision-image {
+    flex: unset;
+  }
+  .mission-vision-image img {
+    max-width: 260px;
+  }
+}
+
 /* Products Detail Page */
 .products-detail-section {
   padding: 4rem 2rem;
@@ -1261,7 +1296,6 @@ footer {
 /* ============================= */
 /* About Page Hero */
 .about-hero {
-  padding: 2.5rem 2rem;
   background-color: #fbf6ee;
   border-bottom: 2px solid #e6d7c3;
 }
