@@ -63,7 +63,6 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
-          // Fetch display name from accounts collection (same as cart page)
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
@@ -80,7 +79,6 @@
 
           fetchMyOrders(user.uid);
         } else {
-          // Not logged in — redirect exactly like cart page does
           window.location.href = "login.Se2.html";
         }
       });
@@ -168,26 +166,40 @@
         return `<span class="${cls}">${s}</span>`;
       }
 
-      // ── SEARCH ─────────────────────────────────────
+      // ── SEARCH (FIXED) ─────────────────────────────
       window.filterOrders = function () {
         const q = document
           .getElementById("searchInput")
           .value.toLowerCase()
           .trim();
+
         if (!q) {
           visibleOrders = [...allOrders];
           renderTable();
           return;
         }
-        visibleOrders = allOrders.filter(
-          (o) =>
-            (o.id && o.id.toLowerCase().includes(q)) ||
-            (o.date && o.date.toLowerCase().includes(q)) ||
-            (o.item && o.item.toLowerCase().includes(q)) ||
-            (o.status && o.status.toLowerCase().includes(q)) ||
-            (o.qty && o.qty.toString().includes(q)) ||
-            (o.total && o.total.toString().includes(q)),
+
+        // Mirrors exactly what the table cell displays: o.id ?? o.firestoreId
+        function getDisplayId(o) {
+          return (o.id ?? o.firestoreId ?? "").toString().toLowerCase();
+        }
+
+        // Safely converts Firestore Timestamp OR plain string to searchable text
+        function getDateString(o) {
+          if (!o.date) return "";
+          if (o.date?.toDate) return o.date.toDate().toLocaleDateString().toLowerCase();
+          return o.date.toString().toLowerCase();
+        }
+
+        visibleOrders = allOrders.filter((o) =>
+          getDisplayId(o).includes(q) ||
+          getDateString(o).includes(q) ||
+          (o.item   && o.item.toString().toLowerCase().includes(q)) ||
+          (o.status && o.status.toString().toLowerCase().includes(q)) ||
+          (o.qty    && o.qty.toString().includes(q)) ||
+          (o.total  && o.total.toString().includes(q))
         );
+
         renderTable(visibleOrders);
       };
 
@@ -291,7 +303,7 @@
       };
     </script>
 
-    <!-- ── NAVBAR (matches cart.Se2.html exactly) ── -->
+    <!-- ── NAVBAR ── -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -337,7 +349,6 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge">0</span>
           </a>
-          <!-- Swaps to profile link when logged in (via JS) -->
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
@@ -345,12 +356,7 @@
             id="logoutBtn"
             class="nav-icon"
             title="Logout"
-            style="
-              display: none;
-              background: none;
-              border: none;
-              cursor: pointer;
-            "
+            style="display: none; background: none; border: none; cursor: pointer;"
           >
             <i class="fas fa-sign-out-alt"></i>
           </button>
@@ -435,7 +441,7 @@
       </div>
     </footer>
 
-    <!-- ── ORDER DETAIL MODAL (read-only) ── -->
+    <!-- ── ORDER DETAIL MODAL ── -->
     <div
       class="modal fade order-detail-modal"
       id="orderDetailModal"
@@ -527,11 +533,7 @@
               <select
                 id="fStatus"
                 class="form-select"
-                style="
-                  font-family: var(--font-body);
-                  border: 2px solid #e0e0e0;
-                  border-radius: 8px;
-                "
+                style="font-family: var(--font-body); border: 2px solid #e0e0e0; border-radius: 8px;"
               >
                 <option value="">All Statuses</option>
                 <option value="PROCESSING">PROCESSING</option>
@@ -542,32 +544,14 @@
             <div class="d-flex gap-2">
               <button
                 class="btn-modal-no w-50"
-                style="
-                  border-radius: 25px;
-                  padding: 0.75rem;
-                  border: none;
-                  background: #e0e0e0;
-                  color: var(--dark-brown);
-                  font-family: var(--font-body);
-                  font-weight: 600;
-                  cursor: pointer;
-                "
+                style="border-radius: 25px; padding: 0.75rem; border: none; background: #e0e0e0; color: var(--dark-brown); font-family: var(--font-body); font-weight: 600; cursor: pointer;"
                 onclick="resetFilter()"
               >
                 Reset
               </button>
               <button
                 class="btn-modal-yes w-50"
-                style="
-                  border-radius: 25px;
-                  padding: 0.75rem;
-                  border: none;
-                  background: var(--dark-brown);
-                  color: white;
-                  font-family: var(--font-body);
-                  font-weight: 600;
-                  cursor: pointer;
-                "
+                style="border-radius: 25px; padding: 0.75rem; border: none; background: var(--dark-brown); color: white; font-family: var(--font-body); font-weight: 600; cursor: pointer;"
                 onclick="applyFilter()"
               >
                 Apply
@@ -578,7 +562,7 @@
       </div>
     </div>
 
-    <!-- ── HELP MODAL (same as cart page) ── -->
+    <!-- ── HELP MODAL ── -->
     <div class="modal fade" id="helpModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -594,8 +578,7 @@
             <h6>Quick Guide:</h6>
             <ul>
               <li>
-                <strong>My Orders:</strong> View all past and current orders
-                here
+                <strong>My Orders:</strong> View all past and current orders here
               </li>
               <li>
                 <strong>Status:</strong> PROCESSING = being prepared, COMPLETE =
@@ -614,6 +597,7 @@
       </div>
     </div>
 
+    <!-- ── CANCEL CONFIRM MODAL ── -->
     <div
       class="modal fade"
       id="cancelConfirmModal"
@@ -624,19 +608,11 @@
         <div class="modal-content">
           <div
             class="modal-header"
-            style="
-              background: #fee2e2;
-              border-bottom: none;
-              border-radius: 15px 15px 0 0;
-            "
+            style="background: #fee2e2; border-bottom: none; border-radius: 15px 15px 0 0;"
           >
             <h5
               class="modal-title"
-              style="
-                color: #dc2626;
-                font-family: var(--font-bold);
-                font-weight: 400;
-              "
+              style="color: #dc2626; font-family: var(--font-bold); font-weight: 400;"
             >
               <i class="fas fa-exclamation-triangle me-2"></i>Cancel Order
             </h5>
@@ -658,25 +634,14 @@
               <strong>Item:</strong> <span id="cancelItemRef"></span>
             </p>
             <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.75rem">
-              <i class="fas fa-info-circle me-1"></i>This action cannot be
-              undone.
+              <i class="fas fa-info-circle me-1"></i>This action cannot be undone.
             </p>
           </div>
           <div class="modal-footer" style="gap: 0.75rem">
             <button
               type="button"
               data-bs-dismiss="modal"
-              style="
-                flex: 1;
-                border-radius: 25px;
-                padding: 0.75rem;
-                border: 2px solid #e0e0e0;
-                background: white;
-                color: var(--dark-brown);
-                font-family: var(--font-body);
-                font-weight: 600;
-                cursor: pointer;
-              "
+              style="flex: 1; border-radius: 25px; padding: 0.75rem; border: 2px solid #e0e0e0; background: white; color: var(--dark-brown); font-family: var(--font-body); font-weight: 600; cursor: pointer;"
             >
               Keep Order
             </button>
@@ -684,17 +649,7 @@
               id="btnConfirmCancel"
               type="button"
               onclick="executeCancel()"
-              style="
-                flex: 1;
-                border-radius: 25px;
-                padding: 0.75rem;
-                border: none;
-                background: #dc2626;
-                color: white;
-                font-family: var(--font-body);
-                font-weight: 600;
-                cursor: pointer;
-              "
+              style="flex: 1; border-radius: 25px; padding: 0.75rem; border: none; background: #dc2626; color: white; font-family: var(--font-body); font-weight: 600; cursor: pointer;"
             >
               <i class="fas fa-times me-1"></i> Yes, Cancel Order
             </button>
