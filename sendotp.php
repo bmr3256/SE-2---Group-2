@@ -39,20 +39,20 @@ try {
 
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'bryanmiguel.ramos.cics@ust.edu.ph';
-    $mail->Password = 'jsjx dunr vjwu lpki';
+    $mail->Username = 'barkertest462@gmail.com';
+    $mail->Password = 'ftkb jzjo lelo xtdf';
 
-    $mail->setFrom('bryanmiguel.ramos.cics@ust.edu.ph', 'The Barkery');
+    $mail->setFrom('barkertest462@gmail.com', 'The Barkery');
     $mail->addAddress($email);
 
     $mail->isHTML(true);
     $mail->Subject = 'Your Barkery Login OTP';
     $mail->Body = "
-<h2>The Barkery Login Verification</h2>
-<p>Your OTP code is:</p>
-<h1>$otp</h1>
-<p>This code expires in 5 minutes.</p>
-";
+    <h2>The Barkery Login Verification</h2>
+    <p>Your OTP code is:</p>
+    <h1>$otp</h1>
+    <p>This code expires in 5 minutes.</p>
+    ";
 
     $mail->send();
 
