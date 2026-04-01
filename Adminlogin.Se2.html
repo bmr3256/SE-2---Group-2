@@ -25,6 +25,7 @@
         <span class="breadcrumb-current"><strong>ADMIN</strong></span>
       </div>
     </nav>
+
     <div class="auth-container">
       <div class="auth-card">
         <div class="auth-left">
@@ -39,7 +40,7 @@
             <div class="form-group">
               <div class="floating-input">
                 <input
-                  type="email"
+                  type="text"
                   id="email"
                   name="email"
                   placeholder=" "
@@ -50,9 +51,16 @@
                   Email Address <span class="required">*</span>
                 </label>
               </div>
-              <div class="invalid-feedback">
-                Please enter a valid email address
-              </div>
+              <div
+                class="field-error"
+                id="emailError"
+                style="
+                  color: red;
+                  font-size: 0.8rem;
+                  margin-top: 4px;
+                  display: none;
+                "
+              ></div>
             </div>
 
             <div class="form-group">
@@ -77,14 +85,36 @@
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
-              <div class="invalid-feedback">Password is required</div>
+              <div
+                class="field-error"
+                id="passwordError"
+                style="
+                  color: red;
+                  font-size: 0.8rem;
+                  margin-top: 4px;
+                  display: none;
+                "
+              ></div>
             </div>
 
-            <!-- Custom error message -->
+            <!-- Forgot Password Link -->
             <div
-              id="customErrorMessage"
-              style="color: red; font-size: 0.875rem; margin-top: 0.25rem"
-            ></div>
+              class="auth-links"
+              style="
+                margin-top: -0.5rem;
+                margin-bottom: -0.25rem;
+                text-align: right;
+              "
+            >
+              <a
+                href="Forgotpassword.Se2.html"
+                class="forgot-link"
+                style="display: inline; font-size: 0.85rem"
+              >
+                <i class="fas fa-lock" style="font-size: 0.75rem"></i> Forgot
+                Password?
+              </a>
+            </div>
 
             <button type="submit" class="btn-auth">
               <span class="btn-text">LOGIN</span>
@@ -103,6 +133,35 @@
       </div>
     </div>
 
+    <!-- Lockout Toast -->
+    <div
+      id="lockoutToast"
+      class="toast align-items-center text-bg-danger border-0"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      style="
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        display: none;
+        z-index: 1055;
+      "
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          Too many failed attempts. Please wait 5 min.
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          onclick="
+            document.getElementById('lockoutToast').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
+
     <footer class="auth-footer">
       <div class="footer-content">
         <div class="footer-logo">
@@ -115,77 +174,180 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const adminEmail = "@dm1n@ADMIN.Bakery"; // replace with your admin email
-      const adminPassword = "Adm1n89457"; // replace with your admin password
 
+    <script>
+      // ── Admin credentials (testing only) ──────────────────
+      const ADMIN_EMAIL = "barkertest462@gmail.com";
+      const ADMIN_PASSWORD = "Adm1n89457";
+
+      // ── DOM refs ───────────────────────────────────────────
       const loginForm = document.getElementById("loginForm");
       const emailInput = document.getElementById("email");
       const passwordInput = document.getElementById("password");
       const btnText = document.querySelector(".btn-text");
       const btnLoader = document.querySelector(".btn-loader");
       const formMessage = document.getElementById("formMessage");
-      const customMessage = document.getElementById("customErrorMessage");
+      const emailError = document.getElementById("emailError");
+      const passwordError = document.getElementById("passwordError");
+      const loginButton = loginForm.querySelector("button[type='submit']");
 
-      loginForm.addEventListener("submit", (e) => {
+      // ── Clear errors on input ──────────────────────────────
+      emailInput.addEventListener("input", () => {
+        emailInput.style.border = "";
+        emailError.style.display = "none";
+        emailError.textContent = "";
+      });
+
+      passwordInput.addEventListener("input", () => {
+        passwordInput.style.border = "";
+        passwordError.style.display = "none";
+        passwordError.textContent = "";
+      });
+
+      // ── Lockout persistence across page loads ──────────────
+      let failedAttempts =
+        parseInt(localStorage.getItem("adminFailedAttempts")) || 0;
+      const lockUntil = parseInt(localStorage.getItem("adminLockUntil"));
+
+      if (lockUntil && Date.now() < lockUntil) {
+        loginButton.disabled = true;
+        document.getElementById("lockoutToast").style.display = "block";
+        passwordError.style.display = "block";
+        passwordError.textContent =
+          "Too many failed attempts. Please wait 5 minutes.";
+        setTimeout(() => {
+          loginButton.disabled = false;
+          document.getElementById("lockoutToast").style.display = "none";
+          passwordError.style.display = "none";
+          passwordError.textContent = "";
+          localStorage.removeItem("adminLockUntil");
+          failedAttempts = 0;
+          localStorage.setItem("adminFailedAttempts", failedAttempts);
+        }, lockUntil - Date.now());
+      }
+
+      // ── Form submit ────────────────────────────────────────
+      loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
-        // Reset styles/messages
+        // Reset errors
         emailInput.style.border = "";
         passwordInput.style.border = "";
-        customMessage.textContent = "";
+        emailError.style.display = "none";
+        emailError.textContent = "";
+        passwordError.style.display = "none";
+        passwordError.textContent = "";
         formMessage.innerHTML = "";
+
         btnText.style.display = "none";
         btnLoader.style.display = "inline-block";
 
-        // Empty fields check
+        // Empty field check
         if (!email || !password) {
-          emailInput.style.border = "1px solid red";
-          passwordInput.style.border = "1px solid red";
-          customMessage.textContent = "Please enter your credentials";
+          if (!email) {
+            emailInput.style.border = "1px solid red";
+            emailError.style.display = "block";
+            emailError.textContent = "Email address is required.";
+          }
+          if (!password) {
+            passwordInput.style.border = "1px solid red";
+            passwordError.style.display = "block";
+            passwordError.textContent = "Password is required.";
+          }
           btnText.style.display = "inline-block";
           btnLoader.style.display = "none";
           return;
         }
 
-        // Check credentials
-        if (email === adminEmail && password === adminPassword) {
-          // Success
+        // Credential check
+        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+          // ── Correct — send OTP then redirect ──────────────
+          try {
+            const response = await fetch("sendotp.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: "email=" + encodeURIComponent(email),
+            });
+
+            const resultRaw = (await response.text()).trim();
+            const result = resultRaw.includes("OTP_SENT")
+              ? "OTP_SENT"
+              : resultRaw;
+
+            if (response.ok && result === "OTP_SENT") {
+              // Pass mode=admin so EmailVerif knows where to redirect after
+              window.location.href =
+                "emailver.Se2.html?email=" +
+                encodeURIComponent(email) +
+                "&mode=admin";
+            } else {
+              btnText.style.display = "inline-block";
+              btnLoader.style.display = "none";
+              formMessage.style.color = "red";
+              formMessage.textContent =
+                "Failed to send OTP. Try again. (" + result + ")";
+            }
+          } catch (err) {
+            btnText.style.display = "inline-block";
+            btnLoader.style.display = "none";
+            formMessage.style.color = "red";
+            formMessage.textContent = "Server error. Please try again.";
+          }
+        } else {
+          // ── Wrong credentials ──────────────────────────────
           btnText.style.display = "inline-block";
           btnLoader.style.display = "none";
-          formMessage.style.color = "green";
-          formMessage.innerHTML = "Admin login successful! Redirecting...";
 
-          setTimeout(() => {
-            window.location.href = "ManOrd.Se2.html"; // redirect to admin page
-          }, 1500);
-        } else {
-          // Invalid credentials
+          failedAttempts++;
+          localStorage.setItem("adminFailedAttempts", failedAttempts);
+
+          const remaining = 3 - failedAttempts;
+          const attemptsText =
+            remaining > 0
+              ? ` ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.`
+              : "";
+
           emailInput.style.border = "1px solid red";
           passwordInput.style.border = "1px solid red";
-          btnText.style.display = "inline-block";
-          btnLoader.style.display = "none";
-          customMessage.textContent = "Invalid email or password";
+          passwordError.style.display = "block";
+          passwordError.textContent =
+            "Invalid email or password." + attemptsText;
+
+          // ── Lockout after 3 failed attempts ────────────────
+          if (failedAttempts >= 3) {
+            const lockTime = 5 * 60 * 1000;
+            const unlockAt = Date.now() + lockTime;
+            localStorage.setItem("adminLockUntil", unlockAt);
+            loginButton.disabled = true;
+            passwordError.textContent =
+              "Too many failed attempts. Please wait 5 minutes.";
+            document.getElementById("lockoutToast").style.display = "block";
+            setTimeout(() => {
+              loginButton.disabled = false;
+              document.getElementById("lockoutToast").style.display = "none";
+              passwordError.style.display = "none";
+              passwordError.textContent = "";
+              failedAttempts = 0;
+              localStorage.setItem("adminFailedAttempts", failedAttempts);
+              localStorage.removeItem("adminLockUntil");
+            }, lockTime);
+          }
         }
       });
 
-      // Toggle password visibility
+      // ── Password toggle ────────────────────────────────────
       function togglePassword(inputId) {
         const input = document.getElementById(inputId);
-        const button = input.parentElement.querySelector(".toggle-password");
-        const icon = button.querySelector("i");
-
+        const icon = input.parentElement.querySelector(".toggle-password i");
         if (input.type === "password") {
           input.type = "text";
-          icon.classList.remove("fa-eye");
-          icon.classList.add("fa-eye-slash");
+          icon.classList.replace("fa-eye", "fa-eye-slash");
         } else {
           input.type = "password";
-          icon.classList.remove("fa-eye-slash");
-          icon.classList.add("fa-eye");
+          icon.classList.replace("fa-eye-slash", "fa-eye");
         }
       }
     </script>
