@@ -292,37 +292,8 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-      
-      // ── SHA-256 Helpers ──
-async function hashPasswordSHA256(password) {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  const salt = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-
-  let hash = password + salt;
-  for (let i = 0; i < 10000; i++) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(hash);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    hash = Array.from(new Uint8Array(hashBuffer))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-  }
-  return { salt, hash };
-}
-
-async function hashEmail(email) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(email.toLowerCase().trim());
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
 
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
@@ -335,7 +306,6 @@ async function hashEmail(email) {
       };
 
       const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
 
       const form = document.getElementById("signupForm");
 
@@ -354,21 +324,88 @@ async function hashEmail(email) {
         const confirmPassword = document.getElementById("confirmPassword");
         const terms = document.getElementById("terms");
 
-        // ... existing validation code ...
+        [fname, lname, email, password, confirmPassword, terms].forEach(
+          (el) => {
+            el.classList.remove("error");
+            const msg = el
+              .closest(".form-group, .form-check-group")
+              ?.querySelector(".error-message");
+            if (msg) msg.remove();
+          },
+        );
 
-        // Hash password with SHA-256
-        const { salt, hash } = await hashPasswordSHA256(password.value);
+        let hasError = false;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        // Store signup data with SHA-256 hash
+        const fields = [
+          { el: fname, msg: "First Name required" },
+          { el: lname, msg: "Last Name required" },
+          { el: email, msg: "Email required" },
+          { el: password, msg: "Password required" },
+          { el: confirmPassword, msg: "Confirm Password required" },
+        ];
+        fields.forEach(({ el, msg }) => {
+          if (!el.value.trim()) {
+            el.classList.add("error");
+            const errorDiv = document.createElement("div");
+            errorDiv.classList.add("error-message");
+            errorDiv.textContent = msg;
+            const formGroup = el.closest(".form-group");
+            if (formGroup) formGroup.appendChild(errorDiv);
+            hasError = true;
+          }
+        });
+
+        if (email.value.trim() && !emailPattern.test(email.value.trim())) {
+          email.classList.add("error");
+          const errorDiv = document.createElement("div");
+          errorDiv.classList.add("error-message");
+          errorDiv.textContent = "Email is incorrect";
+          email.closest(".form-group")?.appendChild(errorDiv);
+          hasError = true;
+        }
+
+        if (
+          password.value &&
+          confirmPassword.value &&
+          password.value !== confirmPassword.value
+        ) {
+          confirmPassword.classList.add("error");
+          const errorDiv = document.createElement("div");
+          errorDiv.classList.add("error-message");
+          errorDiv.textContent = "Passwords do not match";
+          confirmPassword.closest(".form-group")?.appendChild(errorDiv);
+          hasError = true;
+        }
+
+        const termsWrapper = terms.closest(".form-check-group");
+        if (!terms.checked) {
+          terms.classList.add("error");
+          termsWrapper.classList.add("error");
+          if (!termsWrapper.querySelector(".error-message")) {
+            const errorDiv = document.createElement("div");
+            errorDiv.classList.add("error-message");
+            errorDiv.textContent = "You must agree to the Terms & Conditions";
+            termsWrapper.appendChild(errorDiv);
+          }
+          hasError = true;
+        }
+
+        if (hasError) return;
+
+        const customerID =
+          "C-" +
+          Date.now().toString(36).toUpperCase() +
+          Math.random().toString(36).substring(2, 6).toUpperCase();
+
         sessionStorage.setItem(
           "signupData",
           JSON.stringify({
-            fname: fname.value.trim(),
-            lname: lname.value.trim(),
-            email: email.value.trim(),
-            password: password.value,      // For Firebase Auth
-            sha256Salt: salt,              // For SHA-256 verification
-            sha256Hash: hash               // For SHA-256 verification
+            F_Name: fname.value.trim(),
+            L_Name: lname.value.trim(),
+            C_Email: email.value.trim(),
+            C_Password: password.value,
+            Customer_ID: customerID,
           }),
         );
 
