@@ -512,7 +512,13 @@
 
         // Save to Firestore orders collection
         try {
-          await addDoc(collection(db, "orders"), {
+          // Generate random Order ID
+          const orderId =
+            "ORD-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+          // Save main order document
+          const orderRef = await addDoc(collection(db, "orders"), {
+            orderId,
             userId: user.uid,
             email,
             firstName,
@@ -521,7 +527,6 @@
             city,
             zipCode,
             phone,
-            items,
             subtotal,
             shipping,
             total,
@@ -530,7 +535,38 @@
             date: serverTimestamp(),
           });
 
-          // Clear cart after order
+          // Save each item as a document in the items subcollection
+          const itemPromises = items.map(async (item) => {
+            // Look up the product's Firestore document ID from the products collection
+            const productQuery = await getDocs(
+              query(
+                collection(db, "products"),
+                where("P_Name", "==", item.name),
+              ),
+            );
+
+            let productId = "UNKNOWN";
+            productQuery.forEach((d) => {
+              productId = d.data().Product_ID || d.id; // fallback to d.id just in case
+            });
+            const orderItemId =
+              "ITEM-" +
+              Math.random().toString(36).substring(2, 8).toUpperCase();
+
+            await addDoc(collection(db, "orders", orderRef.id, "items"), {
+              OrderItem_ID: orderItemId, // variable is orderItemId
+              Order_ID: orderId, // variable is orderId
+              Product_ID: productId, // variable is productId
+              P_Name: item.name,
+              quantity: item.quantity,
+              Price_at_Order: item.price,
+              Total: item.price * item.quantity,
+            });
+          });
+
+          await Promise.all(itemPromises);
+
+          // Clear cart and reduce stock
           const deletePromises = [];
           const stockPromises = [];
 
@@ -540,13 +576,12 @@
               deleteDoc(doc(db, "carts", user.uid, "items", d.id)),
             );
 
-            // Fetch current stock and reduce it
             stockPromises.push(
               (async () => {
                 const productQuery = await getDocs(
                   query(
                     collection(db, "products"),
-                    where("name", "==", item.name),
+                    where("P_Name", "==", item.name),
                   ),
                 );
                 productQuery.forEach(async (productDoc) => {
