@@ -38,6 +38,7 @@ body {
 
 /* Breadcrumb Navigation */
 .breadcrumb-nav {
+  background-color: white;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
@@ -470,17 +471,6 @@ body {
   position: relative;
   overflow: hidden;
   min-height: 500px;
-}
-
-.auth-right img {
-  background: #ffffff47; /* Semi-transparent white */
-  backdrop-filter: blur(3px);          /* Blurs the image behind it */
-  padding: 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  width: 100%;
-  object-fit: cover; /* This crops the edges slightly to fill the space */
-  display: block;    /* Removes the small bottom gap images sometimes have */
 }
 
 .product-showcase {
