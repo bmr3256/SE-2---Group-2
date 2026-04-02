@@ -63,10 +63,11 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
+          // Fetch display name from accounts collection (same as cart page)
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
-            const fullName = `${data.fname || ""} ${data.lname || ""}`.trim();
+            const fullName = `${data.F_Name || ""} ${data.L_Name || ""}`.trim();
             userIcon.href = "profile.html";
             userIcon.title = fullName || "Profile";
           }
@@ -79,6 +80,7 @@
 
           fetchMyOrders(user.uid);
         } else {
+          // Not logged in — redirect exactly like cart page does
           window.location.href = "login.Se2.html";
         }
       });
@@ -90,9 +92,38 @@
           const q = query(collection(db, "orders"), where("userId", "==", uid));
           const snap = await getDocs(q);
           allOrders = [];
+
+          const orderList = [];
           snap.forEach((d) =>
-            allOrders.push({ firestoreId: d.id, ...d.data() }),
+            orderList.push({ firestoreId: d.id, ...d.data() }),
           );
+
+          // Fetch subcollection items for each order
+          await Promise.all(
+            orderList.map(async (o) => {
+              if (!o.item) {
+                try {
+                  const itemsSnap = await getDocs(
+                    collection(db, "orders", o.firestoreId, "items"),
+                  );
+                  let names = [];
+                  let qty = 0;
+                  itemsSnap.forEach((d) => {
+                    const item = d.data();
+                    names.push(item.P_Name || item.name || "Item");
+                    qty += item.quantity || 0;
+                  });
+                  o._itemNames = names.join(", ") || "—";
+                  o._totalQty = qty || "—";
+                } catch (e) {
+                  o._itemNames = "—";
+                  o._totalQty = "—";
+                }
+              }
+              allOrders.push(o);
+            }),
+          );
+
           visibleOrders = [...allOrders];
           renderTable();
         } catch (err) {
@@ -141,10 +172,10 @@
 
           tbody.innerHTML += `
           <tr onclick="openDetailModal('${o.firestoreId}')">
-            <td class="order-id-cell">${o.id ?? o.firestoreId}</td>
+            <td class="order-id-cell">${o.orderId ?? o.id ?? o.firestoreId}</td>
             <td>${o.date?.toDate ? o.date.toDate().toLocaleDateString() : (o.date ?? "—")}</td>
-            <td>${o.item ?? "—"}</td>
-            <td>${o.qty ?? "—"}</td>
+            <td>${o._itemNames ?? o.item ?? "—"}</td>
+            <td>${o._totalQty ?? o.qty ?? "—"}</td>
             <td>₱${o.total ?? "0"}.00</td>
             <td>${badgeHtml(o.status)}</td>
             <td>${cancelBtn}</td>
@@ -166,40 +197,26 @@
         return `<span class="${cls}">${s}</span>`;
       }
 
-      // ── SEARCH (FIXED) ─────────────────────────────
+      // ── SEARCH ─────────────────────────────────────
       window.filterOrders = function () {
         const q = document
           .getElementById("searchInput")
           .value.toLowerCase()
           .trim();
-
         if (!q) {
           visibleOrders = [...allOrders];
           renderTable();
           return;
         }
-
-        // Mirrors exactly what the table cell displays: o.id ?? o.firestoreId
-        function getDisplayId(o) {
-          return (o.id ?? o.firestoreId ?? "").toString().toLowerCase();
-        }
-
-        // Safely converts Firestore Timestamp OR plain string to searchable text
-        function getDateString(o) {
-          if (!o.date) return "";
-          if (o.date?.toDate) return o.date.toDate().toLocaleDateString().toLowerCase();
-          return o.date.toString().toLowerCase();
-        }
-
-        visibleOrders = allOrders.filter((o) =>
-          getDisplayId(o).includes(q) ||
-          getDateString(o).includes(q) ||
-          (o.item   && o.item.toString().toLowerCase().includes(q)) ||
-          (o.status && o.status.toString().toLowerCase().includes(q)) ||
-          (o.qty    && o.qty.toString().includes(q)) ||
-          (o.total  && o.total.toString().includes(q))
+        visibleOrders = allOrders.filter(
+          (o) =>
+            (o.id && o.id.toLowerCase().includes(q)) ||
+            (o.date && o.date.toLowerCase().includes(q)) ||
+            (o.item && o.item.toLowerCase().includes(q)) ||
+            (o.status && o.status.toLowerCase().includes(q)) ||
+            (o.qty && o.qty.toString().includes(q)) ||
+            (o.total && o.total.toString().includes(q)),
         );
-
         renderTable(visibleOrders);
       };
 
@@ -207,12 +224,15 @@
       window.openDetailModal = function (firestoreId) {
         const o = allOrders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
-        document.getElementById("dOrderId").textContent = o.id ?? o.firestoreId;
+        document.getElementById("dOrderId").textContent =
+          o.orderId ?? o.id ?? o.firestoreId;
         document.getElementById("dOrderDate").textContent = o.date?.toDate
           ? o.date.toDate().toLocaleDateString()
           : o.date || "—";
-        document.getElementById("dItemName").textContent = o.item ?? "—";
-        document.getElementById("dQty").textContent = o.qty ?? "—";
+        document.getElementById("dItemName").textContent =
+          o._itemNames ?? o.item ?? "—";
+        document.getElementById("dQty").textContent =
+          o._totalQty ?? o.qty ?? "—";
         document.getElementById("dTotal").textContent =
           "₱" + (o.total ?? "0") + ".00";
         document.getElementById("dStatusBadge").innerHTML = badgeHtml(o.status);
@@ -224,8 +244,9 @@
         if (!o) return;
         pendingCancelId = firestoreId;
         document.getElementById("cancelOrderRef").textContent =
-          o.id ?? o.firestoreId;
-        document.getElementById("cancelItemRef").textContent = o.item ?? "—";
+          o.orderId ?? o.id ?? o.firestoreId;
+        document.getElementById("cancelItemRef").textContent =
+          o._itemNames ?? o.item ?? "—";
         new bootstrap.Modal(
           document.getElementById("cancelConfirmModal"),
         ).show();
@@ -272,10 +293,12 @@
         const status = document.getElementById("fStatus").value;
         visibleOrders = allOrders.filter(
           (o) =>
-            (!name || (o.item && o.item.toLowerCase().includes(name))) &&
-            (!date || (o.date && o.date === date)) &&
-            (!qty || (o.qty && o.qty == qty)) &&
-            (!status || (o.status && o.status === status)),
+            (o.orderId && o.orderId.toLowerCase().includes(q)) ||
+            (o.id && o.id.toLowerCase().includes(q)) ||
+            (o._itemNames && o._itemNames.toLowerCase().includes(q)) ||
+            (o.item && o.item.toLowerCase().includes(q)) ||
+            (o.status && o.status.toLowerCase().includes(q)) ||
+            (o.total && o.total.toString().includes(q)),
         );
         renderTable();
         bootstrap.Modal.getInstance(
@@ -303,7 +326,7 @@
       };
     </script>
 
-    <!-- ── NAVBAR ── -->
+    <!-- ── NAVBAR (matches cart.Se2.html exactly) ── -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -349,6 +372,7 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge">0</span>
           </a>
+          <!-- Swaps to profile link when logged in (via JS) -->
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
@@ -356,7 +380,12 @@
             id="logoutBtn"
             class="nav-icon"
             title="Logout"
-            style="display: none; background: none; border: none; cursor: pointer;"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
           >
             <i class="fas fa-sign-out-alt"></i>
           </button>
@@ -441,7 +470,7 @@
       </div>
     </footer>
 
-    <!-- ── ORDER DETAIL MODAL ── -->
+    <!-- ── ORDER DETAIL MODAL (read-only) ── -->
     <div
       class="modal fade order-detail-modal"
       id="orderDetailModal"
@@ -533,7 +562,11 @@
               <select
                 id="fStatus"
                 class="form-select"
-                style="font-family: var(--font-body); border: 2px solid #e0e0e0; border-radius: 8px;"
+                style="
+                  font-family: var(--font-body);
+                  border: 2px solid #e0e0e0;
+                  border-radius: 8px;
+                "
               >
                 <option value="">All Statuses</option>
                 <option value="PROCESSING">PROCESSING</option>
@@ -544,14 +577,32 @@
             <div class="d-flex gap-2">
               <button
                 class="btn-modal-no w-50"
-                style="border-radius: 25px; padding: 0.75rem; border: none; background: #e0e0e0; color: var(--dark-brown); font-family: var(--font-body); font-weight: 600; cursor: pointer;"
+                style="
+                  border-radius: 25px;
+                  padding: 0.75rem;
+                  border: none;
+                  background: #e0e0e0;
+                  color: var(--dark-brown);
+                  font-family: var(--font-body);
+                  font-weight: 600;
+                  cursor: pointer;
+                "
                 onclick="resetFilter()"
               >
                 Reset
               </button>
               <button
                 class="btn-modal-yes w-50"
-                style="border-radius: 25px; padding: 0.75rem; border: none; background: var(--dark-brown); color: white; font-family: var(--font-body); font-weight: 600; cursor: pointer;"
+                style="
+                  border-radius: 25px;
+                  padding: 0.75rem;
+                  border: none;
+                  background: var(--dark-brown);
+                  color: white;
+                  font-family: var(--font-body);
+                  font-weight: 600;
+                  cursor: pointer;
+                "
                 onclick="applyFilter()"
               >
                 Apply
@@ -562,7 +613,7 @@
       </div>
     </div>
 
-    <!-- ── HELP MODAL ── -->
+    <!-- ── HELP MODAL (same as cart page) ── -->
     <div class="modal fade" id="helpModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -578,7 +629,8 @@
             <h6>Quick Guide:</h6>
             <ul>
               <li>
-                <strong>My Orders:</strong> View all past and current orders here
+                <strong>My Orders:</strong> View all past and current orders
+                here
               </li>
               <li>
                 <strong>Status:</strong> PROCESSING = being prepared, COMPLETE =
@@ -597,7 +649,6 @@
       </div>
     </div>
 
-    <!-- ── CANCEL CONFIRM MODAL ── -->
     <div
       class="modal fade"
       id="cancelConfirmModal"
@@ -608,11 +659,19 @@
         <div class="modal-content">
           <div
             class="modal-header"
-            style="background: #fee2e2; border-bottom: none; border-radius: 15px 15px 0 0;"
+            style="
+              background: #fee2e2;
+              border-bottom: none;
+              border-radius: 15px 15px 0 0;
+            "
           >
             <h5
               class="modal-title"
-              style="color: #dc2626; font-family: var(--font-bold); font-weight: 400;"
+              style="
+                color: #dc2626;
+                font-family: var(--font-bold);
+                font-weight: 400;
+              "
             >
               <i class="fas fa-exclamation-triangle me-2"></i>Cancel Order
             </h5>
@@ -634,14 +693,25 @@
               <strong>Item:</strong> <span id="cancelItemRef"></span>
             </p>
             <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.75rem">
-              <i class="fas fa-info-circle me-1"></i>This action cannot be undone.
+              <i class="fas fa-info-circle me-1"></i>This action cannot be
+              undone.
             </p>
           </div>
           <div class="modal-footer" style="gap: 0.75rem">
             <button
               type="button"
               data-bs-dismiss="modal"
-              style="flex: 1; border-radius: 25px; padding: 0.75rem; border: 2px solid #e0e0e0; background: white; color: var(--dark-brown); font-family: var(--font-body); font-weight: 600; cursor: pointer;"
+              style="
+                flex: 1;
+                border-radius: 25px;
+                padding: 0.75rem;
+                border: 2px solid #e0e0e0;
+                background: white;
+                color: var(--dark-brown);
+                font-family: var(--font-body);
+                font-weight: 600;
+                cursor: pointer;
+              "
             >
               Keep Order
             </button>
@@ -649,7 +719,17 @@
               id="btnConfirmCancel"
               type="button"
               onclick="executeCancel()"
-              style="flex: 1; border-radius: 25px; padding: 0.75rem; border: none; background: #dc2626; color: white; font-family: var(--font-body); font-weight: 600; cursor: pointer;"
+              style="
+                flex: 1;
+                border-radius: 25px;
+                padding: 0.75rem;
+                border: none;
+                background: #dc2626;
+                color: white;
+                font-family: var(--font-body);
+                font-weight: 600;
+                cursor: pointer;
+              "
             >
               <i class="fas fa-times me-1"></i> Yes, Cancel Order
             </button>
