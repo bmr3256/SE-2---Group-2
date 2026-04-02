@@ -4,8 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - The Barkery</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <link href="auth-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
@@ -34,13 +40,13 @@
               <div class="floating-input">
                 <input
                   type="email"
-                  id="email"
-                  name="email"
+                  id="C_Email"
+                  name="C_Email"
                   placeholder=" "
                   required
                   autocomplete="email"
                 />
-                <label for="email">
+                <label for="C_Email">
                   Email Address <span class="required">*</span>
                 </label>
               </div>
@@ -63,19 +69,19 @@
               <div class="floating-input">
                 <input
                   type="password"
-                  id="password"
-                  name="password"
+                  id="C_Password"
+                  name="C_Password"
                   placeholder=" "
                   required
                   autocomplete="current-password"
                 />
-                <label for="password">
+                <label for="C_Password">
                   Password <span class="required">*</span>
                 </label>
                 <button
                   type="button"
                   class="toggle-password"
-                  onclick="togglePassword('password')"
+                  onclick="togglePassword('C_Password')"
                   aria-label="Toggle password visibility"
                 >
                   <i class="fas fa-eye"></i>
@@ -94,10 +100,22 @@
               ></div>
             </div>
 
-            <!-- Forgot Password Link -->
-            <div class="auth-links" style="margin-top: -0.5rem; margin-bottom: -0.25rem; text-align: right;">
-              <a href="Forgotpassword.Se2.html" class="forgot-link" style="display: inline; font-size: 0.85rem;">
-                <i class="fas fa-lock" style="font-size: 0.75rem;"></i> Forgot Password?
+            <!-- ── Forgot Password Link ── -->
+            <div
+              class="auth-links"
+              style="
+                margin-top: -0.5rem;
+                margin-bottom: -0.25rem;
+                text-align: right;
+              "
+            >
+              <a
+                href="Forgotpassword.Se2.html"
+                class="forgot-link"
+                style="display: inline; font-size: 0.85rem"
+              >
+                <i class="fas fa-lock" style="font-size: 0.75rem"></i> Forgot
+                Password?
               </a>
             </div>
 
@@ -133,7 +151,13 @@
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
-      style="position: fixed; bottom: 1rem; right: 1rem; display: none; z-index: 1055;"
+      style="
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        display: none;
+        z-index: 1055;
+      "
     >
       <div class="d-flex">
         <div class="toast-body">
@@ -142,11 +166,14 @@
         <button
           type="button"
           class="btn-close btn-close-white me-2 m-auto"
-          onclick="document.getElementById('lockoutToast').style.display = 'none'"
+          onclick="
+            document.getElementById('lockoutToast').style.display = 'none'
+          "
         ></button>
       </div>
     </div>
 
+    <!-- ── Footer ── -->
     <footer class="auth-footer">
       <div class="footer-content">
         <div class="footer-logo">
@@ -185,8 +212,8 @@
 
       window.addEventListener("DOMContentLoaded", () => {
         const loginForm = document.getElementById("loginForm");
-        const emailInput = document.getElementById("email");
-        const passwordInput = document.getElementById("password");
+        const C_Email_Input = document.getElementById("C_Email");
+        const C_Password_Input = document.getElementById("C_Password");
         const btnText = document.querySelector(".btn-text");
         const btnLoader = document.querySelector(".btn-loader");
         const formMessage = document.getElementById("formMessage");
@@ -195,20 +222,21 @@
         const emailError = document.getElementById("emailError");
 
         // Clear errors on input
-        emailInput.addEventListener("input", () => {
-          emailInput.style.border = "";
+        C_Email_Input.addEventListener("input", () => {
+          C_Email_Input.style.border = "";
           emailError.style.display = "none";
           emailError.textContent = "";
           formMessage.textContent = "";
         });
 
-        passwordInput.addEventListener("input", () => {
-          passwordInput.style.border = "";
+        C_Password_Input.addEventListener("input", () => {
+          C_Password_Input.style.border = "";
           passwordError.style.display = "none";
           passwordError.textContent = "";
           formMessage.textContent = "";
         });
 
+        // Restore lockout state on page load
         let failedAttempts =
           parseInt(localStorage.getItem("failedAttempts")) || 0;
         const lockUntil = parseInt(localStorage.getItem("lockUntil"));
@@ -232,12 +260,12 @@
         loginForm.addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const email = emailInput.value.trim();
-          const password = passwordInput.value;
+          const C_Email = C_Email_Input.value.trim();
+          const C_Password = C_Password_Input.value;
 
           // Reset all errors
-          emailInput.style.border = "";
-          passwordInput.style.border = "";
+          C_Email_Input.style.border = "";
+          C_Password_Input.style.border = "";
           emailError.style.display = "none";
           emailError.textContent = "";
           passwordError.style.display = "none";
@@ -247,14 +275,15 @@
           btnText.style.display = "none";
           btnLoader.style.display = "inline-block";
 
-          if (!email || !password) {
-            if (!email) {
-              emailInput.style.border = "1px solid red";
+          // Empty field check
+          if (!C_Email || !C_Password) {
+            if (!C_Email) {
+              C_Email_Input.style.border = "1px solid red";
               emailError.style.display = "block";
               emailError.textContent = "Email address is required.";
             }
-            if (!password) {
-              passwordInput.style.border = "1px solid red";
+            if (!C_Password) {
+              C_Password_Input.style.border = "1px solid red";
               passwordError.style.display = "block";
               passwordError.textContent = "Password is required.";
             }
@@ -264,21 +293,24 @@
           }
 
           try {
-            await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, C_Email, C_Password);
 
             const response = await fetch("sendotp.php", {
               method: "POST",
               headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: "email=" + encodeURIComponent(email),
+              body: "email=" + encodeURIComponent(C_Email),
             });
 
             const resultRaw = (await response.text()).trim();
             console.log("sendotp response:", resultRaw);
-            const result = resultRaw.includes("OTP_SENT") ? "OTP_SENT" : resultRaw;
+            const result = resultRaw.includes("OTP_SENT")
+              ? "OTP_SENT"
+              : resultRaw;
 
             if (response.ok && result === "OTP_SENT") {
+              // ── Fixed: correct EmailVerif file ──
               window.location.href =
-                "EmailVerif.html?email=" + encodeURIComponent(email);
+                "emailverif.Se2.html?email=" + encodeURIComponent(C_Email);
             } else {
               btnText.style.display = "inline-block";
               btnLoader.style.display = "none";
@@ -302,28 +334,28 @@
             console.log("Firebase error code:", error.code);
 
             if (error.code === "auth/invalid-email") {
-              emailInput.style.border = "1px solid red";
+              C_Email_Input.style.border = "1px solid red";
               emailError.style.display = "block";
               emailError.textContent = "Invalid email format.";
             } else if (error.code === "auth/user-not-found") {
-              emailInput.style.border = "1px solid red";
+              C_Email_Input.style.border = "1px solid red";
               emailError.style.display = "block";
               emailError.textContent = "No account found with this email.";
             } else if (
               error.code === "auth/wrong-password" ||
               error.code === "auth/invalid-credential"
             ) {
-              passwordInput.style.border = "1px solid red";
+              C_Password_Input.style.border = "1px solid red";
               passwordError.style.display = "block";
               passwordError.textContent =
                 "Incorrect email or password." + attemptsText;
             } else if (error.code === "auth/too-many-requests") {
-              passwordInput.style.border = "1px solid red";
+              C_Password_Input.style.border = "1px solid red";
               passwordError.style.display = "block";
               passwordError.textContent =
                 "Too many failed attempts. Account temporarily locked.";
             } else {
-              passwordInput.style.border = "1px solid red";
+              C_Password_Input.style.border = "1px solid red";
               passwordError.style.display = "block";
               passwordError.textContent =
                 "Incorrect email or password." + attemptsText;
