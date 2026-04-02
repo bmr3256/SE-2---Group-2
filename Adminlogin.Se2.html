@@ -41,13 +41,13 @@
               <div class="floating-input">
                 <input
                   type="text"
-                  id="email"
-                  name="email"
+                  id="OWN_Email"
+                  name="OWN_Email"
                   placeholder=" "
                   required
                   autocomplete="email"
                 />
-                <label for="email">
+                <label for="OWN_Email">
                   Email Address <span class="required">*</span>
                 </label>
               </div>
@@ -67,19 +67,19 @@
               <div class="floating-input">
                 <input
                   type="password"
-                  id="password"
-                  name="password"
+                  id="OWN_Password"
+                  name="OWN_Password"
                   placeholder=" "
                   required
                   autocomplete="current-password"
                 />
-                <label for="password">
+                <label for="OWN_Password">
                   Password <span class="required">*</span>
                 </label>
                 <button
                   type="button"
                   class="toggle-password"
-                  onclick="togglePassword('password')"
+                  onclick="togglePassword('OWN_Password')"
                   aria-label="Toggle password visibility"
                 >
                   <i class="fas fa-eye"></i>
@@ -177,13 +177,13 @@
 
     <script>
       // ── Admin credentials (testing only) ──────────────────
-      const ADMIN_EMAIL = "barkertest462@gmail.com";
-      const ADMIN_PASSWORD = "Adm1n89457";
+      const OWN_Email = "barkertest462@gmail.com";
+      const OWN_Password = "Adm1n89457";
 
       // ── DOM refs ───────────────────────────────────────────
       const loginForm = document.getElementById("loginForm");
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
+      const emailInput = document.getElementById("OWN_Email");
+      const passwordInput = document.getElementById("OWN_Password");
       const btnText = document.querySelector(".btn-text");
       const btnLoader = document.querySelector(".btn-loader");
       const formMessage = document.getElementById("formMessage");
@@ -263,7 +263,7 @@
         }
 
         // Credential check
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        if (email === OWN_Email && password === OWN_Password) {
           // ── Correct — send OTP then redirect ──────────────
           try {
             const response = await fetch("sendotp.php", {
