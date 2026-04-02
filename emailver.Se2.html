@@ -136,7 +136,7 @@
             </div>
 
             <div class="auth-links">
-              <a href="login.html" class="back-link">
+              <a href="login.Se2.html" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back to Login
               </a>
             </div>
@@ -238,7 +238,13 @@
       import {
         getAuth,
         onAuthStateChanged,
+        createUserWithEmailAndPassword,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
@@ -252,22 +258,27 @@
 
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
+      const db = getFirestore(app);
 
-      // Get email from URL
+      // Get URL params
       const urlParams = new URLSearchParams(window.location.search);
       const email = urlParams.get("email");
+      const mode = urlParams.get("mode"); // "signup" or null (login)
+
       if (email) {
         document.getElementById("userEmail").textContent = email;
       }
 
-      // Track the Firebase user
+      // Track the Firebase user (only relevant for login mode)
       let currentUser = null;
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUser = user;
         } else {
-          // No Firebase session — kick back to login
-          window.location.href = "login.html";
+          // Only redirect to login if we're NOT in signup mode
+          if (mode !== "signup") {
+            window.location.href = "login.Se2.html";
+          }
         }
       });
 
@@ -337,16 +348,55 @@
               encodeURIComponent(currentUser ? currentUser.uid : ""),
           })
             .then((res) => res.text())
-            .then((data) => {
+            .then(async (data) => {
               btnText.style.display = "inline";
               btnLoader.style.display = "none";
               submitBtn.disabled = false;
 
               if (data === "VERIFIED") {
-                showToast("Verification successful!");
-                setTimeout(() => {
-                  window.location.href = "index.Se2.html";
-                }, 1000);
+                if (mode === "signup") {
+                  // ── Create the account now ──
+                  try {
+                    const signupData = JSON.parse(
+                      sessionStorage.getItem("signupData"),
+                    );
+
+                    const userCredential = await createUserWithEmailAndPassword(
+                      auth,
+                      signupData.C_Email,
+                      signupData.C_Password,
+                    );
+                    const user = userCredential.user;
+
+                    await setDoc(doc(db, "accounts", user.uid), {
+                      F_Name: signupData.F_Name,
+                      L_Name: signupData.L_Name,
+                      C_Email: signupData.C_Email,
+                      C_Password: signupData.C_Password,
+                      Customer_ID: signupData.Customer_ID,
+                      createdAt: new Date(),
+                    });
+
+                    sessionStorage.removeItem("signupData"); // clean up
+                    showToast("Account created successfully!");
+                    setTimeout(() => {
+                      window.location.href = "login.Se2.html";
+                    }, 1500);
+                  } catch (err) {
+                    console.error("Signup error:", err);
+                    showError("Failed to create account. " + err.message);
+                  }
+                } else {
+                  // ── Normal login flow ──
+                  showToast("Verification successful!");
+                  setTimeout(() => {
+                    if (mode === "admin") {
+                      window.location.href = "ManOrd.Se2.html"; // ✅ admin goes to dashboard
+                    } else {
+                      window.location.href = "index.Se2.html"; // ✅ customers go to home
+                    }
+                  }, 1000);
+                }
               } else if (data === "EXPIRED") {
                 showError("OTP expired. Please resend code.");
               } else {
@@ -379,7 +429,6 @@
           '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
         fetch("sendotp.php", {
-          // ✅ Fixed: matches login.html
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "email=" + encodeURIComponent(email),
@@ -429,7 +478,6 @@
           });
       }
 
-      // Make resendCode accessible to the onclick attribute
       window.resendCode = resendCode;
 
       function showToast(message) {
