@@ -28,6 +28,7 @@
         doc,
         updateDoc,
         deleteDoc,
+        getDoc,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -44,29 +45,52 @@
       const analytics = getAnalytics(app);
       const db = getFirestore(app);
 
-      window.db = db;
-      window.collection = collection;
-      window.addDoc = addDoc;
-      window.getDocs = getDocs;
-      window.doc = doc;
-      window.updateDoc = updateDoc;
-      window.deleteDoc = deleteDoc;
-
       let orders = [];
       let visibleOrders = [];
+      let itemCache = {};
       let currentEditingOrder = null;
 
       // FETCH ORDERS
       async function fetchOrders() {
-        if (!window.db) return;
         const snapshot = await getDocs(collection(db, "orders"));
         orders = [];
+
+        const orderList = [];
         snapshot.forEach((document) => {
-          orders.push({
-            firestoreId: document.id,
-            ...document.data(),
-          });
+          orderList.push({ firestoreId: document.id, ...document.data() });
         });
+
+        // Fetch item subcollections for each order to get counts
+        await Promise.all(
+          orderList.map(async (o) => {
+            if (!Array.isArray(o.items) && !o.item) {
+              // New subcollection-based order — fetch items
+              try {
+                const itemsSnap = await getDocs(
+                  collection(db, "orders", o.firestoreId, "items"),
+                );
+                let count = 0;
+                let qty = 0;
+                let names = [];
+                itemsSnap.forEach((d) => {
+                  const item = d.data();
+                  count++;
+                  qty += item.quantity || 0;
+                  names.push(item.P_Name || item.name || "Item");
+                });
+                o._itemCount = count;
+                o._totalQty = qty;
+                o._itemNames = names.join(", ");
+              } catch (e) {
+                o._itemCount = "—";
+                o._totalQty = "—";
+                o._itemNames = "—";
+              }
+            }
+            orders.push(o);
+          }),
+        );
+
         visibleOrders = [...orders];
         renderTable();
       }
@@ -77,21 +101,21 @@
         const tbody = document.getElementById("ordersBody");
         tbody.innerHTML = "";
         list.forEach((o) => {
-          const itemNames = Array.isArray(o.items)
+          const itemDisplay = Array.isArray(o.items)
             ? o.items.map((i) => `${i.name} x${i.quantity}`).join(", ")
             : o.item || "—";
           const totalQty = Array.isArray(o.items)
             ? o.items.reduce((sum, i) => sum + i.quantity, 0)
-            : o.qty || "—";
+            : (o.qty ?? "—");
           const date = o.date?.toDate
             ? o.date.toDate().toLocaleDateString()
             : o.date || "—";
 
           tbody.innerHTML += `
       <tr onclick="openOrderModal('${o.firestoreId}')">
-        <td>${o.firestoreId}</td>
+        <td>${o.orderId || o.firestoreId}</td>
         <td>${date}</td>
-        <td>${itemNames}</td>
+        <td>${itemDisplay}</td>
         <td>${totalQty}</td>
         <td>₱${o.total || 0}</td>
         <td>${badgeHtml(o.status)}</td>
@@ -174,32 +198,117 @@
         document.getElementById("addOrderModal").classList.remove("show");
       }
 
+      function openItemModal(itemKey) {
+        const item = itemCache[itemKey];
+        if (!item) return;
+        document.getElementById("iOrderItemId").textContent =
+          item.OrderItem_ID || "—";
+        document.getElementById("iProductId").textContent =
+          item.Product_ID || "—";
+        document.getElementById("iName").textContent =
+          item.P_Name || item.name || "—";
+        document.getElementById("iQty").textContent = item.quantity || "—";
+        document.getElementById("iPrice").textContent =
+          "₱" + (item.Price_at_Order || 0);
+        document.getElementById("iTotal").textContent = "₱" + (item.Total || 0);
+        document.getElementById("itemModal").classList.add("show");
+      }
+
+      function closeItemModal() {
+        document.getElementById("itemModal").classList.remove("show");
+      }
+
+      window.openItemModal = openItemModal;
+      window.closeItemModal = closeItemModal;
+
       // ORDER MODAL
-      function openOrderModal(firestoreId) {
+      async function openOrderModal(firestoreId) {
         const o = orders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
         currentEditingOrder = o;
 
-        const itemNames = Array.isArray(o.items)
-          ? o.items.map((i) => `${i.name} x${i.quantity}`).join(", ")
-          : o.item || "—";
-        const totalQty = Array.isArray(o.items)
-          ? o.items.reduce((sum, i) => sum + i.quantity, 0)
-          : o.qty || "—";
         const date = o.date?.toDate
           ? o.date.toDate().toLocaleDateString()
           : o.date || "—";
 
-        document.getElementById("mOrderId").textContent = o.firestoreId;
-        document.getElementById("mOrderDate").textContent = date;
-        document.getElementById("mItemName").textContent = itemNames;
-        document.getElementById("mQty").textContent = totalQty;
-        document.getElementById("mTotal").textContent = "₱" + o.total;
-        document.getElementById("mStatus").textContent = o.status;
+        // ✅ Show modal immediately with cached data
+        document.getElementById("mOrderId").textContent =
+          o.orderId || o.firestoreId;
+        document.getElementById("mCustomerId").textContent = "Loading…";
+        document.getElementById("mCustomerName").textContent = "Loading…";
+        document.getElementById("mAddress").textContent = o.address || "—";
+        document.getElementById("mDate").textContent = date;
+        document.getElementById("mTotal").textContent = "₱" + (o.total || 0);
+        document.getElementById("mStatus").textContent = o.status || "—";
+        document.getElementById("mItemsList").innerHTML = o._itemNames
+          ? `<div class="info-row"><span class="info-value">${o._itemNames}</span></div>`
+          : "<div class='info-value'>Loading…</div>";
+        document.getElementById("mOtherFields").innerHTML = "";
 
         document.getElementById("orderModal").classList.add("show");
         document.getElementById("displayFields").classList.remove("d-none");
         document.getElementById("editFields").classList.add("d-none");
+        document.getElementById("editBtn").classList.remove("d-none");
+        document.getElementById("saveBtn").classList.add("d-none");
+
+        // ✅ Then fetch and fill in the rest in the background
+        const [accountDoc, itemsSnap] = await Promise.all([
+          o.userId
+            ? getDoc(doc(db, "accounts", o.userId))
+            : Promise.resolve(null),
+          getDocs(collection(db, "orders", firestoreId, "items")),
+        ]);
+
+        // Customer
+        let customerId = "—";
+        let customerName = "—";
+        if (accountDoc?.exists()) {
+          const a = accountDoc.data();
+          customerId = a.Customer_ID || "—";
+          customerName = `${a.F_Name || ""} ${a.L_Name || ""}`.trim() || "—";
+        }
+        document.getElementById("mCustomerId").textContent = customerId;
+        document.getElementById("mCustomerName").textContent = customerName;
+
+        // Items
+        let itemsHTML = "—";
+        if (!itemsSnap.empty) {
+          itemsHTML = "";
+          itemsSnap.forEach((d) => {
+            const item = d.data();
+            const itemKey = d.id;
+            itemCache[itemKey] = item;
+            itemsHTML += `
+        <div class="item-dropdown-row">
+          <button class="item-dropdown-btn" onclick="openItemModal('${itemKey}')">
+            <i class="fas fa-box"></i>
+            <span>${item.P_Name || item.name || "Item"}</span>
+            <i class="fas fa-chevron-right ms-auto"></i>
+          </button>
+        </div>`;
+          });
+        }
+        document.getElementById("mItemsList").innerHTML = itemsHTML;
+
+        // Other fields
+        const otherFields = [
+          { label: "Email", value: o.email || "—" },
+          { label: "Phone", value: o.phone || "—" },
+          { label: "City", value: o.city || "—" },
+          { label: "ZIP Code", value: o.zipCode || "—" },
+          { label: "Payment", value: o.payment || "—" },
+          { label: "Subtotal", value: o.subtotal ? `₱${o.subtotal}` : "—" },
+          { label: "Shipping", value: o.shipping ? `₱${o.shipping}` : "—" },
+        ];
+        document.getElementById("mOtherFields").innerHTML = otherFields
+          .map(
+            (f) => `
+      <div class="info-row">
+        <span class="info-label">${f.label}:</span>
+        <span class="info-value">${f.value}</span>
+      </div>`,
+          )
+          .join("");
       }
 
       function closeOrderModal() {
@@ -307,6 +416,8 @@
         document.getElementById("fDate").value = "";
         document.getElementById("fQty").value = "";
         document.getElementById("fStatus").value = "";
+        document.getElementById("fSortField").value = ""; // ADD
+        document.getElementById("fSortDir").value = "asc"; // ADD
         visibleOrders = [...orders];
         renderTable();
         closeFilterModal();
@@ -316,9 +427,11 @@
           .getElementById("fItemName")
           .value.toLowerCase()
           .trim();
-        const date = document.getElementById("fDate").value;
+        const date = document.getElementById("fDate").value; // "2026-03-27"
         const qty = document.getElementById("fQty").value;
         const status = document.getElementById("fStatus").value;
+        const sortField = document.getElementById("fSortField").value;
+        const sortDir = document.getElementById("fSortDir").value;
 
         visibleOrders = orders.filter((o) => {
           const itemNames = Array.isArray(o.items)
@@ -330,19 +443,59 @@
           const totalQty = Array.isArray(o.items)
             ? o.items.reduce((sum, i) => sum + i.quantity, 0)
             : o.qty || 0;
-          const orderDate = o.date
-            ? o.date
-            : o.createdAt?.toDate
-              ? o.createdAt.toDate().toLocaleDateString()
-              : "";
+
+          // FIXED: normalize order date to YYYY-MM-DD for comparison
+          let orderDate = "";
+          if (o.date?.toDate) {
+            // Firestore Timestamp
+            const d = o.date.toDate();
+            orderDate = d.toISOString().split("T")[0]; // "2026-03-27"
+          } else if (o.date) {
+            // Plain string like "3/27/2026" or "2026-03-27"
+            const d = new Date(o.date);
+            if (!isNaN(d)) orderDate = d.toISOString().split("T")[0];
+          }
 
           return (
             (!name || itemNames.includes(name)) &&
-            (!date || orderDate === date) &&
+            (!date || orderDate === date) && // now both are "YYYY-MM-DD"
             (!qty || totalQty == qty) &&
             (!status || o.status === status)
           );
         });
+
+        // sort block stays the same
+        if (sortField) {
+          visibleOrders.sort((a, b) => {
+            let valA, valB;
+
+            if (sortField === "date") {
+              // Normalize both to timestamps (milliseconds) for reliable comparison
+              if (a.date?.toDate) {
+                valA = a.date.toDate().getTime();
+              } else if (a.date) {
+                valA = new Date(a.date).getTime() || 0;
+              } else {
+                valA = 0;
+              }
+
+              if (b.date?.toDate) {
+                valB = b.date.toDate().getTime();
+              } else if (b.date) {
+                valB = new Date(b.date).getTime() || 0;
+              } else {
+                valB = 0;
+              }
+            } else if (sortField === "total") {
+              valA = Number(a.total) || 0;
+              valB = Number(b.total) || 0;
+            }
+
+            if (valA < valB) return sortDir === "asc" ? -1 : 1;
+            if (valA > valB) return sortDir === "asc" ? 1 : -1;
+            return 0;
+          });
+        }
 
         renderTable();
         closeFilterModal();
@@ -354,8 +507,9 @@
         document.getElementById("fDate").value = "";
         document.getElementById("fQty").value = "";
         document.getElementById("fStatus").value = "";
+        document.getElementById("fSortField").value = ""; // ADD
+        document.getElementById("fSortDir").value = "asc"; // ADD
         document.getElementById("searchInput").value = "";
-
         fetchOrders();
       }
 
@@ -460,7 +614,7 @@
               <tr>
                 <th>Order ID</th>
                 <th>Order Date</th>
-                <th>Name of Item</th>
+                <th>Item</th>
                 <th>Qty</th>
                 <th>Total</th>
                 <th>Status</th>
@@ -474,38 +628,54 @@
     </div>
 
     <!-- ORDER MODAL -->
+    <!-- ORDER MODAL -->
     <div class="modal-overlay" id="orderModal">
       <div class="order-info-modal">
         <button class="modal-close-btn" onclick="closeOrderModal()">
           &times;
         </button>
-        <h4>Order Information</h4>
+        <h5>Order Information</h5>
 
         <div id="displayFields">
+          <!-- Primary fields -->
           <div class="info-row">
-            <span class="info-label">Order Id:</span
-            ><span class="info-value" id="mOrderId"></span>
+            <span class="info-label">Order ID:</span>
+            <span class="info-value" id="mOrderId"></span>
           </div>
           <div class="info-row">
-            <span class="info-label">Order date:</span
-            ><span class="info-value" id="mOrderDate"></span>
+            <span class="info-label">Customer ID:</span>
+            <span class="info-value" id="mCustomerId"></span>
           </div>
           <div class="info-row">
-            <span class="info-label">Name of item:</span
-            ><span class="info-value" id="mItemName"></span>
+            <span class="info-label">Customer Name:</span>
+            <span class="info-value" id="mCustomerName"></span>
           </div>
           <div class="info-row">
-            <span class="info-label">Qty:</span
-            ><span class="info-value" id="mQty"></span>
+            <span class="info-label">Address:</span>
+            <span class="info-value" id="mAddress"></span>
           </div>
           <div class="info-row">
-            <span class="info-label">Total:</span
-            ><span class="info-value" id="mTotal"></span>
+            <span class="info-label">Date:</span>
+            <span class="info-value" id="mDate"></span>
           </div>
           <div class="info-row">
-            <span class="info-label">Status:</span
-            ><span class="info-value" id="mStatus"></span>
+            <span class="info-label">Total Amount:</span>
+            <span class="info-value" id="mTotal"></span>
           </div>
+          <div class="info-row">
+            <span class="info-label">Status:</span>
+            <span class="info-value" id="mStatus"></span>
+          </div>
+
+          <!-- Items -->
+          <div class="info-section-title mt-2">Items</div>
+          <div id="mItemsList"></div>
+
+          <!-- Other info dropdown -->
+          <details class="other-details mt-2">
+            <summary>Other Information</summary>
+            <div id="mOtherFields" class="mt-1"></div>
+          </details>
         </div>
 
         <div id="editFields" class="d-none">
@@ -538,6 +708,45 @@
       </div>
     </div>
 
+    <!-- ITEM DETAIL MODAL -->
+    <div class="modal-overlay" id="itemModal">
+      <div class="order-info-modal">
+        <button class="modal-close-btn" onclick="closeItemModal()">
+          &times;
+        </button>
+        <h5>Item Details</h5>
+        <div class="info-row">
+          <span class="info-label">Order Item ID:</span>
+          <span class="info-value" id="iOrderItemId"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Product ID:</span>
+          <span class="info-value" id="iProductId"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Product Name:</span>
+          <span class="info-value" id="iName"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Quantity:</span>
+          <span class="info-value" id="iQty"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Price at Order:</span>
+          <span class="info-value" id="iPrice"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Total:</span>
+          <span class="info-value" id="iTotal"></span>
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-secondary" onclick="closeItemModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- DELETE CONFIRM MODAL -->
     <div class="modal-overlay" id="deleteConfirmModal">
       <div class="order-info-modal">
@@ -559,7 +768,7 @@
         <button class="modal-close-btn" onclick="closeAddModal()">
           &times;
         </button>
-        <h4>Add Order</h4>
+        <h5>Add Order</h5>
         <input
           id="addOrderId"
           placeholder="Order ID"
@@ -600,7 +809,7 @@
         <button class="modal-close-btn" onclick="closeFilterModal()">
           &times;
         </button>
-        <h4>Filter Orders</h4>
+        <h5>Filter Orders</h5>
         <input
           id="fItemName"
           placeholder="Item Name"
@@ -619,6 +828,19 @@
           <option value="COMPLETE">COMPLETE</option>
           <option value="CANCEL">CANCEL</option>
         </select>
+
+        <hr />
+        <h6>Sort By</h6>
+        <select id="fSortField" class="form-select mb-2">
+          <option value="">None</option>
+          <option value="date">Order Date</option>
+          <option value="total">Total</option>
+        </select>
+        <select id="fSortDir" class="form-select mb-2">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+
         <div class="d-flex justify-content-end gap-2 mt-3">
           <button class="btn btn-secondary" onclick="resetFilter()">
             Reset
