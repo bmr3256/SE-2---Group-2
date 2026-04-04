@@ -103,10 +103,12 @@
         list.forEach((o) => {
           const itemDisplay = Array.isArray(o.items)
             ? o.items.map((i) => `${i.name} x${i.quantity}`).join(", ")
-            : o.item || "—";
+            : o.item || o._itemNames || "—"; // ✅ add o._itemNames as fallback
+
           const totalQty = Array.isArray(o.items)
             ? o.items.reduce((sum, i) => sum + i.quantity, 0)
-            : (o.qty ?? "—");
+            : (o.qty ?? o._totalQty ?? "—"); // ✅ also fallback for qty
+
           const date = o.date?.toDate
             ? o.date.toDate().toLocaleDateString()
             : o.date || "—";
@@ -331,23 +333,42 @@
           .setAttribute("data-id", currentEditingOrder.firestoreId);
 
         // ✅ handle both cart orders and manually added orders
-        const date = currentEditingOrder.date
-          ? currentEditingOrder.date
-          : currentEditingOrder.createdAt?.toDate
-            ? currentEditingOrder.createdAt.toDate().toLocaleDateString()
-            : "";
-        const itemNames = Array.isArray(currentEditingOrder.items)
-          ? currentEditingOrder.items
-              .map((i) => `${i.name} x${i.quantity}`)
-              .join(", ")
-          : currentEditingOrder.item || "";
-        const totalQty = Array.isArray(currentEditingOrder.items)
-          ? currentEditingOrder.items.reduce((sum, i) => sum + i.quantity, 0)
-          : currentEditingOrder.qty || "";
+        let date = "";
+        if (currentEditingOrder.date?.toDate) {
+          // Firestore Timestamp → convert to YYYY-MM-DD for date input
+          const d = currentEditingOrder.date.toDate();
+          date = d.toISOString().split("T")[0];
+        } else if (currentEditingOrder.date) {
+          // Plain string like "3/27/2026" → normalize to YYYY-MM-DD
+          const d = new Date(currentEditingOrder.date);
+          if (!isNaN(d)) date = d.toISOString().split("T")[0];
+        } else if (currentEditingOrder.createdAt?.toDate) {
+          const d = currentEditingOrder.createdAt.toDate();
+          date = d.toISOString().split("T")[0];
+        }
+        if (Array.isArray(currentEditingOrder.items)) {
+          editItems = currentEditingOrder.items.map((i) => ({
+            name: i.name,
+            quantity: i.quantity,
+          }));
+        } else if (currentEditingOrder.item) {
+          editItems = [
+            {
+              name: currentEditingOrder.item,
+              quantity: currentEditingOrder.qty || 1,
+            },
+          ];
+        } else if (currentEditingOrder._itemNames) {
+          editItems = currentEditingOrder._itemNames
+            .split(", ")
+            .map((n) => ({ name: n, quantity: 1 }));
+        } else {
+          editItems = [];
+        }
+        loadProductDropdown();
+        renderEditItems();
 
         document.getElementById("eOrderDate").value = date;
-        document.getElementById("eItemName").value = itemNames;
-        document.getElementById("eQty").value = totalQty;
         document.getElementById("eTotal").value =
           currentEditingOrder.total || "";
         document.getElementById("eStatus").value =
@@ -360,10 +381,12 @@
           .getAttribute("data-id");
         if (!firestoreId) return;
         try {
+          const dateValue = document.getElementById("eOrderDate").value;
+          const totalQty = editItems.reduce((sum, i) => sum + i.quantity, 0);
           const updatedData = {
-            date: document.getElementById("eOrderDate").value,
-            item: document.getElementById("eItemName").value,
-            qty: Number(document.getElementById("eQty").value),
+            date: dateValue ? new Date(dateValue + "T00:00:00") : null,
+            item: editItems.map((i) => `${i.name} x${i.quantity}`).join(", "),
+            qty: totalQty,
             total: Number(document.getElementById("eTotal").value),
             status: document.getElementById("eStatus").value,
           };
@@ -499,6 +522,74 @@
 
         renderTable();
         closeFilterModal();
+      }
+
+      let editItems = []; // tracks items in the edit modal
+
+      function renderEditItems() {
+        const container = document.getElementById("eItemsList");
+        if (editItems.length === 0) {
+          container.innerHTML =
+            "<div class='info-value text-muted'>No items</div>";
+          return;
+        }
+        container.innerHTML = editItems
+          .map(
+            (item, i) => `
+        <div class="item-dropdown-row d-flex align-items-center justify-content-between">
+          <span><i class="fas fa-box me-2"></i>${item.name} x${item.quantity}</span>
+          <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeEditItem(${i})">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>`,
+          )
+          .join("");
+      }
+
+      function addEditItem() {
+        const select = document.getElementById("eNewItemSelect");
+        const qty = parseInt(document.getElementById("eNewItemQty").value);
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (!select.value || isNaN(qty) || qty < 1) return;
+
+        const name = selectedOption.dataset.name;
+        const productId = select.value;
+
+        editItems.push({ name, productId, quantity: qty });
+        select.value = "";
+        document.getElementById("eNewItemQty").value = "";
+        renderEditItems();
+      }
+
+      function removeEditItem(index) {
+        editItems.splice(index, 1);
+        renderEditItems();
+      }
+
+      window.addEditItem = addEditItem;
+      window.removeEditItem = removeEditItem;
+
+      // FETCH PRODUCTS FOR DROPDOWN
+      async function loadProductDropdown() {
+        const select = document.getElementById("eNewItemSelect");
+        try {
+          const snapshot = await getDocs(collection(db, "products"));
+          select.innerHTML = '<option value="">Select a product...</option>';
+          snapshot.forEach((d) => {
+            const p = d.data();
+            const name = p.P_Name || "Unnamed";
+            const pid = p.Product_ID || d.id;
+            const option = document.createElement("option");
+            option.value = pid;
+            option.textContent = `${pid} — ${name}`;
+            option.dataset.name = name;
+            select.appendChild(option);
+          });
+        } catch (e) {
+          select.innerHTML =
+            '<option value="">Failed to load products</option>';
+        }
       }
 
       // REFRESH AS RESET
@@ -679,15 +770,64 @@
         </div>
 
         <div id="editFields" class="d-none">
-          <input id="eOrderDate" class="form-control mb-2" />
-          <input id="eItemName" class="form-control mb-2" />
-          <input id="eQty" type="number" class="form-control mb-2" />
-          <input id="eTotal" type="number" class="form-control mb-2" />
-          <select id="eStatus" class="form-select mb-2">
-            <option>PROCESSING</option>
-            <option>COMPLETE</option>
-            <option>CANCEL</option>
-          </select>
+          <div class="info-row">
+            <span class="info-label">Date:</span>
+            <input
+              id="eOrderDate"
+              type="date"
+              class="form-control form-control-sm"
+              style="max-width: 160px"
+            />
+          </div>
+          <div class="info-row">
+            <span class="info-label">Qty:</span>
+            <input
+              id="eQty"
+              type="number"
+              class="form-control form-control-sm"
+              style="max-width: 100px"
+            />
+          </div>
+          <div class="info-row">
+            <span class="info-label">Total:</span>
+            <input
+              id="eTotal"
+              type="number"
+              class="form-control form-control-sm"
+              style="max-width: 120px"
+            />
+          </div>
+          <div class="info-row">
+            <span class="info-label">Status:</span>
+            <select
+              id="eStatus"
+              class="form-select form-select-sm"
+              style="max-width: 160px"
+            >
+              <option>PROCESSING</option>
+              <option>COMPLETE</option>
+              <option>CANCEL</option>
+            </select>
+          </div>
+
+          <div class="info-section-title mt-2">Items</div>
+          <div id="eItemsList"></div>
+          <div class="mt-2 d-flex gap-2">
+            <select id="eNewItemSelect" class="form-select form-select-sm">
+              <option value="">Loading products...</option>
+            </select>
+            <input
+              id="eNewItemQty"
+              type="number"
+              placeholder="Qty"
+              class="form-control form-control-sm"
+              style="max-width: 80px"
+              min="1"
+            />
+            <button class="btn btn-sm btn-dark" onclick="addEditItem()">
+              Add
+            </button>
+          </div>
         </div>
 
         <div class="d-flex justify-content-end gap-2 mt-3">
