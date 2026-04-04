@@ -317,6 +317,9 @@
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        const existingFetchError = form.querySelector(".fetch-error");
+        if (existingFetchError) existingFetchError.remove();
+
         const fname = document.getElementById("firstName");
         const lname = document.getElementById("lastName");
         const email = document.getElementById("email");
@@ -410,22 +413,24 @@
         );
 
         try {
+          // Remove previous fetch error if an
+
           const response = await fetch("sendotp.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: "email=" + encodeURIComponent(email.value.trim()),
           });
 
-          const result = await response.text();
+          const result = (await response.text()).trim();
 
           if (result === "OTP_SENT") {
             window.location.href =
-              "EmailVerif.html?email=" +
+              "emailver.Se2.html?email=" +
               encodeURIComponent(email.value.trim()) +
               "&mode=signup";
           } else {
             const errorDiv = document.createElement("div");
-            errorDiv.classList.add("error-message");
+            errorDiv.classList.add("error-message", "fetch-error"); // fetch-error lets us find & remove it next time
             errorDiv.textContent =
               "Failed to send verification email. Try again.";
             form.appendChild(errorDiv);
