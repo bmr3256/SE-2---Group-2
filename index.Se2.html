@@ -303,7 +303,7 @@
         if (user) {
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           const fullName = docSnap.exists()
-            ? `${docSnap.data().fname} ${docSnap.data().lname}`
+            ? `${docSnap.data().F_Name} ${docSnap.data().L_Name}`
             : user.email;
           userIcon.href = "profile.Se2.html";
           userIcon.title = fullName;
