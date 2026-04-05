@@ -115,7 +115,7 @@
 
           tbody.innerHTML += `
       <tr onclick="openOrderModal('${o.firestoreId}')">
-        <td>${o.orderId || o.firestoreId}</td>
+        <td>${o.Order_ID || o.orderId || o.firestoreId}</td>
         <td>${date}</td>
         <td>${itemDisplay}</td>
         <td>${totalQty}</td>
@@ -235,7 +235,7 @@
 
         // ✅ Show modal immediately with cached data
         document.getElementById("mOrderId").textContent =
-          o.orderId || o.firestoreId;
+          o.Order_ID || o.firestoreId;
         document.getElementById("mCustomerId").textContent = "Loading…";
         document.getElementById("mCustomerName").textContent = "Loading…";
         document.getElementById("mAddress").textContent = o.address || "—";
