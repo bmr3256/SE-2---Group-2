@@ -29,6 +29,8 @@
         updateDoc,
         deleteDoc,
         getDoc,
+        query,
+        where,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -253,21 +255,30 @@
         document.getElementById("editBtn").classList.remove("d-none");
         document.getElementById("saveBtn").classList.add("d-none");
 
-        // ✅ Then fetch and fill in the rest in the background
-        const [accountDoc, itemsSnap] = await Promise.all([
-          o.userId
-            ? getDoc(doc(db, "accounts", o.userId))
-            : Promise.resolve(null),
-          getDocs(collection(db, "orders", firestoreId, "items")),
-        ]);
+        // REPLACE WITH:
+        const itemsSnap = await getDocs(
+          collection(db, "orders", firestoreId, "items"),
+        );
 
-        // Customer
-        let customerId = "—";
+        let customerId = o.Customer_ID || "—";
         let customerName = "—";
-        if (accountDoc?.exists()) {
-          const a = accountDoc.data();
-          customerId = a.Customer_ID || "—";
-          customerName = `${a.F_Name || ""} ${a.L_Name || ""}`.trim() || "—";
+        if (o.Customer_ID) {
+          const accountQuery = await getDocs(
+            query(
+              collection(db, "accounts"),
+              where("Customer_ID", "==", o.Customer_ID),
+            ),
+          );
+          if (!accountQuery.empty) {
+            const a = accountQuery.docs[0].data();
+            customerName =
+              `${a.F_Name || ""} ${a.L_Name || ""}`.trim() ||
+              `${o.firstName || ""} ${o.lastName || ""}`.trim() ||
+              "—";
+          }
+        } else {
+          customerName =
+            `${o.firstName || ""} ${o.lastName || ""}`.trim() || "—";
         }
         document.getElementById("mCustomerId").textContent = customerId;
         document.getElementById("mCustomerName").textContent = customerName;
