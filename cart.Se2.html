@@ -395,10 +395,10 @@
 
         if (snapshot.empty) {
           summaryBox.innerHTML = `
-            <h3>Order Summary</h3>
-            <p>Your cart is empty.</p>
-            <a href="products.Se2.html" class="btn-place-order" style="text-align:center; display:block;">Shop Now</a>
-          `;
+                <h3>Order Summary</h3>
+                <p>Your cart is empty.</p>
+                <a href="products.Se2.html" class="btn-place-order" style="text-align:center; display:block;">Shop Now</a>
+              `;
           document
             .querySelectorAll(".cart-badge")
             .forEach((b) => (b.textContent = 0));
@@ -413,32 +413,32 @@
           const subtotal = item.price * item.quantity;
           total += subtotal;
           itemsHTML += `
-        <div class="cart-item" style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-          <img src="${item.img}" alt="${item.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
-          <div style="flex:1">
-            <strong>${item.name}</strong><br>
-            ₱${item.price} x ${item.quantity} = ₱${subtotal}
-          </div>
-          <div style="display:flex; align-items:center; gap:5px;">
-            <button onclick="changeQty('${item.name}', ${item.quantity}, ${item.price}, '${item.img}', -1)" style="border:none; background:#eee; padding:2px 8px; cursor:pointer; border-radius:4px;">−</button>
-            <span>${item.quantity}</span>
-            <button onclick="changeQty('${item.name}', ${item.quantity}, ${item.price}, '${item.img}', 1)" style="border:none; background:#eee; padding:2px 8px; cursor:pointer; border-radius:4px;">+</button>
-            <button onclick="removeItem('${item.name}')" style="border:none; background:none; color:red; cursor:pointer; margin-left:5px;"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>
-      `;
+            <div class="cart-item" style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+              <img src="${item.img}" alt="${item.name}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+              <div style="flex:1">
+                <strong>${item.name}</strong><br>
+                ₱${item.price} x ${item.quantity} = ₱${subtotal}
+              </div>
+              <div style="display:flex; align-items:center; gap:5px;">
+                <button onclick="changeQty('${item.name}', ${item.quantity}, ${item.price}, '${item.img}', -1)" style="border:none; background:#eee; padding:2px 8px; cursor:pointer; border-radius:4px;">−</button>
+                <span>${item.quantity}</span>
+                <button onclick="changeQty('${item.name}', ${item.quantity}, ${item.price}, '${item.img}', 1)" style="border:none; background:#eee; padding:2px 8px; cursor:pointer; border-radius:4px;">+</button>
+                <button onclick="removeItem('${item.name}')" style="border:none; background:none; color:red; cursor:pointer; margin-left:5px;"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          `;
         });
 
         const shipping = 50;
         summaryBox.innerHTML = `
-      <h3>Order Summary</h3>
-      ${itemsHTML}
-      <hr>
-      <div style="display:flex; justify-content:space-between;"><span>Subtotal</span><span>₱${total}</span></div>
-      <div style="display:flex; justify-content:space-between;"><span>Shipping</span><span>₱${shipping}</span></div>
-      <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:8px;"><span>Total</span><span id="totalAmount">₱${total + shipping}</span></div>
-      <button type="button" class="btn-place-order" style="margin-top:16px; width:100%;" onclick="showConfirmationModal()">Place Order</button>
-    `;
+          <h3>Order Summary</h3>
+          ${itemsHTML}
+          <hr>
+          <div style="display:flex; justify-content:space-between;"><span>Subtotal</span><span>₱${total}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span>Shipping</span><span>₱${shipping}</span></div>
+          <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:8px;"><span>Total</span><span id="totalAmount">₱${total + shipping}</span></div>
+          <button type="button" class="btn-place-order" style="margin-top:16px; width:100%;" onclick="showConfirmationModal()">Place Order</button>
+        `;
 
         // Update badge
         let totalQty = 0;
@@ -513,13 +513,17 @@
         // Save to Firestore orders collection
         try {
           // Generate random Order ID
-          const orderId =
+          const Order_ID =
             "ORD-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+          const accountSnap = await getDoc(doc(db, "accounts", user.uid));
+          const customerID = accountSnap.exists()
+            ? accountSnap.data().Customer_ID
+            : user.uid;
 
           // Save main order document
           const orderRef = await addDoc(collection(db, "orders"), {
-            orderId,
-            userId: user.uid,
+            Order_ID,
+            Customer_ID: customerID,
             email,
             firstName,
             lastName,
@@ -555,7 +559,7 @@
 
             await addDoc(collection(db, "orders", orderRef.id, "items"), {
               OrderItem_ID: orderItemId, // variable is orderItemId
-              Order_ID: orderId, // variable is orderId
+              Order_ID: Order_ID, // variable is orderId
               Product_ID: productId, // variable is productId
               P_Name: item.name,
               quantity: item.quantity,
