@@ -311,7 +311,10 @@
           { label: "ZIP Code", value: o.zipCode || "—" },
           { label: "Payment", value: o.payment || "—" },
           { label: "Subtotal", value: o.subtotal ? `₱${o.subtotal}` : "—" },
-          { label: "Shipping", value: o.shipping ? `₱${o.shipping}` : "—" },
+          {
+            label: "Shipping Fee",
+            value: o.shipping_fee ? `₱${o.shipping_fee}` : "—",
+          },
         ];
         document.getElementById("mOtherFields").innerHTML = otherFields
           .map(

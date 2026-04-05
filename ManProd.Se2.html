@@ -178,13 +178,15 @@
 
       /* ---------- FIREBASE ---------- */
       const firebaseConfig = {
-        apiKey: "YOUR_FIREBASE_KEY",
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
         authDomain: "grp2-se.firebaseapp.com",
         projectId: "grp2-se",
-        storageBucket: "grp2-se.appspot.com",
+        storageBucket: "grp2-se.firebasestorage.app",
         messagingSenderId: "488325990404",
         appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
       };
+
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
 
@@ -349,7 +351,7 @@
           Product_ID: generateProductID(), // ← new field
           P_Name: name,
           P_Price: Number(price),
-          P_Stock: 0, 
+          stock: 0,
           desc: desc || "No description",
           img: imgURL,
         });
