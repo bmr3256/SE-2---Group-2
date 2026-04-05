@@ -22,7 +22,7 @@
         color: #fff;
         padding: 12px 20px;
         border-radius: 6px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         display: none;
         z-index: 9999;
         font-family: var(--font-body);
@@ -36,7 +36,10 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
       import {
-        getFirestore, setDoc, doc, getDoc,
+        getFirestore,
+        setDoc,
+        doc,
+        getDoc,
       } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -82,9 +85,14 @@
         setSaving("savingIndicator", "saving");
         saveTimeout = setTimeout(async () => {
           try {
-            await setDoc(doc(db, "managecon", "feedback_info"), { fields: feedbackFields });
+            await setDoc(doc(db, "managecon", "feedback_info"), {
+              fields: feedbackFields,
+            });
             setSaving("savingIndicator", "saved");
-          } catch (err) { console.error(err); showToast("Error saving."); }
+          } catch (err) {
+            console.error(err);
+            showToast("Error saving.");
+          }
         }, 600);
       }
 
@@ -94,9 +102,14 @@
         setSaving("aboutSavingIndicator", "saving");
         saveTimeout = setTimeout(async () => {
           try {
-            await setDoc(doc(db, "managecon", "aboutus_info"), { fields: aboutFields });
+            await setDoc(doc(db, "managecon", "aboutus_info"), {
+              fields: aboutFields,
+            });
             setSaving("aboutSavingIndicator", "saved");
-          } catch (err) { console.error(err); showToast("Error saving."); }
+          } catch (err) {
+            console.error(err);
+            showToast("Error saving.");
+          }
         }, 600);
       }
 
@@ -115,13 +128,20 @@
           titleInput.className = "fb-field-title-input";
           titleInput.value = field.title;
           titleInput.placeholder = "Field title";
-          titleInput.addEventListener("input", (e) => { feedbackFields[fi].title = e.target.value; autoSave(); });
+          titleInput.addEventListener("input", (e) => {
+            feedbackFields[fi].title = e.target.value;
+            autoSave();
+          });
 
           const delBtn = document.createElement("button");
           delBtn.className = "btn-icon danger";
           delBtn.title = "Remove field";
           delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-          delBtn.addEventListener("click", () => { feedbackFields.splice(fi, 1); autoSave(); renderFields(); });
+          delBtn.addEventListener("click", () => {
+            feedbackFields.splice(fi, 1);
+            autoSave();
+            renderFields();
+          });
 
           header.appendChild(titleInput);
           header.appendChild(delBtn);
@@ -139,12 +159,19 @@
             contentInput.className = "fb-content-input";
             contentInput.value = content;
             contentInput.placeholder = "Content text";
-            contentInput.addEventListener("input", (e) => { feedbackFields[fi].contents[ci] = e.target.value; autoSave(); });
+            contentInput.addEventListener("input", (e) => {
+              feedbackFields[fi].contents[ci] = e.target.value;
+              autoSave();
+            });
 
             const delRowBtn = document.createElement("button");
             delRowBtn.className = "btn-icon danger";
             delRowBtn.innerHTML = '<i class="fas fa-times"></i>';
-            delRowBtn.addEventListener("click", () => { feedbackFields[fi].contents.splice(ci, 1); autoSave(); renderFields(); });
+            delRowBtn.addEventListener("click", () => {
+              feedbackFields[fi].contents.splice(ci, 1);
+              autoSave();
+              renderFields();
+            });
 
             row.appendChild(bullet);
             row.appendChild(contentInput);
@@ -157,8 +184,11 @@
           addBtn.innerHTML = '<i class="fas fa-plus"></i> Add content';
           addBtn.addEventListener("click", () => {
             feedbackFields[fi].contents.push("");
-            autoSave(); renderFields();
-            card.querySelectorAll(".fb-content-input")[feedbackFields[fi].contents.length - 1]?.focus();
+            autoSave();
+            renderFields();
+            card
+              .querySelectorAll(".fb-content-input")
+              [feedbackFields[fi].contents.length - 1]?.focus();
           });
 
           card.appendChild(contentsWrap);
@@ -206,7 +236,8 @@
             }
             contentInput.addEventListener("input", (e) => {
               aboutFields[fi].contents[ci] = e.target.value;
-              autoSaveAbout(); autoResize();
+              autoSaveAbout();
+              autoResize();
             });
             requestAnimationFrame(autoResize);
 
@@ -235,13 +266,20 @@
           titleInput.className = "fb-field-title-input";
           titleInput.value = field.title;
           titleInput.placeholder = "Question";
-          titleInput.addEventListener("input", (e) => { homeFaqFields[fi].title = e.target.value; autoSaveHomeFaqs(); });
+          titleInput.addEventListener("input", (e) => {
+            homeFaqFields[fi].title = e.target.value;
+            autoSaveHomeFaqs();
+          });
 
           const delBtn = document.createElement("button");
           delBtn.className = "btn-icon danger";
           delBtn.title = "Remove FAQ";
           delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-          delBtn.addEventListener("click", () => { homeFaqFields.splice(fi, 1); autoSaveHomeFaqs(); renderHomeFaqs(); });
+          delBtn.addEventListener("click", () => {
+            homeFaqFields.splice(fi, 1);
+            autoSaveHomeFaqs();
+            renderHomeFaqs();
+          });
 
           header.appendChild(titleInput);
           header.appendChild(delBtn);
@@ -272,8 +310,11 @@
       async function loadFeedbackFields() {
         try {
           const snap = await getDoc(doc(db, "managecon", "feedback_info"));
-          feedbackFields = snap.exists() && snap.data().fields ? snap.data().fields : [];
-        } catch (err) { feedbackFields = []; }
+          feedbackFields =
+            snap.exists() && snap.data().fields ? snap.data().fields : [];
+        } catch (err) {
+          feedbackFields = [];
+        }
         renderFields();
       }
 
@@ -289,7 +330,9 @@
               { title: "Vision", contents: [""] },
             ];
           }
-        } catch (err) { console.error(err); }
+        } catch (err) {
+          console.error(err);
+        }
         renderAboutFields();
       }
 
@@ -298,12 +341,17 @@
           const snap = await getDoc(doc(db, "managecon", "home_info"));
           document.getElementById("storyTextInput").value =
             snap.exists() && snap.data().storyText ? snap.data().storyText : "";
-        } catch (err) { console.error(err); }
+        } catch (err) {
+          console.error(err);
+        }
 
         try {
           const snap = await getDoc(doc(db, "managecon", "home_faqs"));
-          homeFaqFields = snap.exists() && snap.data().fields ? snap.data().fields : [];
-        } catch (err) { homeFaqFields = []; }
+          homeFaqFields =
+            snap.exists() && snap.data().fields ? snap.data().fields : [];
+        } catch (err) {
+          homeFaqFields = [];
+        }
         renderHomeFaqs();
       }
 
@@ -314,15 +362,23 @@
             storyText: document.getElementById("storyTextInput").value,
           });
           setSaving("homeSavingIndicator", "saved");
-        } catch (err) { console.error(err); showToast("Error saving."); }
+        } catch (err) {
+          console.error(err);
+          showToast("Error saving.");
+        }
       }
 
       async function autoSaveHomeFaqs() {
         setSaving("homeSavingIndicator", "saving");
         try {
-          await setDoc(doc(db, "managecon", "home_faqs"), { fields: homeFaqFields });
+          await setDoc(doc(db, "managecon", "home_faqs"), {
+            fields: homeFaqFields,
+          });
           setSaving("homeSavingIndicator", "saved");
-        } catch (err) { console.error(err); showToast("Error saving."); }
+        } catch (err) {
+          console.error(err);
+          showToast("Error saving.");
+        }
       }
 
       /* ── PAGE SWITCH ── */
@@ -362,31 +418,50 @@
       }
 
       /* ── ADD FIELD ── */
-      document.getElementById("confirmAddField").addEventListener("click", () => {
-        const titleVal = document.getElementById("newFieldTitle").value.trim();
-        const contentsRaw = document.getElementById("newFieldContents").value.trim();
-        if (!titleVal) { showToast("Please enter a field title."); return; }
-        const contents = contentsRaw
-          ? contentsRaw.split("\n").map(s => s.trim()).filter(Boolean)
-          : [];
-        feedbackFields.push({ title: titleVal, contents });
-        autoSave(); renderFields();
-        document.getElementById("newFieldTitle").value = "";
-        document.getElementById("newFieldContents").value = "";
-        document.getElementById("addFieldForm").style.display = "none";
-      });
+      document
+        .getElementById("confirmAddField")
+        .addEventListener("click", () => {
+          const titleVal = document
+            .getElementById("newFieldTitle")
+            .value.trim();
+          const contentsRaw = document
+            .getElementById("newFieldContents")
+            .value.trim();
+          if (!titleVal) {
+            showToast("Please enter a field title.");
+            return;
+          }
+          const contents = contentsRaw
+            ? contentsRaw
+                .split("\n")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : [];
+          feedbackFields.push({ title: titleVal, contents });
+          autoSave();
+          renderFields();
+          document.getElementById("newFieldTitle").value = "";
+          document.getElementById("newFieldContents").value = "";
+          document.getElementById("addFieldForm").style.display = "none";
+        });
 
-      document.getElementById("cancelAddField").addEventListener("click", () => {
-        document.getElementById("addFieldForm").style.display = "none";
-      });
+      document
+        .getElementById("cancelAddField")
+        .addEventListener("click", () => {
+          document.getElementById("addFieldForm").style.display = "none";
+        });
 
       /* ── ADD FAQ ── */
       document.getElementById("confirmAddFaq").addEventListener("click", () => {
         const q = document.getElementById("newFaqQuestion").value.trim();
         const a = document.getElementById("newFaqAnswer").value.trim();
-        if (!q) { showToast("Please enter a question."); return; }
+        if (!q) {
+          showToast("Please enter a question.");
+          return;
+        }
         homeFaqFields.push({ title: q, contents: [a] });
-        autoSaveHomeFaqs(); renderHomeFaqs();
+        autoSaveHomeFaqs();
+        renderHomeFaqs();
         document.getElementById("newFaqQuestion").value = "";
         document.getElementById("newFaqAnswer").value = "";
         document.getElementById("addFaqForm").style.display = "none";
@@ -402,6 +477,16 @@
         });
         const checked = document.querySelector('input[name="page"]:checked');
         if (checked) switchPage(checked.value);
+
+        // ✅ Add this here
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "Adminlogin.Se2.html";
+          });
+        }
       });
 
       window.setMode = setMode;
@@ -414,10 +499,26 @@
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
       </div>
       <ul class="sidebar-nav">
-        <li><a href="ManProd.Se2.html"><i class="fas fa-box"></i> Manage Products</a></li>
-        <li><a href="ManCon.Se2.html" class="active"><i class="fas fa-file-alt"></i> Manage Content</a></li>
-        <li><a href="ManOrd.Se2.html"><i class="fas fa-clipboard-list"></i> Manage Order</a></li>
-        <li><a href="ManStock.Se2.html"><i class="fas fa-pen"></i> Manage Stocks</a></li>
+        <li>
+          <a href="ManProd.Se2.html"
+            ><i class="fas fa-box"></i> Manage Products</a
+          >
+        </li>
+        <li>
+          <a href="ManCon.Se2.html" class="active"
+            ><i class="fas fa-file-alt"></i> Manage Content</a
+          >
+        </li>
+        <li>
+          <a href="ManOrd.Se2.html"
+            ><i class="fas fa-clipboard-list"></i> Manage Order</a
+          >
+        </li>
+        <li>
+          <a href="ManStock.Se2.html"
+            ><i class="fas fa-pen"></i> Manage Stocks</a
+          >
+        </li>
       </ul>
       <div class="sidebar-user">
         <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
@@ -436,7 +537,6 @@
       <div class="admin-topbar"><h3>Manage Content</h3></div>
       <div class="admin-content">
         <div class="content-layout">
-
           <!-- Page Selector -->
           <div class="content-sidebar-panel">
             <div class="panel-title">Select Page</div>
@@ -466,21 +566,22 @@
 
           <!-- Editor Area -->
           <div class="content-main-panel">
-
             <!-- ══ HOME MANAGER ══ -->
-            <div id="homeManager" style="display:none;">
+            <div id="homeManager" style="display: none">
               <div class="manager-wrap">
                 <div class="manager-topbar">
                   <div class="manager-topbar-left">
                     <h5>Home Page</h5>
-                    <span id="homeSavingIndicator" class="saving-indicator"></span>
+                    <span
+                      id="homeSavingIndicator"
+                      class="saving-indicator"
+                    ></span>
                   </div>
                   <button class="btn-fb-primary" onclick="setMode('add')">
                     <i class="fas fa-plus"></i> Add FAQ
                   </button>
                 </div>
                 <div class="manager-body">
-
                   <!-- Our Story -->
                   <div class="manager-section-label">Our Story</div>
                   <div class="story-card">
@@ -493,43 +594,67 @@
                   </div>
 
                   <!-- FAQs -->
-                  <div class="manager-section-label" style="margin-top:0.5rem;">Frequently Asked Questions</div>
-                  <div id="homeFaqContainer" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+                  <div class="manager-section-label" style="margin-top: 0.5rem">
+                    Frequently Asked Questions
+                  </div>
+                  <div
+                    id="homeFaqContainer"
+                    style="display: flex; flex-direction: column; gap: 0.6rem"
+                  ></div>
 
                   <!-- Add FAQ form -->
-                  <div id="addFaqForm" style="display:none;" class="add-form-card">
+                  <div
+                    id="addFaqForm"
+                    style="display: none"
+                    class="add-form-card"
+                  >
                     <div class="add-form-title">New FAQ</div>
-                    <input type="text" id="newFaqQuestion" placeholder="Question" />
-                    <textarea id="newFaqAnswer" rows="3" placeholder="Answer"></textarea>
+                    <input
+                      type="text"
+                      id="newFaqQuestion"
+                      placeholder="Question"
+                    />
+                    <textarea
+                      id="newFaqAnswer"
+                      rows="3"
+                      placeholder="Answer"
+                    ></textarea>
                     <div class="fb-actions-row">
                       <button class="btn-fb-primary" id="confirmAddFaq">
                         <i class="fas fa-check"></i> Add FAQ
                       </button>
-                      <button class="btn-fb-secondary" id="cancelAddFaq">Cancel</button>
+                      <button class="btn-fb-secondary" id="cancelAddFaq">
+                        Cancel
+                      </button>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
 
             <!-- ══ ABOUT MANAGER ══ -->
-            <div id="aboutManager" style="display:none;">
+            <div id="aboutManager" style="display: none">
               <div class="manager-wrap">
                 <div class="manager-topbar">
                   <div class="manager-topbar-left">
                     <h5>About Us Page</h5>
-                    <span id="aboutSavingIndicator" class="saving-indicator"></span>
+                    <span
+                      id="aboutSavingIndicator"
+                      class="saving-indicator"
+                    ></span>
                   </div>
                 </div>
                 <div class="manager-body">
-                  <div id="aboutFieldsContainer" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+                  <div
+                    id="aboutFieldsContainer"
+                    style="display: flex; flex-direction: column; gap: 0.6rem"
+                  ></div>
                 </div>
               </div>
             </div>
 
             <!-- ══ FEEDBACK MANAGER ══ -->
-            <div id="feedbackManager" style="display:none;">
+            <div id="feedbackManager" style="display: none">
               <div class="manager-wrap">
                 <div class="manager-topbar">
                   <div class="manager-topbar-left">
@@ -541,12 +666,23 @@
                   </button>
                 </div>
                 <div class="manager-body">
-                  <div id="fbFieldsContainer" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+                  <div
+                    id="fbFieldsContainer"
+                    style="display: flex; flex-direction: column; gap: 0.6rem"
+                  ></div>
 
                   <!-- Add field form -->
-                  <div id="addFieldForm" style="display:none;" class="add-form-card">
+                  <div
+                    id="addFieldForm"
+                    style="display: none"
+                    class="add-form-card"
+                  >
                     <div class="add-form-title">New Field</div>
-                    <input type="text" id="newFieldTitle" placeholder="Field title e.g. Contact Us" />
+                    <input
+                      type="text"
+                      id="newFieldTitle"
+                      placeholder="Field title e.g. Contact Us"
+                    />
                     <textarea
                       id="newFieldContents"
                       rows="4"
@@ -556,18 +692,19 @@
                       <button class="btn-fb-primary" id="confirmAddField">
                         <i class="fas fa-check"></i> Add Field
                       </button>
-                      <button class="btn-fb-secondary" id="cancelAddField">Cancel</button>
+                      <button class="btn-fb-secondary" id="cancelAddField">
+                        Cancel
+                      </button>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
-
-          </div><!-- end content-main-panel -->
-        </div><!-- end content-layout -->
+          </div>
+          <!-- end content-main-panel -->
+        </div>
+        <!-- end content-layout -->
       </div>
     </div>
-
   </body>
 </html>
