@@ -15,7 +15,6 @@
     <link href="style.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- FIREBASE -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
@@ -46,7 +45,7 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // ── AUTH STATE ─────────────────────────────────
+      /* Auth State */
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -59,26 +58,26 @@
           userIcon.title = "My Profile";
           logoutBtn.style.display = "inline-block";
 
-          // Fetch from accounts collection (same as cart page)
+          /* Fetch from accounts collection */
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
             const fullName = `${data.F_Name || ""} ${data.L_Name || ""}`.trim();
 
-            // Avatar initials
+            /* Avatar Initials */
             const initials = (
               (data.F_Name?.[0] || "") + (data.L_Name?.[0] || "")
             ).toUpperCase();
             document.getElementById("avatarInitials").textContent =
               initials || "?";
 
-            // Header card
+            /* Header Card */
             document.getElementById("profileName").textContent =
               fullName || "—";
             document.getElementById("profileEmail").textContent =
               data.email || user.email || "—";
 
-            // Info rows
+            /* Info Rows */
             document.getElementById("infoFirstName").textContent =
               data.F_Name || "—";
             document.getElementById("infoLastName").textContent =
@@ -86,7 +85,7 @@
             document.getElementById("infoEmail").textContent =
               data.email || user.email || "—";
           } else {
-            // Fallback to Auth data only
+            /* Fallback to Auth data only */
             document.getElementById("avatarInitials").textContent = "?";
             document.getElementById("profileName").textContent =
               user.displayName || "Customer";
@@ -96,14 +95,14 @@
               user.email || "—";
           }
 
-          // Logout handler (navbar button)
+          /* Logout handler (navbar button) */
           logoutBtn.onclick = () => handleLogout();
 
-          // Logout action card
+          /* Logout action card */
           document.getElementById("logoutActionCard").onclick = () =>
             handleLogout();
         } else {
-          // Not logged in — redirect to login
+          /* Not logged in >> redirect to login */
           window.location.href = "login.Se2.html";
         }
       });
@@ -113,7 +112,7 @@
         window.location.href = "login.Se2.html";
       }
 
-      // ── EDIT PROFILE MODAL LOGIC ─────────────────
+      /* Edit Profile Modal */
       const editModal = document.getElementById("editProfileModal");
 
       editModal.addEventListener("show.bs.modal", async () => {
@@ -129,7 +128,7 @@
         }
       });
 
-      // SAVE (you can expand later)
+      /* Save */
       document.getElementById("saveProfileBtn").onclick = async () => {
         const user = auth.currentUser;
         if (!user) return;
@@ -142,11 +141,11 @@
           L_Name: lname,
         });
 
-        location.reload(); // refresh to reflect changes
+        location.reload();
       };
     </script>
 
-    <!-- ── NAVBAR ── -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -212,7 +211,6 @@
       </div>
     </nav>
 
-    <!-- ── PAGE HERO ── -->
     <section class="page-hero">
       <div class="hero-content-center" style="padding: 2rem">
         <h1>MY PROFILE</h1>
@@ -220,7 +218,7 @@
       </div>
     </section>
 
-    <!-- ── PROFILE CONTENT ── -->
+    <!-- Profile Content -->
     <section class="profile-page-section">
       <div class="profile-page-container">
         <!-- Avatar Card -->
@@ -323,7 +321,7 @@
       </div>
     </section>
 
-    <!-- ── FOOTER ── -->
+    <!-- Footer -->
     <footer>
       <div class="footer-content">
         <div class="footer-logo">
@@ -335,7 +333,7 @@
       </div>
     </footer>
 
-    <!-- ── HELP MODAL ── -->
+    <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -366,7 +364,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ── EDIT PROFILE MODAL ── -->
+    <!-- Edit Profile Modal -->
     <div class="modal fade" id="editProfileModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
