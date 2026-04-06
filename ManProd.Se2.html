@@ -102,6 +102,7 @@
             type="number"
             id="newPrice"
             class="form-control form-control-sm"
+            min="0"
           />
         </div>
         <div class="form-group mb-2">
@@ -348,6 +349,7 @@
         const imgFile = document.getElementById("newImg").files[0];
         if (!name || !price || !imgFile)
           return showToast("Fill all fields and select an image");
+        if (Number(price) < 0) return showToast("Price cannot be negative");
         showToast("Uploading image...");
         const imgURL = await uploadToCloudinary(imgFile);
         await addDoc(collection(db, "products"), {
@@ -383,6 +385,8 @@
             showToast("Uploading image...");
             imgURL = await uploadToCloudinary(imgFile);
           }
+          if (!name || !price) return showToast("Fill all required fields");
+          if (Number(price) < 0) return showToast("Price cannot be negative");
           await updateDoc(doc(db, "products", id), {
             P_Name: name,
             P_Price: Number(price),
