@@ -79,7 +79,7 @@
         el.className = "saving-indicator" + (state === "saved" ? " saved" : "");
       }
 
-      /* ── FEEDBACK AUTO-SAVE ── */
+      /* Feedback Auto Save */
       async function autoSave() {
         clearTimeout(saveTimeout);
         setSaving("savingIndicator", "saving");
@@ -96,7 +96,7 @@
         }, 600);
       }
 
-      /* ── ABOUT AUTO-SAVE ── */
+      /* About Auto Save */
       async function autoSaveAbout() {
         clearTimeout(saveTimeout);
         setSaving("aboutSavingIndicator", "saving");
@@ -113,7 +113,7 @@
         }, 600);
       }
 
-      /* ── FEEDBACK RENDER ── */
+      /* Feedback Render */
       function renderFields() {
         const container = document.getElementById("fbFieldsContainer");
         container.innerHTML = "";
@@ -197,7 +197,7 @@
         });
       }
 
-      /* ── ABOUT RENDER ── */
+      /* About Render */
       function renderAboutFields() {
         const container = document.getElementById("aboutFieldsContainer");
         container.innerHTML = "";
@@ -251,7 +251,7 @@
         });
       }
 
-      /* ── HOME FAQS RENDER ── */
+      /* FAQ Render */
       function renderHomeFaqs() {
         const container = document.getElementById("homeFaqContainer");
         container.innerHTML = "";
@@ -306,7 +306,7 @@
         });
       }
 
-      /* ── LOADERS ── */
+      /* Loaders */
       async function loadFeedbackFields() {
         try {
           const snap = await getDoc(doc(db, "managecon", "feedback_info"));
@@ -381,7 +381,7 @@
         }
       }
 
-      /* ── PAGE SWITCH ── */
+      /* Page Switching */
       async function switchPage(page) {
         currentPage = page;
         document.getElementById("feedbackManager").style.display = "none";
@@ -417,7 +417,7 @@
         }
       }
 
-      /* ── ADD FIELD ── */
+      /* Add Field */
       document
         .getElementById("confirmAddField")
         .addEventListener("click", () => {
@@ -451,7 +451,7 @@
           document.getElementById("addFieldForm").style.display = "none";
         });
 
-      /* ── ADD FAQ ── */
+      /* Add FAQ */
       document.getElementById("confirmAddFaq").addEventListener("click", () => {
         const q = document.getElementById("newFaqQuestion").value.trim();
         const a = document.getElementById("newFaqAnswer").value.trim();
@@ -478,7 +478,6 @@
         const checked = document.querySelector('input[name="page"]:checked');
         if (checked) switchPage(checked.value);
 
-        // ✅ Add this here
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
           logoutBtn.addEventListener("click", () => {
@@ -493,7 +492,7 @@
       window.autoSaveStory = autoSaveStory;
     </script>
 
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
@@ -537,7 +536,7 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- Main -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>Manage Content</h3></div>
       <div class="admin-content">
@@ -571,7 +570,7 @@
 
           <!-- Editor Area -->
           <div class="content-main-panel">
-            <!-- ══ HOME MANAGER ══ -->
+            <!-- Home Manager -->
             <div id="homeManager" style="display: none">
               <div class="manager-wrap">
                 <div class="manager-topbar">
@@ -607,7 +606,7 @@
                     style="display: flex; flex-direction: column; gap: 0.6rem"
                   ></div>
 
-                  <!-- Add FAQ form -->
+                  <!-- Add FAQ Form -->
                   <div
                     id="addFaqForm"
                     style="display: none"
@@ -637,7 +636,7 @@
               </div>
             </div>
 
-            <!-- ══ ABOUT MANAGER ══ -->
+            <!-- About Manager -->
             <div id="aboutManager" style="display: none">
               <div class="manager-wrap">
                 <div class="manager-topbar">
@@ -658,7 +657,7 @@
               </div>
             </div>
 
-            <!-- ══ FEEDBACK MANAGER ══ -->
+            <!-- Feedback Manager -->
             <div id="feedbackManager" style="display: none">
               <div class="manager-wrap">
                 <div class="manager-topbar">
@@ -706,9 +705,7 @@
               </div>
             </div>
           </div>
-          <!-- end content-main-panel -->
         </div>
-        <!-- end content-layout -->
       </div>
     </div>
   </body>
