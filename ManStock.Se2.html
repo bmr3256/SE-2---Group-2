@@ -71,6 +71,9 @@
           <button class="btn-admin-outline" onclick="openEditStockModal()">
             <i class="fas fa-pen"></i> Edit Item Stock
           </button>
+          <button class="btn-admin-outline" onclick="refreshProducts()">
+            <i class="fas fa-sync-alt"></i>
+          </button>
         </div>
         <div class="product-cards" id="productCards"></div>
       </div>
@@ -241,6 +244,16 @@
           fetchProducts();
         };
         document.getElementById("editStockModal").classList.add("show");
+      };
+
+      /* Refresh Button */
+      window.refreshProducts = () => {
+        selectedProduct = null;
+        document
+          .querySelectorAll(".product-card")
+          .forEach((c) => c.classList.remove("selected"));
+        updateButtonStates();
+        fetchProducts();
       };
 
       /* Delete Modal */
