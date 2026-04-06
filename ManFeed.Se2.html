@@ -15,7 +15,7 @@
     <link href="admin-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
@@ -59,23 +59,23 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- Main -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>Customer Feedback</h3></div>
       <div class="admin-content">
-        <!-- TOOLBAR -->
+        <!-- Toolbar -->
         <div class="products-toolbar">
           <button class="btn-admin-danger" onclick="openDeleteModal()">
             <i class="fas fa-trash"></i> Delete Feedback
           </button>
         </div>
 
-        <!-- FEEDBACK CARDS -->
+        <!-- Feedback Cards -->
         <div class="product-cards" id="feedbackCards"></div>
       </div>
     </div>
 
-    <!-- VIEW FEEDBACK MODAL -->
+    <!-- View Feedback Modal -->
     <div class="modal-overlay" id="viewFeedbackModal">
       <div class="order-info-modal" style="width: 480px; max-width: 92%">
         <button
@@ -117,7 +117,7 @@
       </div>
     </div>
 
-    <!-- DELETE MODAL -->
+    <!-- Delete Modal -->
     <div class="modal-overlay" id="deleteModal">
       <div class="order-info-modal" style="width: 340px; max-width: 92%">
         <button class="modal-close-btn" onclick="closeModal('deleteModal')">
@@ -145,10 +145,10 @@
       </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- Toast -->
     <div class="admin-toast" id="adminToast"></div>
 
-    <!-- Inline styles for star rating & feedback card tweaks -->
+    <!-- Inline css -->
     <style>
       .star-rating {
         color: #f5a623;
@@ -203,7 +203,6 @@
       const deleteBtn = document.querySelector(".btn-admin-danger");
       let selectedFeedback = null;
 
-      /* UTILITIES */
       window.showToast = (msg) => {
         toast.textContent = msg;
         toast.classList.add("show");
@@ -224,14 +223,12 @@
 
       function formatDate(value) {
         if (!value) return "—";
-        // Firestore Timestamp
         if (value?.toDate)
           return value.toDate().toLocaleDateString("en-PH", {
             year: "numeric",
             month: "short",
             day: "numeric",
           });
-        // Plain string
         const d = new Date(value);
         return isNaN(d)
           ? value
@@ -242,12 +239,11 @@
             });
       }
 
-      /* BUTTON STATE */
       function updateButtonStates() {
         deleteBtn.classList.toggle("btn-disabled", !selectedFeedback);
       }
 
-      /* FETCH FEEDBACKS */
+      /* Fetch Feedback from Firebase */
       async function fetchFeedbacks() {
         feedbackCards.innerHTML = "";
         const q = query(
@@ -303,7 +299,7 @@
         updateButtonStates();
       }
 
-      /* VIEW MODAL */
+      /* View Modal */
       function openViewModal(f) {
         document.getElementById("modalCustomerName").textContent =
           f.Customer_Name ?? "Anonymous";
@@ -317,7 +313,7 @@
         document.getElementById("viewFeedbackModal").classList.add("show");
       }
 
-      /* DELETE MODAL */
+      /* Delete Modal */
       window.openDeleteModal = () => {
         if (!selectedFeedback)
           return showToast("Select a feedback entry first");
@@ -333,7 +329,6 @@
         fetchFeedbacks();
       };
 
-      /* INIT */
       fetchFeedbacks();
 
       document.getElementById("logoutBtn")?.addEventListener("click", () => {
