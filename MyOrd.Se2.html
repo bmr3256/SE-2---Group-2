@@ -210,15 +210,20 @@
           renderTable();
           return;
         }
-        visibleOrders = allOrders.filter(
-          (o) =>
-            (o.id && o.id.toLowerCase().includes(q)) ||
-            (o.date && o.date.toLowerCase().includes(q)) ||
+        visibleOrders = allOrders.filter((o) => {
+          const dateStr = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString()
+            : (o.date ?? "");
+          return (
+            (o.Order_ID && o.Order_ID.toLowerCase().includes(q)) ||
+            (o.firestoreId && o.firestoreId.toLowerCase().includes(q)) ||
+            (dateStr && dateStr.toLowerCase().includes(q)) ||
+            (o._itemNames && o._itemNames.toLowerCase().includes(q)) ||
             (o.item && o.item.toLowerCase().includes(q)) ||
             (o.status && o.status.toLowerCase().includes(q)) ||
-            (o.qty && o.qty.toString().includes(q)) ||
-            (o.total && o.total.toString().includes(q)),
-        );
+            (o.total && o.total.toString().includes(q))
+          );
+        });
         renderTable(visibleOrders);
       };
 
@@ -293,15 +298,22 @@
         const date = document.getElementById("fDate").value;
         const qty = document.getElementById("fQty").value;
         const status = document.getElementById("fStatus").value;
-        visibleOrders = allOrders.filter(
-          (o) =>
-            (o.orderId && o.orderId.toLowerCase().includes(q)) ||
-            (o.id && o.id.toLowerCase().includes(q)) ||
-            (o._itemNames && o._itemNames.toLowerCase().includes(q)) ||
-            (o.item && o.item.toLowerCase().includes(q)) ||
-            (o.status && o.status.toLowerCase().includes(q)) ||
-            (o.total && o.total.toString().includes(q)),
-        );
+
+        visibleOrders = allOrders.filter((o) => {
+          const itemStr = (o._itemNames ?? o.item ?? "").toLowerCase();
+          const dateStr = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString("en-CA")
+            : (o.date ?? "");
+          const statusStr = (o.status ?? "").toUpperCase();
+
+          return (
+            (!name || itemStr.includes(name)) &&
+            (!date || dateStr === date) &&
+            (!qty || (o._totalQty ?? o.qty ?? "").toString() === qty) &&
+            (!status || statusStr === status.toUpperCase())
+          );
+        });
+
         renderTable();
         bootstrap.Modal.getInstance(
           document.getElementById("filterModal"),
