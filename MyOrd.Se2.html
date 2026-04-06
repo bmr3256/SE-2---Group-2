@@ -62,13 +62,15 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
-          /* Fetch display name from accounts collection */
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
             const fullName = `${data.F_Name || ""} ${data.L_Name || ""}`.trim();
             userIcon.href = "profile.Se2.html";
             userIcon.title = fullName || "Profile";
+
+            const customerID = data.Customer_ID;
+            fetchMyOrders(customerID);
           }
           userIcon.querySelector("i").className = "fas fa-user-check";
           logoutBtn.style.display = "inline-block";
@@ -76,8 +78,6 @@
             await signOut(auth);
             window.location.href = "login.Se2.html";
           };
-
-          fetchMyOrders(user.uid);
         } else {
           /* Not logged in >> redirect */
           window.location.href = "login.Se2.html";
@@ -88,7 +88,10 @@
       async function fetchMyOrders(uid) {
         showLoading(true);
         try {
-          const q = query(collection(db, "orders"), where("userId", "==", uid));
+          const q = query(
+            collection(db, "orders"),
+            where("Customer_ID", "==", uid),
+          );
           const snap = await getDocs(q);
           allOrders = [];
 
@@ -171,7 +174,7 @@
 
           tbody.innerHTML += `
           <tr onclick="openDetailModal('${o.firestoreId}')">
-            <td class="order-id-cell">${o.orderId ?? o.id ?? o.firestoreId}</td>
+            <td class="order-id-cell">${o.Order_ID ?? o.orderId ?? o.firestoreId}</td>
             <td>${o.date?.toDate ? o.date.toDate().toLocaleDateString() : (o.date ?? "—")}</td>
             <td>${o._itemNames ?? o.item ?? "—"}</td>
             <td>${o._totalQty ?? o.qty ?? "—"}</td>
@@ -224,7 +227,7 @@
         const o = allOrders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
         document.getElementById("dOrderId").textContent =
-          o.orderId ?? o.id ?? o.firestoreId;
+          o.Order_ID ?? o.orderId ?? o.firestoreId;
         document.getElementById("dOrderDate").textContent = o.date?.toDate
           ? o.date.toDate().toLocaleDateString()
           : o.date || "—";
@@ -318,10 +321,15 @@
         ).hide();
       };
 
-      window.refreshOrders = function () {
+      window.refreshOrders = async function () {
         document.getElementById("searchInput").value = "";
         const user = auth.currentUser;
-        if (user) fetchMyOrders(user.uid);
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          if (docSnap.exists()) {
+            fetchMyOrders(docSnap.data().Customer_ID);
+          }
+        }
       };
     </script>
 
