@@ -15,7 +15,7 @@
     <link href="admin-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
@@ -60,7 +60,7 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- Main -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>All Products</h3></div>
       <div class="admin-content">
@@ -81,7 +81,7 @@
       </div>
     </div>
 
-    <!-- ADD/EDIT PRODUCT MODAL -->
+    <!-- Add/Edit Product Modal -->
     <div class="modal-overlay" id="addModal">
       <div class="order-info-modal" style="width: 400px; max-width: 92%">
         <button class="modal-close-btn" onclick="closeModal('addModal')">
@@ -135,7 +135,7 @@
       </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL -->
+    <!-- Confirm Delete Modal -->
     <div class="modal-overlay" id="deleteModal">
       <div class="order-info-modal" style="width: 340px; max-width: 92%">
         <button class="modal-close-btn" onclick="closeModal('deleteModal')">
@@ -163,10 +163,9 @@
       </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- Toast -->
     <div class="admin-toast" id="adminToast"></div>
 
-    <!-- SCRIPT -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
@@ -181,7 +180,6 @@
         updateDoc,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-      /* ---------- FIREBASE ---------- */
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
         authDomain: "grp2-se.firebaseapp.com",
@@ -204,14 +202,14 @@
 
       let selectedProducts = new Map();
 
-      /* ---------- TOAST ---------- */
+      /* Toast */
       window.showToast = (msg) => {
         toast.textContent = msg;
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2500);
       };
 
-      /* ---------- MODALS ---------- */
+      /* Modals */
       window.openAddModal = () => {
         if (selectedProducts.size > 1) return;
         document.getElementById("modalTitle").textContent = "Add New Product";
@@ -235,7 +233,7 @@
         document.getElementById("newImg").value = "";
       }
 
-      /* ---------- CLOUDINARY ---------- */
+      /* CLOUDINARY CONNECTION */
       const CLOUDINARY_CLOUD_NAME = "dfppbhbr3";
       const CLOUDINARY_UPLOAD_PRESET = "finals";
       async function uploadToCloudinary(file) {
@@ -250,7 +248,7 @@
         return data.secure_url;
       }
 
-      // ---------- LOGOUT ----------
+      /* Logout */
       window.addEventListener("load", () => {
         const logoutBtn = document.getElementById("logoutBtn");
 
@@ -258,12 +256,12 @@
           logoutBtn.addEventListener("click", () => {
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = "Adminlogin.Se2.html"; // adjust if needed
+            window.location.href = "Adminlogin.Se2.html";
           });
         }
       });
 
-      /* ---------- FETCH PRODUCTS ---------- */
+      /* Fetch Products */
       async function fetchProducts() {
         productCards.innerHTML = "";
         const q = query(collection(db, "products"), orderBy("P_Name", "asc"));
@@ -315,7 +313,7 @@
         updateButtonStates();
       }
 
-      /* ---------- BUTTON STATES ---------- */
+      /* Button States */
       function updateButtonStates() {
         const count = selectedProducts.size;
         if (count === 0) {
@@ -333,7 +331,7 @@
         }
       }
 
-      /* ---------- GENERATE PRODUCT ID ---------- */
+      /* Product ID GENERATOR */
       function generateProductID() {
         const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         const randomPart = Array.from({ length: 6 }, () =>
@@ -342,7 +340,7 @@
         return `PRD-${randomPart}`;
       }
 
-      /* ---------- ADD PRODUCT ---------- */
+      /* Add Product */
       async function addProduct() {
         const name = document.getElementById("newName").value.trim();
         const price = document.getElementById("newPrice").value.trim();
@@ -353,7 +351,7 @@
         showToast("Uploading image...");
         const imgURL = await uploadToCloudinary(imgFile);
         await addDoc(collection(db, "products"), {
-          Product_ID: generateProductID(), // ← new field
+          Product_ID: generateProductID(),
           P_Name: name,
           P_Price: Number(price),
           stock: 0,
@@ -365,7 +363,7 @@
         fetchProducts();
       }
 
-      /* ---------- EDIT PRODUCT ---------- */
+      /* Edit Product */
       window.openEditModal = () => {
         if (selectedProducts.size !== 1)
           return showToast("Select exactly one product to edit");
@@ -399,7 +397,7 @@
         document.getElementById("addModal").classList.add("show");
       };
 
-      /* ---------- DELETE PRODUCT ---------- */
+      /* Delete Product */
       confirmDeleteBtn.onclick = async () => {
         for (const [id] of selectedProducts) {
           await deleteDoc(doc(db, "products", id));
@@ -410,7 +408,6 @@
         fetchProducts();
       };
 
-      /* ---------- INIT ---------- */
       fetchProducts();
     </script>
   </body>
