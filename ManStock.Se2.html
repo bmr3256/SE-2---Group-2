@@ -15,7 +15,7 @@
     <link href="admin-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
         <img src="images/Logo - Black.png" alt="The Barkery Logo" />
@@ -60,7 +60,7 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- Main -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>All Products</h3></div>
       <div class="admin-content">
@@ -76,7 +76,7 @@
       </div>
     </div>
 
-    <!-- EDIT STOCK MODAL -->
+    <!-- Edit Stock Modal -->
     <div class="modal-overlay" id="editStockModal">
       <div class="order-info-modal" style="width: 400px; max-width: 92%">
         <button class="modal-close-btn" onclick="closeModal('editStockModal')">
@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <!-- DELETE MODAL -->
+    <!-- Delete Modal -->
     <div class="modal-overlay" id="deleteModal">
       <div class="order-info-modal" style="width: 340px; max-width: 92%">
         <button class="modal-close-btn" onclick="closeModal('deleteModal')">
@@ -133,7 +133,7 @@
       </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- Toast -->
     <div class="admin-toast" id="adminToast"></div>
 
     <script type="module">
@@ -176,7 +176,7 @@
       window.closeModal = (id) =>
         document.getElementById(id).classList.remove("show");
 
-      /* BUTTON STATES */
+      /* Button States */
       function updateButtonStates() {
         if (!selectedProduct) {
           editBtn.classList.add("btn-disabled");
@@ -187,7 +187,7 @@
         }
       }
 
-      /* FETCH PRODUCTS */
+      /* Fetch Products */
       async function fetchProducts() {
         productCards.innerHTML = "";
         const q = query(collection(db, "products"), orderBy("P_Name", "asc"));
@@ -220,7 +220,7 @@
         updateButtonStates();
       }
 
-      /* EDIT STOCK MODAL */
+      /* Edit Stock Modal */
       window.openEditStockModal = () => {
         if (!selectedProduct) return showToast("Select a product first");
         document.getElementById("editStockInput").value =
@@ -243,7 +243,7 @@
         document.getElementById("editStockModal").classList.add("show");
       };
 
-      /* DELETE MODAL */
+      /* Delete Modal */
       window.openDeleteModal = () => {
         if (!selectedProduct) return showToast("Select a product first");
         document.getElementById("deleteModal").classList.add("show");
@@ -258,7 +258,6 @@
         fetchProducts();
       };
 
-      /* INIT */
       fetchProducts();
 
       document.getElementById("logoutBtn")?.addEventListener("click", () => {
