@@ -64,7 +64,6 @@
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
-          <!-- Hidden by default, shown when logged in -->
           <button
             id="logoutBtn"
             class="nav-icon"
@@ -204,7 +203,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="script.Se2.js"></script>
-    <!-- Firebase auth state -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
       import {
@@ -266,7 +264,7 @@
             question.addEventListener("click", () => {
               const isCurrentlyOpen = answer.classList.contains("show");
 
-              // Close all others
+              // Close All Others
               document
                 .querySelectorAll(".faq-answer")
                 .forEach((a) => a.classList.remove("show"));
