@@ -15,7 +15,6 @@
     <link href="auth-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- Breadcrumb -->
     <nav class="breadcrumb-nav">
       <div class="breadcrumb-container">
         <a href="index.Se2.html" class="breadcrumb-link">
@@ -208,7 +207,7 @@
       </div>
     </div>
 
-    <!-- Footer and Modals remain unchanged -->
+    <!-- Footer/Modals -->
     <footer class="auth-footer">
       <div class="footer-content">
         <div class="footer-logo">
@@ -413,8 +412,6 @@
         );
 
         try {
-          // Remove previous fetch error if an
-
           const response = await fetch("sendotp.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -430,7 +427,7 @@
               "&mode=signup";
           } else {
             const errorDiv = document.createElement("div");
-            errorDiv.classList.add("error-message", "fetch-error"); // fetch-error lets us find & remove it next time
+            errorDiv.classList.add("error-message", "fetch-error");
             errorDiv.textContent =
               "Failed to send verification email. Try again.";
             form.appendChild(errorDiv);
