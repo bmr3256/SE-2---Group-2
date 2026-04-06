@@ -15,7 +15,6 @@
     <link href="auth-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- Breadcrumb Navigation -->
     <nav class="breadcrumb-nav">
       <div class="breadcrumb-container">
         <a href="index.Se2.html" class="breadcrumb-link">
@@ -263,26 +262,25 @@
       // Get URL params
       const urlParams = new URLSearchParams(window.location.search);
       const email = urlParams.get("email");
-      const mode = urlParams.get("mode"); // "signup" or null (login)
+      const mode = urlParams.get("mode");
 
       if (email) {
         document.getElementById("userEmail").textContent = email;
       }
 
-      // Track the Firebase user (only relevant for login mode)
       let currentUser = null;
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUser = user;
         } else {
-          // Only redirect to login if we're NOT in signup mode
+          // Only redirect to login if not in signup mode
           if (mode !== "signup") {
             window.location.href = "login.Se2.html";
           }
         }
       });
 
-      // PIN Input handling
+      // PIN Input Handling
       const pinBoxes = document.querySelectorAll(".pin-box");
 
       pinBoxes.forEach((box, index) => {
@@ -315,7 +313,7 @@
         pinBoxes[0].focus();
       });
 
-      // Form submission
+      // Form Submission
       document
         .getElementById("pinForm")
         .addEventListener("submit", function (e) {
@@ -355,7 +353,6 @@
 
               if (data === "VERIFIED") {
                 if (mode === "signup") {
-                  // ── Create the account now ──
                   try {
                     const signupData = JSON.parse(
                       sessionStorage.getItem("signupData"),
@@ -377,7 +374,7 @@
                       createdAt: new Date(),
                     });
 
-                    sessionStorage.removeItem("signupData"); // clean up
+                    sessionStorage.removeItem("signupData");
                     showToast("Account created successfully!");
                     setTimeout(() => {
                       window.location.href = "login.Se2.html";
@@ -387,13 +384,12 @@
                     showError("Failed to create account. " + err.message);
                   }
                 } else {
-                  // ── Normal login flow ──
                   showToast("Verification successful!");
                   setTimeout(() => {
                     if (mode === "admin") {
-                      window.location.href = "ManOrd.Se2.html"; // ✅ admin goes to dashboard
+                      window.location.href = "ManOrd.Se2.html";
                     } else {
-                      window.location.href = "index.Se2.html"; // ✅ customers go to home
+                      window.location.href = "index.Se2.html";
                     }
                   }, 1000);
                 }
