@@ -1,19 +1,28 @@
-/* Google Fonts Import */
+/* ========================================
+   GOOGLE FONTS IMPORT & COLOR PALETTE
+   ======================================== */
+/* Import three custom fonts: Abril Fatface for formal text, Bayon for bold headings, Be Vietnam Pro for body */
 @import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bayon&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap");
 
+/* Define all color and font variables used throughout the authentication pages */
 :root {
+  /* Primary brand colors */
   --primary-tan: #e3d2b8;
   --dark-brown: #1e1e1e;
   --cream: #fbf6ee;
   --light-cream: #fff9f2;
   --orange: #c48a3a;
+
+  /* Button and UI element colors */
   --button-tan: #c9a876;
   --text-gray: #6b6b6b;
   --leonard: #bfb7a3;
+  --lighter-cream: #ede1cc;
+
+  /* Status indicator colors -->*/
   --success: #4caf50;
   --error: #f44336;
   --warning: #ff9800;
-  --lighter-cream: #ede1cc;
 
   /* Font Variables */
   --font-formal: "Abril Fatface", serif; /* For formal/elegant text */
@@ -21,12 +30,17 @@
   --font-body: "Be Vietnam Pro", sans-serif; /* For body/descriptions */
 }
 
+/* ========================================
+   GLOBAL RESETS
+   ======================================== */
+/* Remove default margins, padding, and apply border-box sizing */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Main body layout - stack breadcrumb, auth content, and footer vertically -->*/
 body {
   font-family: var(--font-body);
   background-color: var(--light-cream);
@@ -36,7 +50,10 @@ body {
   color: var(--dark-brown);
 }
 
-/* Breadcrumb Navigation */
+/* ========================================
+   BREADCRUMB NAVIGATION
+   ======================================== */
+/* Navigation path showing user's location in the site */
 .breadcrumb-nav {
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -51,6 +68,7 @@ body {
   font-size: 0.9rem;
 }
 
+/* Clickable breadcrumb link with hover effect */
 .breadcrumb-link {
   color: var(--dark-brown);
   text-decoration: none;
@@ -61,15 +79,20 @@ body {
   color: var(--button-tan);
 }
 
+/* Visual separator between breadcrumb items -->*/
 .breadcrumb-separator {
   color: var(--text-gray);
 }
 
+/* Current page indicator in breadcrumb -->*/
 .breadcrumb-current {
   color: var(--text-gray);
 }
 
-/* Auth Container */
+/* ========================================
+   AUTHENTICATION CONTAINER & CARD
+   ======================================== */
+/* Main centered container for auth card */
 .auth-container {
   flex: 1;
   display: flex;
@@ -78,6 +101,7 @@ body {
   padding: 2rem;
 }
 
+/* Auth card wrapper - two column layout (form + showcase) -->*/
 .auth-card {
   background: var(--lighter-cream);
   border-radius: 20px;
@@ -89,7 +113,7 @@ body {
   min-height: 600px;
 }
 
-/* Left Side - Form */
+/* Left side: Login/Sign-up form */
 .auth-left {
   flex: 1;
   padding: 2rem 2.5rem;
@@ -100,6 +124,7 @@ body {
   max-height: 90vh;
 }
 
+/* Logo and brand name at top of form */
 .auth-logo a {
   text-decoration: none;
 }
@@ -122,6 +147,7 @@ body {
   color: var(--button-tan);
 }
 
+/* Tagline under logo */
 .tagline {
   color: var(--text-gray);
   font-size: 0.85rem;
@@ -130,6 +156,7 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Main heading for sign-up/login page -->
 .signup-title {
   font-size: 2rem;
   font-weight: bold;
@@ -139,26 +166,34 @@ body {
   letter-spacing: 2px;
 }
 
+/* Subtitle describing the form -->
 .signup-subtitle {
   color: var(--text-gray);
   font-size: 0.9rem;
   margin-bottom: 2rem;
 }
 
-/* Form Styles */
+/* ========================================
+   FORM STYLES
+   ======================================== */
+/* Main form container with flexible layout */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
+/* Individual form field group -->
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-/* Floating Input Container */
+/* ========================================
+   FLOATING INPUT CONTAINER
+   ======================================== */
+/* Custom floating label input - label moves up on focus/input */
 .floating-input {
   position: relative;
   display: flex;
@@ -177,6 +212,7 @@ body {
   transition: all 0.3s ease;
 }
 
+/* Floating label that animates up when input is focused or filled -->*/
 .floating-input label {
   position: absolute;
   left: 1rem;
@@ -203,11 +239,13 @@ body {
   font-weight: 600;
 }
 
+/* Focus state for input with border highlight and shadow -->*/
 .floating-input input:focus {
   border-color: var(--button-tan);
   box-shadow: 0 0 0 3px rgba(196, 170, 134, 0.1);
 }
 
+/* Invalid input styling (red border) -->*/
 .floating-input input.is-invalid {
   border-color: var(--error);
 }
@@ -216,6 +254,7 @@ body {
   color: var(--error);
 }
 
+/* Valid input styling (green border) -->*/
 .floating-input input.is-valid {
   border-color: var(--success);
 }
@@ -224,10 +263,12 @@ body {
   color: var(--success);
 }
 
+/* Required field indicator -->*/
 .required {
   color: var(--error);
 }
 
+/* Info tooltip icon -->*/
 .info-tooltip {
   background: none;
   border: none;
@@ -242,7 +283,7 @@ body {
   color: var(--dark-brown);
 }
 
-/* Password Wrapper for Toggle Button */
+/* Password show/hide toggle button -->*/
 .floating-input .toggle-password {
   position: absolute;
   right: 1rem;
@@ -260,7 +301,10 @@ body {
   color: var(--dark-brown);
 }
 
-/* Password Strength Indicator */
+/* ========================================
+   PASSWORD STRENGTH INDICATOR
+   ======================================== */
+/* Progress bar showing password strength level -->*/
 .password-strength {
   height: 4px;
   background: #e0e0e0;
@@ -281,22 +325,28 @@ body {
   transition: all 0.3s;
 }
 
+/* Weak password - red -->*/
 .password-strength.weak::after {
   width: 33%;
   background: var(--error);
 }
 
+/* Medium password - orange -->*/
 .password-strength.medium::after {
   width: 66%;
   background: var(--warning);
 }
 
+/* Strong password - green -->*/
 .password-strength.strong::after {
   width: 100%;
   background: var(--success);
 }
 
-/* Form Check Group */
+/* ========================================
+   FORM CHECKBOX & VALIDATION
+   ======================================== */
+/* Checkbox with label styling -->*/
 .form-check-group {
   display: flex;
   align-items: center;
@@ -320,7 +370,7 @@ body {
   text-decoration: underline;
 }
 
-/* Invalid Feedback */
+/* Error message displayed below invalid inputs -->*/
 .invalid-feedback {
   color: var(--error);
   font-size: 0.85rem;
@@ -337,7 +387,10 @@ body {
   display: block;
 }
 
-/* Form Message */
+/* ========================================
+   FORM MESSAGES (SUCCESS/ERROR)
+   ======================================== */
+/* Success/error alert messages -->*/
 .form-message {
   padding: 1rem;
   border-radius: 8px;
@@ -361,10 +414,13 @@ body {
   border: 1px solid var(--error);
 }
 
-/* Button Auth */
+/* ========================================
+   AUTHENTICATION BUTTONS
+   ======================================== */
+/* Main call-to-action button (Login/Sign Up) -->*/
 .btn-auth {
   padding: 1rem;
-  background: var(--button-tan);
+  background: var(--button-tan);*/
   border-radius: 25px;
   color: white;
   border: none;
@@ -388,6 +444,7 @@ body {
   cursor: not-allowed;
 }
 
+/* Loading spinner inside button -->*/
 .btn-loader {
   display: none;
 }
@@ -400,12 +457,16 @@ body {
   display: inline;
 }
 
-/* Auth Links */
+/* ========================================
+   AUTH LINKS & SECONDARY ACTIONS
+   ======================================== */
+/* Links below the login/signup form -->*/
 .auth-links {
   margin-top: 1.5rem;
   text-align: center;
 }
 
+/* Forgot password link -->*/
 .forgot-link {
   color: var(--text-gray);
   font-size: 0.9rem;
@@ -420,6 +481,7 @@ body {
   text-decoration: underline;
 }
 
+/* Text + link for switching between login/signup -->*/
 .alternate-action {
   color: var(--text-gray);
   font-size: 0.9rem;
@@ -437,12 +499,13 @@ body {
   color: #4a3329;
 }
 
-/* Help Section */
+/* Help or additional info section -->*/
 .help-section {
   margin-top: 1.5rem;
   text-align: center;
 }
 
+/* Help button (outline style) -->*/
 .btn-help-inline {
   background: transparent;
   border: 2px solid var(--button-tan);
@@ -459,7 +522,10 @@ body {
   color: white;
 }
 
-/* Right Side - Product Showcase */
+/* ========================================
+   RIGHT SIDE - PRODUCT SHOWCASE
+   ======================================== */
+/* Right side with background image and content display -->*/
 .auth-right {
   flex: 1;
   background: url("images/designtreats.png") center/cover no-repeat;
@@ -480,6 +546,7 @@ body {
   border-radius: 10px;
 }
 
+/* Product showcase container -->*/
 .product-showcase {
   width: 100%;
   max-height: 100%;
@@ -493,6 +560,7 @@ body {
   z-index: 2;
 }
 
+/* Text overlay with blurred background -->*/
 .showcase-text {
   text-align: center;
   color: var(--text-gray);
@@ -513,6 +581,7 @@ body {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* Product image container -->*/
 .product-image {
   width: 80%;
   max-height: 100%;
@@ -531,7 +600,10 @@ body {
   border-radius: 10px;
 }
 
-/* Footer */
+/* ========================================
+   FOOTER
+   ======================================== */
+/* Footer bar with branding and info -->*/
 .auth-footer {
   background: var(--leonard);
   padding: 1.5rem 2rem;
@@ -553,6 +625,7 @@ body {
   max-width: 20px;
 }
 
+/* Logo section in footer -->*/
 .footer-logo {
   display: flex;
   align-items: center;
@@ -560,6 +633,7 @@ body {
   font-weight: bold;
 }
 
+/* Icon square in footer logo -->*/
 .logo-icon {
   background: var(--dark-brown);
   color: white;
@@ -578,12 +652,16 @@ body {
   letter-spacing: 1px;
 }
 
+/* Footer text (copyright and location) -->*/
 .footer-copyright,
 .footer-location {
   font-size: 0.9rem;
 }
 
-/* Modal Customization */
+/* ========================================
+   MODAL CUSTOMIZATION
+   ======================================== */
+/* Bootstrap modal styling overrides -->*/
 .modal-content {
   border-radius: 15px;
 }
@@ -617,7 +695,10 @@ body {
   box-shadow: 0 0 0 3px rgba(196, 170, 134, 0.1);
 }
 
-/* Responsive Design */
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+/* Tablet: stack form and showcase vertically -->*/
 @media (max-width: 768px) {
   .auth-card {
     flex-direction: column;
@@ -647,6 +728,7 @@ body {
   }
 }
 
+/* Mobile: optimize font sizes and spacing -->*/
 @media (max-width: 480px) {
   .auth-logo h1 {
     font-size: 1.5rem;
@@ -666,10 +748,10 @@ body {
   }
 }
 
-/* ============================= */
-/* UNIFIED FONT SYSTEM (AUTH) */
-/* ============================= */
-
+/* ========================================
+   UNIFIED FONT SYSTEM
+   ======================================== */
+/* Apply bold font to all major headings -->*/
 .auth-logo h1,
 .signup-title,
 .showcase-text h3 {
@@ -677,6 +759,7 @@ body {
   letter-spacing: 1px;
 }
 
+/* Apply body font to text elements -->*/
 .tagline,
 .signup-subtitle,
 .showcase-text p,
@@ -698,6 +781,7 @@ body {
 /* ========================================
    2FA PIN VERIFICATION PAGE
    ======================================== */
+/* Main verification container - centered and compact -->*/
 .verification-content {
   display: flex;
   flex-direction: column;
@@ -707,6 +791,7 @@ body {
   margin: 0 auto;
 }
 
+/* Animated circular icon for verification -->*/
 .verification-icon {
   width: 80px;
   height: 80px;
@@ -724,6 +809,7 @@ body {
   color: white;
 }
 
+/* Pulse animation for verification icon -->*/
 @keyframes pulse {
   0%,
   100% {
@@ -736,6 +822,7 @@ body {
   }
 }
 
+/* 2FA page title -->*/
 .verification-title {
   font-family: var(--font-bold);
   font-size: 2rem;
@@ -743,6 +830,7 @@ body {
   margin-bottom: 1rem;
 }
 
+/* 2FA page message/instructions -->*/
 .verification-message {
   font-family: var(--font-body);
   font-size: 1rem;
@@ -754,260 +842,18 @@ body {
 .verification-message strong {
   color: var(--button-tan);
   font-weight: 600;
-}
-
-/* PIN Input Boxes */
-.pin-form {
-  width: 100%;
-  margin-bottom: 1.5rem;
-}
-
-.pin-inputs {
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-}
-
-.pin-box {
-  width: 50px;
-  height: 60px;
-  font-size: 1.75rem;
-  font-weight: bold;
-  text-align: center;
-  border: 2px solid var(--primary-tan);
-  border-radius: 10px;
-  background: white;
-  color: var(--dark-brown);
-  font-family: var(--font-body);
-  transition: all 0.3s;
-  outline: none;
-}
-
-.pin-box:focus {
-  border-color: var(--button-tan);
-  box-shadow: 0 0 0 4px rgba(201, 168, 118, 0.2);
-  transform: scale(1.05);
-}
-
-.pin-box.error {
-  border-color: var(--error);
-  animation: shake 0.4s;
-}
-
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px);
-  }
-  75% {
-    transform: translateX(5px);
-  }
-}
-
-.pin-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 8px;
-  color: #856404;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  font-family: var(--font-body);
-}
-
-.pin-error i {
-  font-size: 1rem;
-}
-
-.resend-section {
-  width: 100%;
-  padding: 1.5rem 0;
-  border-top: 2px solid var(--cream);
-  margin-top: 1rem;
-}
-
-.resend-text {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  color: var(--text-gray);
-  margin-bottom: 1rem;
-}
-
-.btn-resend {
-  background: var(--button-tan);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-resend:hover:not(:disabled) {
-  background: var(--orange);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(201, 168, 118, 0.3);
-}
-
-.btn-resend:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.resend-timer {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: var(--text-gray);
-  margin-top: 0.75rem;
-  margin-bottom: 0;
-}
-
-.resend-timer span {
-  font-weight: bold;
-  color: var(--button-tan);
-}
-
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-gray);
-  text-decoration: none;
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  transition: color 0.3s;
-}
-
-.back-link:hover {
-  color: var(--button-tan);
-}
-
-/* Toast Styling */
-.toast {
-  background: white;
-  border-left: 4px solid var(--success);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.toast-body {
-  padding: 1rem;
-  font-family: var(--font-body);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.toast-body i {
-  font-size: 1.25rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .verification-content {
-    padding: 0 1rem;
-  }
-
-  .verification-icon {
-    width: 80px;
-    height: 80px;
-  }
-
-  .verification-icon i {
-    font-size: 2.5rem;
-  }
-
-  .verification-title {
-    font-size: 1.75rem;
-  }
-
-  .pin-inputs {
-    gap: 0.5rem;
-  }
-
-  .pin-box {
-    width: 45px;
-    height: 55px;
-    font-size: 1.5rem;
-  }
-}
-
-/* Password hint text */
-.password-hint {
-  font-size: 0.75rem;
-  color: var(--text-gray);
-  margin-top: 0.25rem;
-  font-family: var(--font-body);
 }
 
 /* ========================================
-   2FA PIN VERIFICATION PAGE
+   PIN INPUT BOXES (2FA)
    ======================================== */
-.verification-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.verification-icon i {
-  font-size: 3rem;
-  color: white;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(201, 168, 118, 0.7);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 20px rgba(201, 168, 118, 0);
-  }
-}
-
-.verification-title {
-  font-family: var(--font-bold);
-  font-size: 2rem;
-  color: var(--dark-brown);
-  margin-bottom: 1rem;
-}
-
-.verification-message {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  color: var(--text-gray);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.verification-message strong {
-  color: var(--button-tan);
-  font-weight: 600;
-}
-
-/* PIN Input Boxes */
+/* PIN form wrapper -->*/
 .pin-form {
   width: 100%;
   margin-bottom: 1.5rem;
 }
 
+/* Container for PIN input boxes with flex layout -->*/
 .pin-inputs {
   display: flex;
   justify-content: center;
@@ -1015,6 +861,7 @@ body {
   margin-bottom: 1.5rem;
 }
 
+/* Individual PIN input box (one digit) -->*/
 .pin-box {
   width: 50px;
   height: 60px;
@@ -1030,17 +877,20 @@ body {
   outline: none;
 }
 
+/* PIN box focus state -->*/
 .pin-box:focus {
   border-color: var(--button-tan);
   box-shadow: 0 0 0 4px rgba(201, 168, 118, 0.2);
   transform: scale(1.05);
 }
 
+/* PIN box error state with shake animation -->*/
 .pin-box.error {
   border-color: var(--error);
   animation: shake 0.4s;
 }
 
+/* Shake animation for incorrect PIN -->*/
 @keyframes shake {
   0%,
   100% {
@@ -1054,6 +904,7 @@ body {
   }
 }
 
+/* Error message for PIN entry -->*/
 .pin-error {
   display: flex;
   align-items: center;
@@ -1073,6 +924,10 @@ body {
   font-size: 1rem;
 }
 
+/* ========================================
+   RESEND PIN SECTION
+   ======================================== */
+/* Container for resend button and timer -->*/
 .resend-section {
   width: 100%;
   padding: 1.5rem 0;
@@ -1080,6 +935,7 @@ body {
   margin-top: 1rem;
 }
 
+/* Text asking to resend -->*/
 .resend-text {
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -1087,6 +943,7 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Resend button -->*/
 .btn-resend {
   background: var(--button-tan);
   color: white;
@@ -1114,6 +971,7 @@ body {
   cursor: not-allowed;
 }
 
+/* Countdown timer for resend -->*/
 .resend-timer {
   font-family: var(--font-body);
   font-size: 0.85rem;
@@ -1127,6 +985,7 @@ body {
   color: var(--button-tan);
 }
 
+/* Back to login/previous page link -->*/
 .back-link {
   display: inline-flex;
   align-items: center;
@@ -1142,7 +1001,10 @@ body {
   color: var(--button-tan);
 }
 
-/* Toast Styling */
+/* ========================================
+   TOAST NOTIFICATIONS
+   ======================================== */
+/* Toast notification box -->*/
 .toast {
   background: white;
   border-left: 4px solid var(--success);
@@ -1161,15 +1023,9 @@ body {
   font-size: 1.25rem;
 }
 
-/* Password hint text */
-.password-hint {
-  font-size: 0.75rem;
-  color: var(--text-gray);
-  margin-top: 0.25rem;
-  font-family: var(--font-body);
-}
-
-/* Responsive adjustments for 2FA */
+/* ========================================
+   MOBILE RESPONSIVENESS FOR 2FA
+   ======================================== */
 @media (max-width: 768px) {
   .verification-content {
     padding: 0 1rem;
@@ -1199,7 +1055,6 @@ body {
   }
 }
 
-/* Responsive adjustments for showcase text box */
 @media (max-width: 768px) {
   .showcase-text {
     padding: 1.5rem 2rem;
@@ -1224,19 +1079,10 @@ body {
   }
 }
 
-.signup-link {
-  display: flex;
-  align-items: center; /* vertical alignment */
-  gap: 5px; /* space between text and link */
-}
-
-.signup-link {
-  display: flex;
-  align-items: center; /* ensures text and link are vertically centered */
-  gap: 5px; /* space between text and link */
-  font-size: 14px; /* optional: unify font size */
-}
-
-.signup-link a {
-  color: black;
+/* Password hint text below password input -->*/
+.password-hint {
+  font-size: 0.75rem;
+  color: var(--text-gray);
+  margin-top: 0.25rem;
+  font-family: var(--font-body);
 }

@@ -1,16 +1,24 @@
-/* Google Fonts Import */
+/* ========================================
+   GOOGLE FONTS IMPORT & COLOR PALETTE
+   ======================================== */
+/* Import three custom fonts: Abril Fatface for formal text, Bayon for bold headings, Be Vietnam Pro for body */
 @import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bayon&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap");
 
-/* Color Scheme */
+/* Define all color and font variables used throughout the website */
 :root {
+  /* Primary brand colors */
   --primary-tan: #e3d2b8;
   --dark-brown: #1e1e1e;
   --cream: #fbf6ee;
   --light-cream: #fff9f2;
   --orange: #c48a3a;
+
+  /* Button and UI element colors */
   --button-tan: #c9a876;
   --text-gray: #6b6b6b;
   --leonard: #bfb7a3;
+
+  /* Status indicator colors */
   --success: #4caf50;
   --error: #f44336;
   --warning: #ff9800;
@@ -20,22 +28,34 @@
   --font-bold: "Bayon", sans-serif; /* For bold headings */
   --font-body: "Be Vietnam Pro", sans-serif; /* For body/descriptions */
 }
+
+/* ========================================
+   GLOBAL RESETS
+   ======================================== */
+/* Remove default margins, padding, and apply border-box sizing to all elements */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
+/* Main body - cream background and dark brown text */
 body {
   font-family: var(--font-body);
   background-color: var(--cream);
   color: var(--dark-brown);
 }
-/* Navigation */
+
+/* ========================================
+   NAVIGATION BAR
+   ======================================== */
 .navbar {
   background-color: var(--primary-tan) !important;
   padding: 1rem 2rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Brand logo in navbar */
 .navbar-brand {
   font-weight: bold;
   font-size: 1.5rem;
@@ -44,13 +64,17 @@ body {
   font-family: var(--font-bold);
   letter-spacing: 1px;
 }
+
 .navbar-brand:hover {
   transform: scale(1.05);
 }
+
 .navbar-brand img {
   font-size: 24px;
   max-width: 220px;
 }
+
+/* Navigation links with hover and active states */
 .nav-link {
   color: var(--dark-brown) !important;
   font-weight: 500;
@@ -60,9 +84,12 @@ body {
   transition: all 0.3s;
   border-radius: 8px;
 }
+
 .nav-link:hover {
   background-color: rgba(92, 64, 51, 0.15);
 }
+
+/* Active/hover underline indicator on nav links */
 .nav-link.active::after,
 .nav-link:hover::after {
   content: "";
@@ -75,11 +102,15 @@ body {
   background: var(--orange);
   border-radius: 2px;
 }
+
+/* Navbar action icons container - help, user, cart -->
 .navbar-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
+
+/* Help button - circular with border -->
 .btn-help {
   background: transparent;
   border: 2px solid var(--dark-brown);
@@ -94,10 +125,13 @@ body {
   transition: all 0.3s;
   font-size: 18px;
 }
+
 .btn-help:hover {
   background: var(--dark-brown);
   color: white;
 }
+
+/* Navigation icons (user, cart, notifications) -->
 .nav-icon {
   position: relative;
   font-size: 1.3rem;
@@ -105,9 +139,12 @@ body {
   text-decoration: none;
   transition: color 0.3s;
 }
+
 .nav-icon:hover {
   color: var(--orange);
 }
+
+/* Cart counter badge -->
 .cart-badge {
   position: absolute;
   top: -8px;
@@ -125,6 +162,8 @@ body {
   border: 2px solid var(--primary-tan);
   animation: pulse 2s infinite;
 }
+
+/* Pulse animation for cart badge -->
 @keyframes pulse {
   0%,
   100% {
@@ -134,13 +173,19 @@ body {
     transform: scale(1.1);
   }
 }
-/* Hero Section */
+
+/* ========================================
+   HERO SECTION
+   ======================================== */
+/* Large banner with gradient background -->
 .hero-section {
   background: linear-gradient(135deg, #b89968 0%, #a08760 100%);
   padding: 4rem 2rem;
   position: relative;
   overflow: hidden;
 }
+
+/* Hero content layout - side-by-side image and text -->
 .hero-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -149,9 +194,12 @@ body {
   gap: 3rem;
   justify-content: space-between;
 }
+
 .hero-image {
   flex: 0 0 300px;
 }
+
+/* Hero placeholder background for image -->
 .hero-placeholder {
   width: 300px;
   height: 300px;
@@ -164,9 +212,11 @@ body {
   font-size: 0.9rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
+
 .hero-text {
   flex: 1;
 }
+
 .hero-text h1 {
   font-size: 2.5rem;
   font-weight: bold;
@@ -175,10 +225,14 @@ body {
   color: white;
   text-transform: uppercase;
 }
+
+/* Orange highlight in hero text -->
 .hero-text .highlight {
   color: var(--orange);
   font-weight: 900;
 }
+
+/* Large white call-to-action button -->
 .btn-hero {
   background-color: white;
   color: var(--dark-brown);
@@ -194,17 +248,23 @@ body {
   align-items: center;
   gap: 0.5rem;
 }
+
 .btn-hero:hover {
   background-color: var(--orange);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-/* Our Story Section */
+
+/* ========================================
+   OUR STORY SECTION
+   ======================================== */
+/* Story/About section with text and images -->
 .story-section {
   padding: 4rem 2rem;
   background-color: var(--cream);
 }
+
 .story-content {
   display: flex;
   align-items: center;
@@ -213,21 +273,26 @@ body {
   margin: 0 auto;
   gap: 3rem;
 }
+
 .story-text {
   flex: 1;
 }
+
 .story-text h2 {
   font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
   color: var(--orange);
 }
+
 .story-text p {
   font-size: 1rem;
   line-height: 1.8;
   color: var(--dark-brown);
   margin-bottom: 2rem;
 }
+
+/* Dark brown call-to-action button -->
 .btn-shop {
   background-color: var(--dark-brown);
   color: white;
@@ -240,17 +305,21 @@ body {
   cursor: pointer;
   transition: all 0.3s;
 }
+
 .btn-shop:hover {
   background-color: #4a3329;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+/* Grid of product images on story section -->
 .story-images {
   flex: 0 0 auto;
   display: grid;
   grid-template-columns: repeat(2, 150px);
   gap: 1rem;
 }
+
 .product-img {
   width: 300px;
   height: 300px;
@@ -262,15 +331,16 @@ body {
   font-size: 0.8rem;
   transition: transform 0.3s;
 }
+
 .product-img:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
 .product-img i {
   font-size: 60px;
   color: var(--button-tan);
 }
-/* Products Section */
 .products-section {
   background-color: var(--cream);
   padding: 4rem 2rem;
