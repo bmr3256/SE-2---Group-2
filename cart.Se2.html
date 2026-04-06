@@ -584,13 +584,17 @@
                     where("P_Name", "==", item.name),
                   ),
                 );
-                productQuery.forEach(async (productDoc) => {
+                const updatePromises = [];
+                productQuery.forEach((productDoc) => {
                   const currentStock = productDoc.data().stock ?? 0;
                   const newStock = Math.max(0, currentStock - item.quantity);
-                  await updateDoc(doc(db, "products", productDoc.id), {
-                    stock: newStock,
-                  });
+                  updatePromises.push(
+                    updateDoc(doc(db, "products", productDoc.id), {
+                      stock: newStock,
+                    }),
+                  );
                 });
+                await Promise.all(updatePromises);
               })(),
             );
           });
