@@ -24,10 +24,10 @@ $mail = new PHPMailer(true);
 
 try {
     $mail->isSMTP();
-    $mail->SMTPDebug = 0; // remove debug output from response
+    $mail->SMTPDebug = 0; 
     $mail->SMTPAutoTLS = false;
-    $mail->SMTPSecure = 'tls'; // or 'ssl'
-    $mail->Port = 587;        // or 465 for ssl
+    $mail->SMTPSecure = 'tls'; 
+    $mail->Port = 587;     
 
     $mail->SMTPOptions = [
         'ssl' => [
@@ -59,6 +59,6 @@ try {
     echo "OTP_SENT";
 } catch (Exception $e) {
     http_response_code(500);
-    // Reveal the mailer error for debugging (remove or hide in production)
+    // DEBUGGING
     echo "ERROR: " . $mail->ErrorInfo . " | " . $e->getMessage();
 }
