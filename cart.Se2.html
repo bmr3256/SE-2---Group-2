@@ -586,11 +586,11 @@
                 );
                 const updatePromises = [];
                 productQuery.forEach((productDoc) => {
-                  const currentStock = productDoc.data().stock ?? 0;
+                  const currentStock = productDoc.data().P_Stock ?? 0;
                   const newStock = Math.max(0, currentStock - item.quantity);
                   updatePromises.push(
                     updateDoc(doc(db, "products", productDoc.id), {
-                      stock: newStock,
+                      P_Stock: newStock,
                     }),
                   );
                 });
