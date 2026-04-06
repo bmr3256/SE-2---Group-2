@@ -16,7 +16,6 @@
   </head>
 
   <body>
-    <!-- FIREBASE -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
@@ -55,7 +54,7 @@
       let visibleOrders = [];
       let pendingCancelId = null;
 
-      // ── AUTH STATE ─────────────────────────────────
+      /* Auth State */
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -63,7 +62,7 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
-          // Fetch display name from accounts collection (same as cart page)
+          /* Fetch display name from accounts collection */
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
@@ -80,12 +79,12 @@
 
           fetchMyOrders(user.uid);
         } else {
-          // Not logged in — redirect exactly like cart page does
+          /* Not logged in >> redirect */
           window.location.href = "login.Se2.html";
         }
       });
 
-      // ── FETCH ORDERS FOR THIS USER ─────────────────
+      /* Fetch Order for currently logged user */
       async function fetchMyOrders(uid) {
         showLoading(true);
         try {
@@ -98,7 +97,7 @@
             orderList.push({ firestoreId: d.id, ...d.data() }),
           );
 
-          // Fetch subcollection items for each order
+          /* Fetch subcollection items for each order*/
           await Promise.all(
             orderList.map(async (o) => {
               if (!o.item) {
@@ -142,7 +141,7 @@
           : "";
       }
 
-      // ── RENDER TABLE ───────────────────────────────
+      /* Render Table */
       function renderTable(data) {
         const list = data ?? visibleOrders;
         const tbody = document.getElementById("ordersBody");
@@ -197,7 +196,7 @@
         return `<span class="${cls}">${s}</span>`;
       }
 
-      // ── SEARCH ─────────────────────────────────────
+      /* Search */
       window.filterOrders = function () {
         const q = document
           .getElementById("searchInput")
@@ -220,7 +219,7 @@
         renderTable(visibleOrders);
       };
 
-      // ── ORDER DETAIL MODAL ─────────────────────────
+      /* Order Detail Modal */
       window.openDetailModal = function (firestoreId) {
         const o = allOrders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
@@ -282,7 +281,7 @@
         }
       };
 
-      // ── FILTER MODAL ───────────────────────────────
+      /* Filter Modal */
       window.applyFilter = function () {
         const name = document
           .getElementById("fItemName")
@@ -326,7 +325,7 @@
       };
     </script>
 
-    <!-- ── NAVBAR (matches cart.Se2.html exactly) ── -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -372,7 +371,6 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge">0</span>
           </a>
-          <!-- Swaps to profile link when logged in (via JS) -->
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
@@ -393,7 +391,6 @@
       </div>
     </nav>
 
-    <!-- ── PAGE HERO ── -->
     <section class="page-hero">
       <div class="hero-content-center" style="padding: 2rem">
         <h1>MY ORDERS</h1>
@@ -401,7 +398,7 @@
       </div>
     </section>
 
-    <!-- ── ORDERS SECTION ── -->
+    <!-- Order Section -->
     <section class="orders-page-section">
       <div class="orders-page-container">
         <!-- Toolbar -->
@@ -458,7 +455,7 @@
       </div>
     </section>
 
-    <!-- ── FOOTER ── -->
+    <!-- Footer -->
     <footer>
       <div class="footer-content">
         <div class="footer-logo">
@@ -470,7 +467,7 @@
       </div>
     </footer>
 
-    <!-- ── ORDER DETAIL MODAL (read-only) ── -->
+    <!-- Order Detail Modal -->
     <div
       class="modal fade order-detail-modal"
       id="orderDetailModal"
@@ -517,7 +514,7 @@
       </div>
     </div>
 
-    <!-- ── FILTER MODAL ── -->
+    <!-- Filter Modal -->
     <div class="modal fade" id="filterModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content filter-modal-content">
@@ -613,7 +610,7 @@
       </div>
     </div>
 
-    <!-- ── HELP MODAL (same as cart page) ── -->
+    <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
