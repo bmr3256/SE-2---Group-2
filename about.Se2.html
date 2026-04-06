@@ -16,7 +16,7 @@
   </head>
 
   <body>
-    <!-- Navigation -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -65,7 +65,6 @@
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
-          <!-- Hidden by default, shown when logged in -->
           <button
             id="logoutBtn"
             class="nav-icon"
@@ -83,7 +82,6 @@
       </div>
     </nav>
 
-    <!-- About Hero Section -->
     <section class="page-hero about-hero">
       <div class="hero-content-center">
         <h1>ABOUT US</h1>
@@ -200,7 +198,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="script.Se2.js"></script>
-    <!-- Firebase auth state -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
@@ -243,7 +240,7 @@
           userIcon.href = "profile.Se2.html";
           userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
-          logoutBtn.style.display = "inline-block"; // show logout button
+          logoutBtn.style.display = "inline-block";
 
           logoutBtn.onclick = async () => {
             await signOut(auth);
@@ -253,7 +250,7 @@
           userIcon.href = "login.Se2.html";
           userIcon.title = "Login / Sign Up";
           userIcon.querySelector("i").className = "fas fa-user-circle";
-          logoutBtn.style.display = "none"; // hide logout button
+          logoutBtn.style.display = "none";
         }
       });
 

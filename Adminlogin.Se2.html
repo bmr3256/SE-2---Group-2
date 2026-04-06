@@ -133,7 +133,6 @@
       </div>
     </div>
 
-    <!-- Lockout Toast -->
     <div
       id="lockoutToast"
       class="toast align-items-center text-bg-danger border-0"
@@ -176,11 +175,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // ── Admin credentials (testing only) ──────────────────
+      // Admin credentials
       const OWN_Email = "barkertest462@gmail.com";
       const OWN_Password = "Adm1n89457";
 
-      // ── DOM refs ───────────────────────────────────────────
       const loginForm = document.getElementById("loginForm");
       const emailInput = document.getElementById("OWN_Email");
       const passwordInput = document.getElementById("OWN_Password");
@@ -191,7 +189,7 @@
       const passwordError = document.getElementById("passwordError");
       const loginButton = loginForm.querySelector("button[type='submit']");
 
-      // ── Clear errors on input ──────────────────────────────
+      // Clear Errors on Input
       emailInput.addEventListener("input", () => {
         emailInput.style.border = "";
         emailError.style.display = "none";
@@ -204,7 +202,7 @@
         passwordError.textContent = "";
       });
 
-      // ── Lockout persistence across page loads ──────────────
+      // Lockout Status Saving
       let failedAttempts =
         parseInt(localStorage.getItem("adminFailedAttempts")) || 0;
       const lockUntil = parseInt(localStorage.getItem("adminLockUntil"));
@@ -226,14 +224,14 @@
         }, lockUntil - Date.now());
       }
 
-      // ── Form submit ────────────────────────────────────────
+      // Form Submit
       loginForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
-        // Reset errors
+        // Reset Errors
         emailInput.style.border = "";
         passwordInput.style.border = "";
         emailError.style.display = "none";
@@ -245,7 +243,7 @@
         btnText.style.display = "none";
         btnLoader.style.display = "inline-block";
 
-        // Empty field check
+        // Empty Field Check
         if (!email || !password) {
           if (!email) {
             emailInput.style.border = "1px solid red";
@@ -264,7 +262,6 @@
 
         // Credential check
         if (email === OWN_Email && password === OWN_Password) {
-          // ── Correct — send OTP then redirect ──────────────
           try {
             const response = await fetch("sendotp.php", {
               method: "POST",
@@ -278,7 +275,6 @@
               : resultRaw;
 
             if (response.ok && result === "OTP_SENT") {
-              // Pass mode=admin so EmailVerif knows where to redirect after
               window.location.href =
                 "emailver.Se2.html?email=" +
                 encodeURIComponent(email) +
@@ -297,7 +293,7 @@
             formMessage.textContent = "Server error. Please try again.";
           }
         } else {
-          // ── Wrong credentials ──────────────────────────────
+          // Wrong credentials
           btnText.style.display = "inline-block";
           btnLoader.style.display = "none";
 
@@ -316,7 +312,7 @@
           passwordError.textContent =
             "Invalid email or password." + attemptsText;
 
-          // ── Lockout after 3 failed attempts ────────────────
+          // Lockout After 3 Failed Attempts
           if (failedAttempts >= 3) {
             const lockTime = 5 * 60 * 1000;
             const unlockAt = Date.now() + lockTime;
@@ -338,7 +334,7 @@
         }
       });
 
-      // ── Password toggle ────────────────────────────────────
+      // Password Reveal Toggle
       function togglePassword(inputId) {
         const input = document.getElementById(inputId);
         const icon = input.parentElement.querySelector(".toggle-password i");

@@ -16,7 +16,6 @@
   </head>
 
   <body>
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -65,7 +64,6 @@
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
-          <!-- Hidden by default, shown when logged in -->
           <button
             id="logoutBtn"
             class="nav-icon"
@@ -94,7 +92,7 @@
     <section class="cart-page-section">
       <div class="cart-page-container">
         <div class="cart-layout">
-          <!-- Left Side - Order Form -->
+          <!-- Left Side/Order Form -->
           <div class="cart-form-section">
             <h2>ORDER CONFIRMATION</h2>
 
@@ -229,7 +227,7 @@
             </form>
           </div>
 
-          <!-- Right Side - Order Summary -->
+          <!-- Right Side/Order Summary -->
           <div class="order-summary-section">
             <div class="order-summary-box">
               <h3>Order Summary</h3>
@@ -346,7 +344,7 @@
         );
         modal.hide();
         setTimeout(() => {
-          window.saveOrder(); // ✅ calls the module function
+          window.saveOrder();
         }, 300);
       }
     </script>
@@ -386,7 +384,7 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // ── Load cart items ──
+      // Load Cart Items
       async function loadCart(user) {
         const snapshot = await getDocs(
           collection(db, "carts", user.uid, "items"),
@@ -440,7 +438,7 @@
           <button type="button" class="btn-place-order" style="margin-top:16px; width:100%;" onclick="showConfirmationModal()">Place Order</button>
         `;
 
-        // Update badge
+        // Update Badge
         let totalQty = 0;
         snapshot.forEach((d) => (totalQty += d.data().quantity || 1));
         document
@@ -448,7 +446,7 @@
           .forEach((b) => (b.textContent = totalQty));
       }
 
-      // ── Change quantity ──
+      // Change Quantity
       window.changeQty = async function (name, currentQty, price, img, delta) {
         const user = auth.currentUser;
         const itemRef = doc(db, "carts", user.uid, "items", name);
@@ -468,19 +466,19 @@
         loadCart(user);
       };
 
-      // ── Remove item ──
+      // Remove Item
       window.removeItem = async function (name) {
         const user = auth.currentUser;
         await deleteDoc(doc(db, "carts", user.uid, "items", name));
         loadCart(user);
       };
 
-      // ── Save order to Firestore ──
+      // Save Order to Firestore
       window.saveOrder = async function () {
         const user = auth.currentUser;
         if (!user) return;
 
-        // Get form values
+        // Get Values
         const email = document.getElementById("email").value;
         const firstName = document.getElementById("firstName").value;
         const lastName = document.getElementById("lastName").value;
@@ -489,7 +487,7 @@
         const zipCode = document.getElementById("zipCode").value;
         const phone = document.getElementById("phone").value;
 
-        // Get cart items
+        // Get Cart Items
         const snapshot = await getDocs(
           collection(db, "carts", user.uid, "items"),
         );
@@ -512,7 +510,7 @@
 
         // Save to Firestore orders collection
         try {
-          // Generate random Order ID
+          // Order_ID RNG
           const Order_ID =
             "ORD-" + Math.random().toString(36).substring(2, 8).toUpperCase();
           const accountSnap = await getDoc(doc(db, "accounts", user.uid));
@@ -520,7 +518,6 @@
             ? accountSnap.data().Customer_ID
             : user.uid;
 
-          // Save main order document
           const orderRef = await addDoc(collection(db, "orders"), {
             Order_ID,
             Customer_ID: customerID,
@@ -539,9 +536,8 @@
             date: serverTimestamp(),
           });
 
-          // Save each item as a document in the items subcollection
+          // Save each item as a document in the items subcollection in an order
           const itemPromises = items.map(async (item) => {
-            // Look up the product's Firestore document ID from the products collection
             const productQuery = await getDocs(
               query(
                 collection(db, "products"),
@@ -551,16 +547,16 @@
 
             let productId = "UNKNOWN";
             productQuery.forEach((d) => {
-              productId = d.data().Product_ID || d.id; // fallback to d.id just in case
+              productId = d.data().Product_ID || d.id;
             });
             const orderItemId =
               "ITEM-" +
               Math.random().toString(36).substring(2, 8).toUpperCase();
 
             await addDoc(collection(db, "orders", orderRef.id, "items"), {
-              OrderItem_ID: orderItemId, // variable is orderItemId
-              Order_ID: Order_ID, // variable is orderId
-              Product_ID: productId, // variable is productId
+              OrderItem_ID: orderItemId,
+              Order_ID: Order_ID,
+              Product_ID: productId,
               P_Name: item.name,
               quantity: item.quantity,
               Price_at_Order: item.price,
@@ -570,7 +566,7 @@
 
           await Promise.all(itemPromises);
 
-          // Clear cart and reduce stock
+          // Clear Cart and Reduce Stock
           const deletePromises = [];
           const stockPromises = [];
 
@@ -588,13 +584,17 @@
                     where("P_Name", "==", item.name),
                   ),
                 );
-                productQuery.forEach(async (productDoc) => {
-                  const currentStock = productDoc.data().stock ?? 0;
+                const updatePromises = [];
+                productQuery.forEach((productDoc) => {
+                  const currentStock = productDoc.data().P_Stock ?? 0;
                   const newStock = Math.max(0, currentStock - item.quantity);
-                  await updateDoc(doc(db, "products", productDoc.id), {
-                    stock: newStock,
-                  });
+                  updatePromises.push(
+                    updateDoc(doc(db, "products", productDoc.id), {
+                      P_Stock: newStock,
+                    }),
+                  );
                 });
+                await Promise.all(updatePromises);
               })(),
             );
           });
@@ -611,7 +611,7 @@
         }
       };
 
-      // ── Auth state / navbar ──
+      // Auth State/Navbar
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -619,7 +619,7 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
-          // Auto-fill form with user data
+          // Autofill Form with Firebase User Data
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
@@ -638,9 +638,9 @@
             window.location.href = "login.Se2.html";
           };
 
-          loadCart(user); // ✅ load cart items
+          loadCart(user);
         } else {
-          // Not logged in — redirect to login
+          // Not Logged in >> Redirection to Login
           window.location.href = "login.Se2.html";
           logoutBtn.style.display = "none";
         }

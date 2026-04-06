@@ -65,7 +65,6 @@
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
-          <!-- Hidden by default, shown when logged in -->
           <button
             id="logoutBtn"
             class="nav-icon"
@@ -83,16 +82,13 @@
       </div>
     </nav>
 
-    <!-- Page Hero -->
     <section class="page-hero">
       <img src="images/productsbanner.png" alt="Banner Image" />
     </section>
 
     <!-- Products Section -->
     <section class="products-detail-section">
-      <div class="products-detail-container">
-        <!-- Products will be injected here -->
-      </div>
+      <div class="products-detail-container"></div>
 
       <div class="proceed-checkout-container">
         <a href="cart.Se2.html" class="btn-proceed-checkout">
@@ -179,7 +175,7 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // ── Load products ──
+      /* Load Products */
       const container = document.querySelector(".products-detail-container");
       if (container) {
         try {
@@ -188,9 +184,9 @@
             container.innerHTML = "<p>No products found</p>";
           } else {
             snapshot.forEach((d) => {
-              const product = d.data(); // ← was missing
-              const card = document.createElement("div"); // ← was missing
-              card.classList.add("product-detail-card"); // ← was missing
+              const product = d.data();
+              const card = document.createElement("div");
+              card.classList.add("product-detail-card");
               const stock = product.P_Stock ?? 0;
               const isSoldOut = stock <= 0;
               card.innerHTML = `
@@ -231,7 +227,7 @@
         }
       }
 
-      // ── Toggle FAQ ──
+      //* Toggle FAQ */
       window.toggleFAQ = function (element) {
         const faqItem = element.closest(".faq-item");
         const answer = faqItem.querySelector(".faq-answer");
@@ -248,8 +244,7 @@
         }
       };
 
-      // ── Add to cart ──
-      // ── Add to cart ──
+      /* Add to cart */
       window.addToCart = async function (name, price, img, stock) {
         const user = auth.currentUser;
         if (!user) {
@@ -281,7 +276,7 @@
         }
       };
 
-      // ── Update cart badge ──
+      /* Update Cart */
       async function updateCartBadge(user) {
         if (!user) return;
         const snapshot = await getDocs(
@@ -315,7 +310,7 @@
             window.location.href = "login.Se2.html";
           };
 
-          updateCartBadge(user); // ✅ load badge on page load
+          updateCartBadge(user);
         } else {
           userIcon.href = "login.Se2.html";
           userIcon.title = "Login / Sign Up";

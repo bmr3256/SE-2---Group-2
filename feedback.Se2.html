@@ -16,7 +16,6 @@
   </head>
 
   <body>
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -65,7 +64,6 @@
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
-          <!-- Hidden by default, shown when logged in -->
           <button
             id="logoutBtn"
             class="nav-icon"
@@ -90,7 +88,6 @@
       </div>
     </section>
 
-    <!-- Feedback Section -->
     <!-- Feedback Section -->
     <section class="feedback-page-section">
       <div class="feedback-page-container">
@@ -223,7 +220,7 @@
           </div>
         </form>
 
-        <!-- Related Words / Delivery / Socials section now dynamic -->
+        <!-- Related Words / Delivery / Socials section -->
         <div
           class="contact-info-page"
           id="contactInfoSection"
@@ -332,8 +329,8 @@
         getFirestore,
         doc,
         getDoc,
-        addDoc, // ← add this
-        collection, // ← add this
+        addDoc,
+        collection,
       } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
       import {
         getAuth,
@@ -424,7 +421,7 @@
             toastEl.style.display = "flex";
             setTimeout(() => (toastEl.style.display = "none"), 3000);
             document.getElementById("feedbackForm").reset();
-            // reset stars
+            // Reset Stars
             document.querySelectorAll(".star-icon").forEach((s) => {
               s.classList.remove("selected");
               s.style.fill = "none";

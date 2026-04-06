@@ -16,7 +16,6 @@
   </head>
 
   <body>
-    <!-- FIREBASE -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
@@ -55,7 +54,7 @@
       let visibleOrders = [];
       let pendingCancelId = null;
 
-      // ── AUTH STATE ─────────────────────────────────
+      /* Auth State */
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -63,13 +62,15 @@
         const logoutBtn = document.getElementById("logoutBtn");
 
         if (user) {
-          // Fetch display name from accounts collection (same as cart page)
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           if (docSnap.exists()) {
             const data = docSnap.data();
             const fullName = `${data.F_Name || ""} ${data.L_Name || ""}`.trim();
             userIcon.href = "profile.Se2.html";
             userIcon.title = fullName || "Profile";
+
+            const customerID = data.Customer_ID;
+            fetchMyOrders(customerID);
           }
           userIcon.querySelector("i").className = "fas fa-user-check";
           logoutBtn.style.display = "inline-block";
@@ -77,19 +78,20 @@
             await signOut(auth);
             window.location.href = "login.Se2.html";
           };
-
-          fetchMyOrders(user.uid);
         } else {
-          // Not logged in — redirect exactly like cart page does
+          /* Not logged in >> redirect */
           window.location.href = "login.Se2.html";
         }
       });
 
-      // ── FETCH ORDERS FOR THIS USER ─────────────────
+      /* Fetch Order for currently logged user */
       async function fetchMyOrders(uid) {
         showLoading(true);
         try {
-          const q = query(collection(db, "orders"), where("userId", "==", uid));
+          const q = query(
+            collection(db, "orders"),
+            where("Customer_ID", "==", uid),
+          );
           const snap = await getDocs(q);
           allOrders = [];
 
@@ -98,7 +100,7 @@
             orderList.push({ firestoreId: d.id, ...d.data() }),
           );
 
-          // Fetch subcollection items for each order
+          /* Fetch subcollection items for each order*/
           await Promise.all(
             orderList.map(async (o) => {
               if (!o.item) {
@@ -142,7 +144,7 @@
           : "";
       }
 
-      // ── RENDER TABLE ───────────────────────────────
+      /* Render Table */
       function renderTable(data) {
         const list = data ?? visibleOrders;
         const tbody = document.getElementById("ordersBody");
@@ -172,7 +174,7 @@
 
           tbody.innerHTML += `
           <tr onclick="openDetailModal('${o.firestoreId}')">
-            <td class="order-id-cell">${o.orderId ?? o.id ?? o.firestoreId}</td>
+            <td class="order-id-cell">${o.Order_ID ?? o.orderId ?? o.firestoreId}</td>
             <td>${o.date?.toDate ? o.date.toDate().toLocaleDateString() : (o.date ?? "—")}</td>
             <td>${o._itemNames ?? o.item ?? "—"}</td>
             <td>${o._totalQty ?? o.qty ?? "—"}</td>
@@ -197,7 +199,7 @@
         return `<span class="${cls}">${s}</span>`;
       }
 
-      // ── SEARCH ─────────────────────────────────────
+      /* Search */
       window.filterOrders = function () {
         const q = document
           .getElementById("searchInput")
@@ -208,24 +210,29 @@
           renderTable();
           return;
         }
-        visibleOrders = allOrders.filter(
-          (o) =>
-            (o.id && o.id.toLowerCase().includes(q)) ||
-            (o.date && o.date.toLowerCase().includes(q)) ||
+        visibleOrders = allOrders.filter((o) => {
+          const dateStr = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString()
+            : (o.date ?? "");
+          return (
+            (o.Order_ID && o.Order_ID.toLowerCase().includes(q)) ||
+            (o.firestoreId && o.firestoreId.toLowerCase().includes(q)) ||
+            (dateStr && dateStr.toLowerCase().includes(q)) ||
+            (o._itemNames && o._itemNames.toLowerCase().includes(q)) ||
             (o.item && o.item.toLowerCase().includes(q)) ||
             (o.status && o.status.toLowerCase().includes(q)) ||
-            (o.qty && o.qty.toString().includes(q)) ||
-            (o.total && o.total.toString().includes(q)),
-        );
+            (o.total && o.total.toString().includes(q))
+          );
+        });
         renderTable(visibleOrders);
       };
 
-      // ── ORDER DETAIL MODAL ─────────────────────────
+      /* Order Detail Modal */
       window.openDetailModal = function (firestoreId) {
         const o = allOrders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
         document.getElementById("dOrderId").textContent =
-          o.orderId ?? o.id ?? o.firestoreId;
+          o.Order_ID ?? o.orderId ?? o.firestoreId;
         document.getElementById("dOrderDate").textContent = o.date?.toDate
           ? o.date.toDate().toLocaleDateString()
           : o.date || "—";
@@ -282,7 +289,7 @@
         }
       };
 
-      // ── FILTER MODAL ───────────────────────────────
+      /* Filter Modal */
       window.applyFilter = function () {
         const name = document
           .getElementById("fItemName")
@@ -291,15 +298,22 @@
         const date = document.getElementById("fDate").value;
         const qty = document.getElementById("fQty").value;
         const status = document.getElementById("fStatus").value;
-        visibleOrders = allOrders.filter(
-          (o) =>
-            (o.orderId && o.orderId.toLowerCase().includes(q)) ||
-            (o.id && o.id.toLowerCase().includes(q)) ||
-            (o._itemNames && o._itemNames.toLowerCase().includes(q)) ||
-            (o.item && o.item.toLowerCase().includes(q)) ||
-            (o.status && o.status.toLowerCase().includes(q)) ||
-            (o.total && o.total.toString().includes(q)),
-        );
+
+        visibleOrders = allOrders.filter((o) => {
+          const itemStr = (o._itemNames ?? o.item ?? "").toLowerCase();
+          const dateStr = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString("en-CA")
+            : (o.date ?? "");
+          const statusStr = (o.status ?? "").toUpperCase();
+
+          return (
+            (!name || itemStr.includes(name)) &&
+            (!date || dateStr === date) &&
+            (!qty || (o._totalQty ?? o.qty ?? "").toString() === qty) &&
+            (!status || statusStr === status.toUpperCase())
+          );
+        });
+
         renderTable();
         bootstrap.Modal.getInstance(
           document.getElementById("filterModal"),
@@ -319,14 +333,19 @@
         ).hide();
       };
 
-      window.refreshOrders = function () {
+      window.refreshOrders = async function () {
         document.getElementById("searchInput").value = "";
         const user = auth.currentUser;
-        if (user) fetchMyOrders(user.uid);
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          if (docSnap.exists()) {
+            fetchMyOrders(docSnap.data().Customer_ID);
+          }
+        }
       };
     </script>
 
-    <!-- ── NAVBAR (matches cart.Se2.html exactly) ── -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.Se2.html">
@@ -372,7 +391,6 @@
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-badge">0</span>
           </a>
-          <!-- Swaps to profile link when logged in (via JS) -->
           <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
             <i class="fas fa-user-circle"></i>
           </a>
@@ -393,7 +411,6 @@
       </div>
     </nav>
 
-    <!-- ── PAGE HERO ── -->
     <section class="page-hero">
       <div class="hero-content-center" style="padding: 2rem">
         <h1>MY ORDERS</h1>
@@ -401,7 +418,7 @@
       </div>
     </section>
 
-    <!-- ── ORDERS SECTION ── -->
+    <!-- Order Section -->
     <section class="orders-page-section">
       <div class="orders-page-container">
         <!-- Toolbar -->
@@ -458,7 +475,7 @@
       </div>
     </section>
 
-    <!-- ── FOOTER ── -->
+    <!-- Footer -->
     <footer>
       <div class="footer-content">
         <div class="footer-logo">
@@ -470,7 +487,7 @@
       </div>
     </footer>
 
-    <!-- ── ORDER DETAIL MODAL (read-only) ── -->
+    <!-- Order Detail Modal -->
     <div
       class="modal fade order-detail-modal"
       id="orderDetailModal"
@@ -517,7 +534,7 @@
       </div>
     </div>
 
-    <!-- ── FILTER MODAL ── -->
+    <!-- Filter Modal -->
     <div class="modal fade" id="filterModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content filter-modal-content">
@@ -613,7 +630,7 @@
       </div>
     </div>
 
-    <!-- ── HELP MODAL (same as cart page) ── -->
+    <!-- Help Modal -->
     <div class="modal fade" id="helpModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
