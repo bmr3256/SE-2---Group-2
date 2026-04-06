@@ -16,7 +16,6 @@
     <link href="admin-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- FIREBASE -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
@@ -52,7 +51,7 @@
       let itemCache = {};
       let currentEditingOrder = null;
 
-      // FETCH ORDERS
+      // Fetch Orders
       async function fetchOrders() {
         const snapshot = await getDocs(collection(db, "orders"));
         orders = [];
@@ -66,7 +65,6 @@
         await Promise.all(
           orderList.map(async (o) => {
             if (!Array.isArray(o.items) && !o.item) {
-              // New subcollection-based order — fetch items
               try {
                 const itemsSnap = await getDocs(
                   collection(db, "orders", o.firestoreId, "items"),
@@ -97,7 +95,7 @@
         renderTable();
       }
 
-      // RENDER TABLE
+      // Render Table
       function renderTable(data) {
         const list = data || visibleOrders;
         const tbody = document.getElementById("ordersBody");
@@ -105,11 +103,11 @@
         list.forEach((o) => {
           const itemDisplay = Array.isArray(o.items)
             ? o.items.map((i) => `${i.name} x${i.quantity}`).join(", ")
-            : o.item || o._itemNames || "—"; // ✅ add o._itemNames as fallback
+            : o.item || o._itemNames || "—";
 
           const totalQty = Array.isArray(o.items)
             ? o.items.reduce((sum, i) => sum + i.quantity, 0)
-            : (o.qty ?? o._totalQty ?? "—"); // ✅ also fallback for qty
+            : (o.qty ?? o._totalQty ?? "—");
 
           const date = o.date?.toDate
             ? o.date.toDate().toLocaleDateString()
@@ -140,7 +138,7 @@
         return `<span class="${cls}">${s}</span>`;
       }
 
-      // SEARCH
+      // Search
       function filterOrders() {
         const q = document
           .getElementById("searchInput")
@@ -168,7 +166,7 @@
         renderTable(visibleOrders);
       }
 
-      // ADD ORDER
+      // Add Order
       function clearAddForm() {
         document.getElementById("addOrderId").value = "";
         document.getElementById("addOrderDate").value = "";
@@ -225,7 +223,7 @@
       window.openItemModal = openItemModal;
       window.closeItemModal = closeItemModal;
 
-      // ORDER MODAL
+      // Order Modal
       async function openOrderModal(firestoreId) {
         const o = orders.find((x) => x.firestoreId === firestoreId);
         if (!o) return;
@@ -235,7 +233,7 @@
           ? o.date.toDate().toLocaleDateString()
           : o.date || "—";
 
-        // ✅ Show modal immediately with cached data
+        // Show modal immediately
         document.getElementById("mOrderId").textContent =
           o.Order_ID || o.firestoreId;
         document.getElementById("mCustomerId").textContent = "Loading…";
@@ -255,7 +253,6 @@
         document.getElementById("editBtn").classList.remove("d-none");
         document.getElementById("saveBtn").classList.add("d-none");
 
-        // REPLACE WITH:
         const itemsSnap = await getDocs(
           collection(db, "orders", firestoreId, "items"),
         );
@@ -303,7 +300,7 @@
         }
         document.getElementById("mItemsList").innerHTML = itemsHTML;
 
-        // Other fields
+        // Other Fields
         const otherFields = [
           { label: "Email", value: o.email || "—" },
           { label: "Phone", value: o.phone || "—" },
@@ -346,14 +343,11 @@
           .getElementById("saveBtn")
           .setAttribute("data-id", currentEditingOrder.firestoreId);
 
-        // ✅ handle both cart orders and manually added orders
         let date = "";
         if (currentEditingOrder.date?.toDate) {
-          // Firestore Timestamp → convert to YYYY-MM-DD for date input
           const d = currentEditingOrder.date.toDate();
           date = d.toISOString().split("T")[0];
         } else if (currentEditingOrder.date) {
-          // Plain string like "3/27/2026" → normalize to YYYY-MM-DD
           const d = new Date(currentEditingOrder.date);
           if (!isNaN(d)) date = d.toISOString().split("T")[0];
         } else if (currentEditingOrder.createdAt?.toDate) {
@@ -414,7 +408,7 @@
         }
       }
 
-      // DELETE ORDER
+      // Delete Order
       function openDeleteModal() {
         document.getElementById("deleteConfirmModal").classList.add("show");
       }
@@ -433,7 +427,7 @@
         fetchOrders();
       }
 
-      // TOAST
+      // Toast
       function showToast(msg) {
         const t = document.getElementById("adminToast");
         t.textContent = msg;
@@ -441,7 +435,7 @@
         setTimeout(() => t.classList.remove("show"), 2500);
       }
 
-      // FILTER MODAL
+      // Filter Modal
       function openFilterModal() {
         document.getElementById("filterModal").classList.add("show");
       }
@@ -453,8 +447,8 @@
         document.getElementById("fDate").value = "";
         document.getElementById("fQty").value = "";
         document.getElementById("fStatus").value = "";
-        document.getElementById("fSortField").value = ""; // ADD
-        document.getElementById("fSortDir").value = "asc"; // ADD
+        document.getElementById("fSortField").value = "";
+        document.getElementById("fSortDir").value = "asc";
         visibleOrders = [...orders];
         renderTable();
         closeFilterModal();
@@ -464,7 +458,7 @@
           .getElementById("fItemName")
           .value.toLowerCase()
           .trim();
-        const date = document.getElementById("fDate").value; // "2026-03-27"
+        const date = document.getElementById("fDate").value;
         const qty = document.getElementById("fQty").value;
         const status = document.getElementById("fStatus").value;
         const sortField = document.getElementById("fSortField").value;
@@ -481,33 +475,28 @@
             ? o.items.reduce((sum, i) => sum + i.quantity, 0)
             : o.qty || 0;
 
-          // FIXED: normalize order date to YYYY-MM-DD for comparison
           let orderDate = "";
           if (o.date?.toDate) {
-            // Firestore Timestamp
             const d = o.date.toDate();
-            orderDate = d.toISOString().split("T")[0]; // "2026-03-27"
+            orderDate = d.toISOString().split("T")[0];
           } else if (o.date) {
-            // Plain string like "3/27/2026" or "2026-03-27"
             const d = new Date(o.date);
             if (!isNaN(d)) orderDate = d.toISOString().split("T")[0];
           }
 
           return (
             (!name || itemNames.includes(name)) &&
-            (!date || orderDate === date) && // now both are "YYYY-MM-DD"
+            (!date || orderDate === date) &&
             (!qty || totalQty == qty) &&
             (!status || o.status === status)
           );
         });
 
-        // sort block stays the same
         if (sortField) {
           visibleOrders.sort((a, b) => {
             let valA, valB;
 
             if (sortField === "date") {
-              // Normalize both to timestamps (milliseconds) for reliable comparison
               if (a.date?.toDate) {
                 valA = a.date.toDate().getTime();
               } else if (a.date) {
@@ -584,7 +573,7 @@
       window.addEditItem = addEditItem;
       window.removeEditItem = removeEditItem;
 
-      // FETCH PRODUCTS FOR DROPDOWN
+      // Fetch Products for the Dropdown
       async function loadProductDropdown() {
         const select = document.getElementById("eNewItemSelect");
         try {
@@ -606,7 +595,7 @@
         }
       }
 
-      // REFRESH AS RESET
+      // Refresh
       function refreshOrders() {
         document.getElementById("fItemName").value = "";
         document.getElementById("fDate").value = "";
@@ -618,7 +607,6 @@
         fetchOrders();
       }
 
-      // EXPORT FUNCTIONS TO GLOBAL
       window.openAddModal = openAddModal;
       window.closeAddModal = closeAddModal;
       window.saveOrder = saveOrder;
@@ -643,7 +631,7 @@
           .getElementById("searchInput")
           .addEventListener("input", filterOrders);
 
-        // ✅ Logout button
+        // Logout button
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
           logoutBtn.addEventListener("click", () => {
@@ -657,7 +645,7 @@
       });
     </script>
 
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="admin-sidebar">
       <div class="sidebar-logo">
         <img src="images/Logo - Black.png" />
@@ -702,7 +690,7 @@
       </div>
     </aside>
 
-    <!-- MAIN -->
+    <!-- Main -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>Orders</h3></div>
       <div class="admin-content">
@@ -737,8 +725,7 @@
       </div>
     </div>
 
-    <!-- ORDER MODAL -->
-    <!-- ORDER MODAL -->
+    <!-- Order Modal -->
     <div class="modal-overlay" id="orderModal">
       <div class="order-info-modal">
         <button class="modal-close-btn" onclick="closeOrderModal()">
@@ -747,7 +734,7 @@
         <h5>Order Information</h5>
 
         <div id="displayFields">
-          <!-- Primary fields -->
+          <!-- Main Fields -->
           <div class="info-row">
             <span class="info-label">Order ID:</span>
             <span class="info-value" id="mOrderId"></span>
@@ -781,7 +768,7 @@
           <div class="info-section-title mt-2">Items</div>
           <div id="mItemsList"></div>
 
-          <!-- Other info dropdown -->
+          <!-- Other Info Dropdown -->
           <details class="other-details mt-2">
             <summary>Other Information</summary>
             <div id="mOtherFields" class="mt-1"></div>
@@ -867,7 +854,7 @@
       </div>
     </div>
 
-    <!-- ITEM DETAIL MODAL -->
+    <!-- Item Detail Modal -->
     <div class="modal-overlay" id="itemModal">
       <div class="order-info-modal">
         <button class="modal-close-btn" onclick="closeItemModal()">
@@ -906,7 +893,7 @@
       </div>
     </div>
 
-    <!-- DELETE CONFIRM MODAL -->
+    <!-- Confirm Delete Modal -->
     <div class="modal-overlay" id="deleteConfirmModal">
       <div class="order-info-modal">
         <h5>Confirm Delete</h5>
@@ -921,7 +908,7 @@
       </div>
     </div>
 
-    <!-- ADD ORDER MODAL -->
+    <!-- Add Order Modal -->
     <div class="modal-overlay" id="addOrderModal">
       <div class="order-info-modal">
         <button class="modal-close-btn" onclick="closeAddModal()">
@@ -962,7 +949,7 @@
       </div>
     </div>
 
-    <!-- FILTER MODAL -->
+    <!-- Filter Modal -->
     <div class="modal-overlay" id="filterModal">
       <div class="order-info-modal">
         <button class="modal-close-btn" onclick="closeFilterModal()">
