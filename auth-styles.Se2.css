@@ -420,7 +420,7 @@ body {
 /* Main call-to-action button (Login/Sign Up) -->*/
 .btn-auth {
   padding: 1rem;
-  background: var(--button-tan);*/
+  background: var(--button-tan);
   border-radius: 25px;
   color: white;
   border: none;

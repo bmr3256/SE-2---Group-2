@@ -103,14 +103,14 @@ body {
   border-radius: 2px;
 }
 
-/* Navbar action icons container - help, user, cart -->
+/* Navbar action icons container - help, user, cart -->*/
 .navbar-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Help button - circular with border -->
+/* Help button - circular with border -->*/
 .btn-help {
   background: transparent;
   border: 2px solid var(--dark-brown);
@@ -131,7 +131,7 @@ body {
   color: white;
 }
 
-/* Navigation icons (user, cart, notifications) -->
+/* Navigation icons (user, cart, notifications) -->*/
 .nav-icon {
   position: relative;
   font-size: 1.3rem;
@@ -144,7 +144,7 @@ body {
   color: var(--orange);
 }
 
-/* Cart counter badge -->
+/* Cart counter badge -->*/
 .cart-badge {
   position: absolute;
   top: -8px;
@@ -163,7 +163,7 @@ body {
   animation: pulse 2s infinite;
 }
 
-/* Pulse animation for cart badge -->
+/* Pulse animation for cart badge -->*/
 @keyframes pulse {
   0%,
   100% {
@@ -177,7 +177,7 @@ body {
 /* ========================================
    HERO SECTION
    ======================================== */
-/* Large banner with gradient background -->
+/* Large banner with gradient background -->*/
 .hero-section {
   background: linear-gradient(135deg, #b89968 0%, #a08760 100%);
   padding: 4rem 2rem;
@@ -185,7 +185,7 @@ body {
   overflow: hidden;
 }
 
-/* Hero content layout - side-by-side image and text -->
+/* Hero content layout - side-by-side image and text -->*/
 .hero-content {
   max-width: 1200px;
   margin: 0 auto;
@@ -199,7 +199,7 @@ body {
   flex: 0 0 300px;
 }
 
-/* Hero placeholder background for image -->
+/* Hero placeholder background for image -->*/
 .hero-placeholder {
   width: 300px;
   height: 300px;
@@ -226,13 +226,13 @@ body {
   text-transform: uppercase;
 }
 
-/* Orange highlight in hero text -->
+/* Orange highlight in hero text -->*/
 .hero-text .highlight {
   color: var(--orange);
   font-weight: 900;
 }
 
-/* Large white call-to-action button -->
+/* Large white call-to-action button -->*/
 .btn-hero {
   background-color: white;
   color: var(--dark-brown);
@@ -259,7 +259,7 @@ body {
 /* ========================================
    OUR STORY SECTION
    ======================================== */
-/* Story/About section with text and images -->
+/* Story/About section with text and images -->*/
 .story-section {
   padding: 4rem 2rem;
   background-color: var(--cream);
@@ -292,7 +292,7 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Dark brown call-to-action button -->
+/* Dark brown call-to-action button -->*/
 .btn-shop {
   background-color: var(--dark-brown);
   color: white;
@@ -312,7 +312,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Grid of product images on story section -->
+/* Grid of product images on story section -->*/
 .story-images {
   flex: 0 0 auto;
   display: grid;
