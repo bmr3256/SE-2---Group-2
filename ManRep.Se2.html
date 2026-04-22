@@ -15,7 +15,10 @@
     <link href="admin-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
+    <!-- Classic scripts loaded before the ES module -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
@@ -52,7 +55,6 @@
         "#b05c7a",
         "#5a8f5a",
       ];
-
       const MONTHS = [
         "January",
         "February",
@@ -75,11 +77,13 @@
           `<i class="fas ${icon}"></i>${msg}`;
         document.getElementById("statusMsg").style.display = "block";
         document.getElementById("reportBody").style.display = "none";
+        document.getElementById("btnPdf").classList.remove("visible");
       }
 
       function showReport() {
         document.getElementById("statusMsg").style.display = "none";
         document.getElementById("reportBody").style.display = "grid";
+        document.getElementById("btnPdf").classList.add("visible");
       }
 
       async function buildReport() {
@@ -89,54 +93,40 @@
         showStatus("Loading orders…");
 
         try {
-          // ── 1. Fetch all orders ──────────────────────────────────────────
+          // 1. Fetch all orders
           const ordersSnap = await getDocs(collection(db, "orders"));
-
-          // ── 2. For each order that matches the selected period,
-          //       fetch its "items" subcollection ──────────────────────────
-          // productId/name -> { name, qty, revenue }
           const productMap = {};
-
           const fetchPromises = [];
 
           ordersSnap.forEach((orderDoc) => {
             const o = orderDoc.data();
-
-            // Filter by month/year using the Firestore Timestamp in "date"
-            const ts = o.date; // Firestore Timestamp
-            if (!ts || !ts.toDate) return; // skip if no date
+            const ts = o.date;
+            if (!ts || !ts.toDate) return;
             const d = ts.toDate();
             if (d.getMonth() !== month || d.getFullYear() !== year) return;
 
-            // Queue subcollection fetch
             fetchPromises.push(
               getDocs(collection(db, "orders", orderDoc.id, "items"))
                 .then((itemsSnap) => {
                   itemsSnap.forEach((itemDoc) => {
                     const item = itemDoc.data();
-                    // Use Product_ID as key, P_Name as display label
                     const pid = item.Product_ID || "Unknown";
                     const name = item.P_Name || pid;
                     const qty = Number(item.quantity) || 0;
                     const rev = Number(item.Total) || 0;
-
-                    if (!productMap[pid]) {
+                    if (!productMap[pid])
                       productMap[pid] = { name, qty: 0, revenue: 0 };
-                    }
                     productMap[pid].qty += qty;
                     productMap[pid].revenue += rev;
                   });
                 })
-                .catch(() => {
-                  // If subcollection read fails for one order, skip silently
-                }),
+                .catch(() => {}),
             );
           });
 
-          // Wait for all subcollection fetches
           await Promise.all(fetchPromises);
 
-          // ── 3. Build sorted entries ──────────────────────────────────────
+          // 2. Sort entries
           const entries = Object.entries(productMap)
             .map(([pid, v]) => ({
               pid,
@@ -156,14 +146,12 @@
 
           const totalQty = entries.reduce((s, e) => s + e.qty, 0);
           const totalRev = entries.reduce((s, e) => s + e.revenue, 0);
-          // Target = 80% of actual total as a simple benchmark
           const overallTarget = Math.round(totalQty * 0.8);
 
-          // Update period label
           document.getElementById("metaMonth").textContent =
             MONTHS[month] + " " + year;
 
-          // ── 4. Pie chart ─────────────────────────────────────────────────
+          // 3. Pie chart
           const labels = entries.map((e) => e.name);
           const dataQty = entries.map((e) => e.qty);
           const pcts = entries.map((e) =>
@@ -171,7 +159,6 @@
           );
           const bgColors = entries.map((_, i) => COLORS[i % COLORS.length]);
 
-          // Destroy old chart if it exists
           if (pieChart) {
             pieChart.destroy();
             pieChart = null;
@@ -193,19 +180,20 @@
             },
             options: {
               responsive: false,
+              animation: { onComplete: () => {} },
               plugins: {
                 legend: { display: false },
                 tooltip: {
                   callbacks: {
-                    label: (ctx) =>
-                      ` ${ctx.label}: ${ctx.raw} units (${pcts[ctx.dataIndex]}%)`,
+                    label: (c) =>
+                      ` ${c.label}: ${c.raw} units (${pcts[c.dataIndex]}%)`,
                   },
                 },
               },
             },
           });
 
-          // ── 5. Legend ────────────────────────────────────────────────────
+          // 4. Legend
           document.getElementById("chartLegend").innerHTML = entries
             .map(
               (e, i) => `
@@ -216,30 +204,27 @@
             )
             .join("");
 
-          // ── 6. Table rows ────────────────────────────────────────────────
+          // 5. Table rows
           document.getElementById("tableBody").innerHTML = entries
             .map((e) => {
               const target = Math.round(e.qty * 0.8);
-              let badge;
-              if (e.qty > target) {
-                badge = `<span class="badge-exceeded">&#11088; Exceeded</span>`;
-              } else if (e.qty === target) {
-                badge = `<span class="badge-ontrack">&#8599; On Track</span>`;
-              } else {
-                badge = `<span class="badge-below">&#8600; Below</span>`;
-              }
-              return `
-              <tr>
-                <td>${e.name}</td>
-                <td>${e.qty}</td>
-                <td>${target}</td>
-                <td>&#8369;${e.revenue.toLocaleString()}</td>
-                <td>${badge}</td>
-              </tr>`;
+              const badge =
+                e.qty > target
+                  ? `<span class="badge-exceeded">&#11088; Exceeded</span>`
+                  : e.qty === target
+                    ? `<span class="badge-ontrack">&#8599; On Track</span>`
+                    : `<span class="badge-below">&#8600; Below</span>`;
+              return `<tr>
+              <td>${e.name}</td>
+              <td>${e.qty}</td>
+              <td>${target}</td>
+              <td>&#8369;${e.revenue.toLocaleString()}</td>
+              <td>${badge}</td>
+            </tr>`;
             })
             .join("");
 
-          // ── 7. Footer ────────────────────────────────────────────────────
+          // 6. Footer
           const overallBadge =
             totalQty >= overallTarget
               ? `<span class="badge-overall">Overall Growth</span>`
@@ -259,7 +244,101 @@
         }
       }
 
-      // ── Populate month/year selectors ────────────────────────────────────
+      // ── PDF Export ───────────────────────────────────────────────────────
+      async function downloadPdf() {
+        const btn = document.getElementById("btnPdf");
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating…`;
+        btn.disabled = true;
+
+        try {
+          const { jsPDF } = window.jspdf;
+          const area = document.getElementById("printArea");
+
+          // Capture the report area as a high-res canvas
+          const canvas = await html2canvas(area, {
+            scale: 2, // 2× for sharp text & chart
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            logging: false,
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+
+          // A4 page in mm
+          const pdf = new jsPDF({
+            orientation: "landscape",
+            unit: "mm",
+            format: "a4",
+          });
+          const pageW = pdf.internal.pageSize.getWidth();
+          const pageH = pdf.internal.pageSize.getHeight();
+
+          // Scale image to fit page width with a small margin
+          const margin = 10;
+          const imgW = pageW - margin * 2;
+          const imgH = (canvas.height / canvas.width) * imgW;
+
+          // If taller than one page, split across pages
+          let yPos = margin;
+          let remaining = imgH;
+          let srcY = 0;
+
+          while (remaining > 0) {
+            const sliceH = Math.min(remaining, pageH - margin * 2);
+            const srcH = (sliceH / imgH) * canvas.height;
+
+            // Create a slice canvas
+            const slice = document.createElement("canvas");
+            slice.width = canvas.width;
+            slice.height = srcH;
+            slice
+              .getContext("2d")
+              .drawImage(
+                canvas,
+                0,
+                srcY,
+                canvas.width,
+                srcH,
+                0,
+                0,
+                canvas.width,
+                srcH,
+              );
+
+            pdf.addImage(
+              slice.toDataURL("image/png"),
+              "PNG",
+              margin,
+              yPos,
+              imgW,
+              sliceH,
+            );
+
+            remaining -= sliceH;
+            srcY += srcH;
+
+            if (remaining > 0) {
+              pdf.addPage();
+              yPos = margin;
+            }
+          }
+
+          // File name: "Report_April_2026.pdf"
+          const monthName =
+            MONTHS[parseInt(document.getElementById("selMonth").value)];
+          const year = document.getElementById("selYear").value;
+          pdf.save(`Report_${monthName}_${year}.pdf`);
+        } catch (err) {
+          alert("PDF export failed: " + err.message);
+          console.error(err);
+        } finally {
+          btn.innerHTML = orig;
+          btn.disabled = false;
+        }
+      }
+
+      // Populate selectors
       function populateSelectors() {
         const now = new Date();
         const sel = document.getElementById("selMonth");
@@ -273,12 +352,11 @@
         document.getElementById("selYear").value = now.getFullYear();
       }
 
-      // Expose to inline onclick
       window.buildReport = buildReport;
+      window.downloadPdf = downloadPdf;
 
       document.addEventListener("DOMContentLoaded", () => {
         populateSelectors();
-
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
           logoutBtn.addEventListener("click", () => {
@@ -287,16 +365,13 @@
             window.location.href = "Adminlogin.Se2.html";
           });
         }
-
         buildReport();
       });
     </script>
 
-    <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+    <!-- ── Sidebar ──────────────────────────────────────────────────── -->
     <aside class="admin-sidebar">
-      <div class="sidebar-logo">
-        <img src="images/Logo - Black.png" />
-      </div>
+      <div class="sidebar-logo"><img src="images/Logo - Black.png" /></div>
       <ul class="sidebar-nav">
         <li>
           <a href="ManProd.Se2.html"
@@ -341,33 +416,12 @@
       </div>
     </aside>
 
-    <!-- ── Main ───────────────────────────────────────────────────────── -->
+    <!-- ── Main ─────────────────────────────────────────────────────── -->
     <div class="admin-main">
       <div class="admin-topbar"><h3>Reports</h3></div>
       <div class="admin-content">
         <div class="report-section">
-          <!-- Title Banner -->
-          <div class="report-title-banner">
-            <h4>Monthly Bakery System Sales Performance Report</h4>
-          </div>
-
-          <!-- Meta Row -->
-          <div class="report-meta-grid">
-            <div class="report-meta-cell">
-              <div class="meta-label">Bakery Store Name</div>
-              <div class="meta-value">The Barkery</div>
-            </div>
-            <div class="report-meta-cell">
-              <div class="meta-label">Reports Manager</div>
-              <div class="meta-value">Admin</div>
-            </div>
-            <div class="report-meta-cell">
-              <div class="meta-label">Report Period (Month/Year)</div>
-              <div class="meta-value" id="metaMonth">—</div>
-            </div>
-          </div>
-
-          <!-- Period Selector -->
+          <!-- Period Selector (outside printArea so it won't appear in PDF) -->
           <div class="period-selector">
             <label><i class="fas fa-calendar-alt me-1"></i> Period:</label>
             <select id="selMonth"></select>
@@ -378,46 +432,76 @@
               max="2099"
               style="width: 90px"
             />
-            <button onclick="buildReport()">
+            <button class="btn-generate" onclick="buildReport()">
               <i class="fas fa-sync-alt me-1"></i> Generate
+            </button>
+            <button class="btn-pdf" id="btnPdf" onclick="downloadPdf()">
+              <i class="fas fa-file-pdf"></i> Download PDF
             </button>
           </div>
 
-          <!-- Status / Loading (shown while fetching) -->
-          <div id="statusMsg">
-            <i class="fas fa-spinner fa-spin"></i>Loading report data…
-          </div>
-
-          <!-- Report body — always in DOM, shown after data loads -->
-          <div id="reportBody" class="report-body" style="display: none">
-            <!-- LEFT: Pie Chart -->
-            <div class="chart-wrap">
-              <div class="section-title">Monthly Sales Volume Distribution</div>
-              <canvas id="pieCanvas" width="240" height="240"></canvas>
-              <div class="chart-legend" id="chartLegend"></div>
+          <!-- Everything inside printArea gets captured for PDF -->
+          <div id="printArea">
+            <!-- Title Banner -->
+            <div class="report-title-banner">
+              <h4>Monthly Bakery System Sales Performance Report</h4>
             </div>
 
-            <!-- RIGHT: Revenue Table -->
-            <div>
-              <div class="section-title">Treat Revenue by Category</div>
-              <table class="revenue-table">
-                <thead>
-                  <tr>
-                    <th>Treat Item</th>
-                    <th>Total Units Sold</th>
-                    <th>Target Goal</th>
-                    <th>Revenue</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-                <tfoot>
-                  <tr id="tableFooter"></tr>
-                </tfoot>
-              </table>
+            <!-- Meta Row -->
+            <div class="report-meta-grid">
+              <div class="report-meta-cell">
+                <div class="meta-label">Bakery Store Name</div>
+                <div class="meta-value">The Barkery</div>
+              </div>
+              <div class="report-meta-cell">
+                <div class="meta-label">Reports Manager</div>
+                <div class="meta-value">Admin</div>
+              </div>
+              <div class="report-meta-cell">
+                <div class="meta-label">Report Period (Month/Year)</div>
+                <div class="meta-value" id="metaMonth">—</div>
+              </div>
             </div>
+
+            <!-- Status -->
+            <div id="statusMsg">
+              <i class="fas fa-spinner fa-spin"></i>Loading report data…
+            </div>
+
+            <!-- Report body -->
+            <div id="reportBody" class="report-body" style="display: none">
+              <!-- LEFT: Pie Chart -->
+              <div class="chart-wrap">
+                <div class="section-title">
+                  Monthly Sales Volume Distribution
+                </div>
+                <canvas id="pieCanvas" width="240" height="240"></canvas>
+                <div class="chart-legend" id="chartLegend"></div>
+              </div>
+
+              <!-- RIGHT: Revenue Table -->
+              <div>
+                <div class="section-title">Treat Revenue by Category</div>
+                <table class="revenue-table">
+                  <thead>
+                    <tr>
+                      <th>Treat Item</th>
+                      <th>Total Units Sold</th>
+                      <th>Target Goal</th>
+                      <th>Revenue</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody"></tbody>
+                  <tfoot>
+                    <tr id="tableFooter"></tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            <!-- /reportBody -->
           </div>
-          <!-- /reportBody -->
+          <!-- /printArea -->
         </div>
         <!-- /report-section -->
       </div>
