@@ -1,24 +1,15 @@
-/* ========================================
-   GOOGLE FONTS IMPORT & COLOR PALETTE
-   ======================================== */
-/* Import three custom fonts: Abril Fatface for formal text, Bayon for bold headings, Be Vietnam Pro for body */
+/* Google Fonts Import */
 @import url("https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Bayon&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap");
 
-/* Define all color and font variables used throughout the admin dashboard */
 :root {
-  /* Primary brand colors */
   --primary-tan: #e3d2b8;
   --dark-brown: #1e1e1e;
   --cream: #fbf6ee;
   --light-cream: #fff9f2;
   --orange: #c48a3a;
-
-  /* Button and UI element colors */
   --button-tan: #c9a876;
   --text-gray: #6b6b6b;
   --leonard: #bfb7a3;
-
-  /* Status indicator colors */
   --success: #4caf50;
   --error: #f44336;
   --warning: #ff9800;
@@ -29,17 +20,12 @@
   --font-body: "Be Vietnam Pro", sans-serif; /* For body/descriptions */
 }
 
-/* ========================================
-   GLOBAL RESETS
-   ======================================== */
-/* Remove default margins, padding, and apply border-box sizing to all elements */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Main body layout: uses flexbox row to create sidebar + main content layout */
 body {
   font-family: var(--font-body);
   background-color: var(--light-cream);
@@ -51,7 +37,6 @@ body {
 /* ========================================
    SIDEBAR
    ======================================== */
-/* Main fixed sidebar container on the left - contains navigation and user info */
 .admin-sidebar {
   width: 220px;
   min-height: 100vh;
@@ -76,7 +61,6 @@ body {
   z-index: 100;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
 }
-/* Logo image in sidebar */
 .admin-sidebar img {
   width: 180px;
   margin-bottom: 0.5rem;
@@ -86,7 +70,6 @@ body {
   max-width: 20px;
 }
 
-/* Semi-transparent overlay on background image for better text readability */
 .admin-sidebar::before {
   content: "";
   position: absolute;
@@ -96,13 +79,11 @@ body {
   z-index: 0;
 }
 
-/* Ensure all sidebar content appears above the background overlay */
 .admin-sidebar * {
   position: relative;
   z-index: 1;
 }
 
-/* Sidebar header with logo and brand name */
 .sidebar-logo {
   padding: 1.25rem 1rem;
   border-bottom: 1px solid rgba(30, 30, 30, 0.15);
@@ -121,7 +102,6 @@ body {
   font-weight: normal;
 }
 
-/* Navigation menu list in sidebar */
 .sidebar-nav {
   list-style: none;
   padding: 1rem 0;
@@ -132,7 +112,6 @@ body {
   margin: 0.25rem 0;
 }
 
-/* Navigation links with hover and active states */
 .sidebar-nav a {
   display: flex;
   align-items: center;
@@ -152,21 +131,18 @@ body {
   padding-left: 1.25rem;
 }
 
-/* Highlight active navigation item with background and left border */
 .sidebar-nav a.active {
   background: rgba(201, 168, 118, 0.3);
   font-weight: bold;
   border-left: 3px solid var(--button-tan);
 }
 
-/* Navigation icons styling */
 .sidebar-nav a i {
   width: 16px;
   text-align: center;
   color: var(--dark-brown);
 }
 
-/* User info section at bottom of sidebar */
 .sidebar-user {
   padding: 1rem;
   border-top: 1px solid rgba(30, 30, 30, 0.15);
@@ -175,7 +151,6 @@ body {
   gap: 0.75rem;
 }
 
-/* Circular avatar container for user profile icon */
 .sidebar-avatar {
   width: 42px;
   height: 42px;
@@ -192,7 +167,6 @@ body {
   font-size: 1.1rem;
 }
 
-/* User name and email text in sidebar */
 .sidebar-user-info {
   display: flex;
   flex-direction: column;
@@ -214,7 +188,6 @@ body {
 /* ========================================
    MAIN CONTENT AREA
    ======================================== */
-/* Main content wrapper - accounts for fixed sidebar left margin */
 .admin-main {
   margin-left: 220px;
   flex: 1;
@@ -223,7 +196,6 @@ body {
   flex-direction: column;
 }
 
-/* Top bar with page title and optional controls */
 .admin-topbar {
   background: white;
   padding: 0.75rem 1.5rem;
@@ -236,7 +208,6 @@ body {
   z-index: 50;
 }
 
-/* Page title badge in top bar */
 .admin-topbar h3 {
   font-size: 1rem;
   color: var(--dark-brown);
@@ -249,7 +220,6 @@ body {
   font-family: var(--font-bold);
 }
 
-/* Main content area with padding and light background */
 .admin-content {
   flex: 1;
   padding: 1.5rem;
@@ -259,7 +229,6 @@ body {
 /* ========================================
    SHARED BUTTONS & BADGES
    ======================================== */
-/* Primary action button - tan/brown color */
 .btn-admin-primary {
   background: var(--button-tan);
   color: white;
@@ -282,7 +251,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Danger button - red background for destructive actions */
 .btn-admin-danger {
   background: var(--error);
   color: white;
@@ -301,7 +269,6 @@ body {
   background: #d32f2f;
 }
 
-/* Outline button - transparent with border, less emphasis */
 .btn-admin-outline {
   background: transparent;
   color: var(--dark-brown);
@@ -319,7 +286,6 @@ body {
   border-color: var(--button-tan);
 }
 
-/* Processing status badge - yellow -->
 .badge-processing {
   background: #fff3cd;
   color: #856404;
@@ -330,7 +296,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Complete/success status badge - green */
 .badge-complete {
   background: #d4edda;
   color: #155724;
@@ -341,7 +306,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Cancelled/declined status badge - light red */
 .badge-cancel {
   background: #f8d7da;
   color: #721c16;
@@ -352,7 +316,7 @@ body {
   font-family: var(--font-body);
 }
 
-/* Toast notification - appears at bottom right of screen */
+/* Success toast at bottom */
 .admin-toast {
   position: fixed;
   bottom: 1.5rem;
@@ -378,7 +342,6 @@ body {
 /* ========================================
    MANAGE PRODUCTS
    ======================================== */
-/* Product management toolbar with filters and actions -->
 .products-toolbar {
   display: flex;
   gap: 0.6rem;
@@ -395,14 +358,12 @@ body {
   font-family: var(--font-body);
 }
 
-/* Container for product cards in vertical list layout */
 .product-cards {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* Individual product card with image, content, and actions */
 .product-card {
   background: white;
   border-radius: 10px;
@@ -418,7 +379,6 @@ body {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
 
-/* Product image container on card */
 .product-card-image {
   width: 110px;
   height: 110px;
@@ -437,12 +397,10 @@ body {
   object-fit: cover;
 }
 
-/* Product details body on card */
 .product-card-body {
   flex: 1;
 }
 
-/* Header section with product name and price */
 .product-card-header {
   display: flex;
   justify-content: space-between;
@@ -458,7 +416,6 @@ body {
   font-family: var(--font-bold);
 }
 
-/* Price display badge on product card */
 .product-price-badge {
   background: var(--cream);
   border: 2px solid var(--primary-tan);
@@ -470,7 +427,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Detail labels (Stock, Category, etc.) in product card */
 .product-card-body .details-label {
   font-size: 0.75rem;
   font-weight: bold;
@@ -484,7 +440,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Product description text */
 .product-card-body p {
   font-size: 0.8rem;
   color: var(--text-gray);
@@ -493,7 +448,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Action buttons on product card (Edit, Delete, etc.) */
 .product-card-actions {
   display: flex;
   gap: 0.5rem;
@@ -503,14 +457,12 @@ body {
 /* ========================================
    MANAGE CONTENT
    ======================================== */
-/* Two-column layout: sidebar panel + main content panel */
 .content-layout {
   display: flex;
   gap: 1.25rem;
   flex-wrap: wrap;
 }
 
-/* Left sidebar panel for content categories/options */
 .content-sidebar-panel {
   width: 210px;
   flex-shrink: 0;
@@ -527,7 +479,6 @@ body {
   font-weight: 700;
 }
 
-/* Sidebar panel body with list items -->
 .content-sidebar-panel .panel-body {
   background: white;
   border: 1px solid #eee;
@@ -553,7 +504,6 @@ body {
   accent-color: var(--button-tan);
 }
 
-/* Action links list below panel -->
 .content-actions-list {
   list-style: none;
   padding: 0;
@@ -585,13 +535,11 @@ body {
   font-size: 0.8rem;
 }
 
-/* Main content panel for text editor -->
 .content-main-panel {
   flex: 1;
   min-width: 280px;
 }
 
-/* Text editor wrapper with toolbar and textarea -->
 .content-textarea-wrap {
   background: white;
   border-radius: 8px;
@@ -599,7 +547,6 @@ body {
   overflow: hidden;
 }
 
-/* Toolbar above textarea with formatting buttons -->
 .content-textarea-wrap .textarea-toolbar {
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid #eee;
@@ -627,7 +574,6 @@ body {
   background: var(--cream);
 }
 
-/* Main text input area -->
 .content-textarea-wrap textarea {
   width: 100%;
   min-height: 180px;
@@ -645,7 +591,6 @@ body {
   color: var(--leonard);
 }
 
-/* Action buttons below textarea (Save, Cancel, etc.) -->
 .content-actions-bar {
   margin-top: 1rem;
   display: flex;
@@ -656,7 +601,6 @@ body {
 /* ========================================
    MANAGE ORDERS
    ======================================== */
-/* Toolbar with search and filter controls for orders -->
 .orders-toolbar {
   display: flex;
   gap: 0.75rem;
@@ -665,7 +609,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* Search input field in orders toolbar -->
 .orders-toolbar input[type="text"] {
   padding: 0.45rem 0.85rem;
   border: 1px solid #ddd;
@@ -681,7 +624,6 @@ body {
   border-color: var(--button-tan);
 }
 
-/* Icon buttons group (export, print, etc.) -->
 .orders-toolbar .toolbar-icons {
   display: flex;
   gap: 0.4rem;
@@ -707,7 +649,6 @@ body {
   color: var(--dark-brown);
 }
 
-/* Table container with horizontal scroll on mobile -->
 .orders-table-wrap {
   background: white;
   border-radius: 10px;
@@ -715,7 +656,6 @@ body {
   overflow-x: auto;
 }
 
-/* Orders data table -->
 .orders-table {
   width: 100%;
   border-collapse: collapse;
@@ -727,7 +667,6 @@ body {
   background: var(--cream);
 }
 
-/* Table header styling -->
 .orders-table thead th {
   padding: 0.65rem 0.75rem;
   text-align: left;
@@ -742,7 +681,6 @@ body {
   font-weight: 700;
 }
 
-/* Table row hover effect -->
 .orders-table tbody tr {
   border-bottom: 1px solid #f0ebe4;
   transition: background 0.2s;
@@ -753,14 +691,12 @@ body {
   background: rgba(227, 210, 184, 0.25);
 }
 
-/* Table cell styling -->
 .orders-table tbody td {
   padding: 0.6rem 0.75rem;
   color: var(--dark-brown);
   font-family: var(--font-body);
 }
 
-/* Clickable links in table cells -->
 .orders-table tbody td .clickable {
   color: var(--button-tan);
   cursor: pointer;
@@ -768,7 +704,6 @@ body {
   font-weight: bold;
 }
 
-/* Table footer with row count/pagination info -->
 .orders-table-footer {
   padding: 0.6rem 0.75rem;
   font-size: 0.78rem;
@@ -777,10 +712,7 @@ body {
   font-family: var(--font-body);
 }
 
-/* ========================================
-   MODAL OVERLAY & ORDER INFO MODAL
-   ======================================== */
-/* Dark overlay behind modal -->
+/* Order Info Modal Overlay */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -798,7 +730,6 @@ body {
   display: flex;
 }
 
-/* Order detail info modal card -->
 .order-info-modal {
   background: white;
   border-radius: 10px;
@@ -809,7 +740,6 @@ body {
   position: relative;
 }
 
-/* Close button (X) in top-right of modal -->
 .order-info-modal .modal-close-btn {
   position: absolute;
   top: 0.6rem;
@@ -825,7 +755,6 @@ body {
   color: var(--dark-brown);
 }
 
-/* Modal section headings -->
 .order-info-modal h5 {
   font-size: 0.95rem;
   color: var(--dark-brown);
@@ -835,7 +764,6 @@ body {
   font-family: var(--font-bold);
 }
 
-/* Key-value pair rows in modal -->
 .order-info-modal .info-row {
   display: flex;
   justify-content: space-between;
@@ -853,7 +781,6 @@ body {
   font-weight: bold;
 }
 
-/* Divider between sections in modal -->
 .order-info-modal .info-divider {
   border: none;
   border-top: 1px solid #eee;
@@ -861,15 +788,13 @@ body {
 }
 
 /* ========================================
-   RESPONSIVE DESIGN
+   RESPONSIVE
    ======================================== */
-/* Mobile breakpoint: Hide sidebar text, collapse to icons -->
 @media (max-width: 768px) {
   .admin-sidebar {
     width: 70px;
   }
 
-  /* Hide text labels on mobile sidebar */
   .sidebar-logo h2,
   .sidebar-nav a span,
   .sidebar-user-info {
@@ -880,22 +805,17 @@ body {
     margin-left: 70px;
   }
 
-  /* Center align icon-only sidebar items */
   .sidebar-nav a {
     justify-content: center;
     padding: 0.7rem 0;
   }
 
-  /* Stack content layout vertically -->
   .content-layout {
     flex-direction: column;
   }
 }
 
-/* ========================================
-   PRODUCT SELECTION & UTILITY CLASSES
-   ======================================== */
-/* Selected product card indicator */
+/* product management selector*/
 .product-card {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -906,23 +826,18 @@ body {
   box-shadow: 0 0 10px rgba(255, 122, 0, 0.3);
 }
 
-/* Disabled state for buttons -->
+/* Disabled buttons */
 .btn-disabled {
   opacity: 0.5;
   pointer-events: none;
   cursor: not-allowed;
 }
 
-/* ========================================
-   FEEDBACK MANAGER STYLES
-   ======================================== */
-/* Main feedback manager container (hidden by default) -->
+/* Feedback Manager Styles */
 #feedbackManager {
   display: none;
   padding: 10px;
 }
-
-/* Individual feedback field card -->
 .fb-field-card {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -930,16 +845,12 @@ body {
   margin-bottom: 14px;
   background: #fafafa;
 }
-
-/* Header row for field card (title + remove button) -->
 .fb-field-header {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
 }
-
-/* Field title input in feedback card -->
 .fb-field-title-input {
   font-weight: 700;
   font-size: 1rem;
@@ -950,20 +861,15 @@ body {
   outline: none;
   padding: 2px 4px;
 }
-
 .fb-field-title-input:focus {
   border-bottom-color: #555;
 }
-
-/* Row of content inputs -->
 .fb-content-row {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-bottom: 6px;
 }
-
-/* Content text input -->
 .fb-content-input {
   flex: 1;
   border: 1px solid #ddd;
@@ -972,12 +878,9 @@ body {
   font-size: 0.92rem;
   outline: none;
 }
-
 .fb-content-input:focus {
   border-color: #888;
 }
-
-/* Icon buttons for actions (edit, delete) -->
 .btn-icon {
   background: none;
   border: none;
@@ -986,17 +889,13 @@ body {
   border-radius: 4px;
   transition: background 0.15s;
 }
-
 .btn-icon:hover {
   background: #eee;
 }
-
 .btn-icon.danger:hover {
   background: #fde;
   color: #c00;
 }
-
-/* Button to add new content rows -->
 .add-content-btn {
   font-size: 0.85rem;
   color: #555;
@@ -1008,12 +907,9 @@ body {
   margin-top: 4px;
   transition: background 0.15s;
 }
-
 .add-content-btn:hover {
   background: #f0f0f0;
 }
-
-/* Form wrapper for adding new feedback field -->
 #addFieldForm {
   border: 2px dashed #bbb;
   border-radius: 8px;
@@ -1021,7 +917,6 @@ body {
   margin-top: 8px;
   background: #f9f9f9;
 }
-
 #addFieldForm input,
 #addFieldForm textarea {
   width: 100%;
@@ -1033,20 +928,15 @@ body {
   outline: none;
   box-sizing: border-box;
 }
-
 #addFieldForm input:focus,
 #addFieldForm textarea:focus {
   border-color: #888;
 }
-
-/* Action buttons row for feedback form -->
 .fb-actions-row {
   display: flex;
   gap: 8px;
   margin-top: 10px;
 }
-
-/* Primary button for feedback form -->
 .btn-fb-primary {
   background: #222;
   color: #fff;
@@ -1056,12 +946,9 @@ body {
   cursor: pointer;
   font-size: 0.9rem;
 }
-
 .btn-fb-primary:hover {
   background: #444;
 }
-
-/* Secondary button for feedback form -->
 .btn-fb-secondary {
   background: #fff;
   color: #333;
@@ -1071,20 +958,16 @@ body {
   cursor: pointer;
   font-size: 0.9rem;
 }
-
-/* Saving status indicator -->
 .saving-indicator {
   font-size: 0.8rem;
   color: #888;
   margin-left: auto;
   align-self: center;
 }
-
 .saving-indicator.saved {
   color: #2a7a2a;
 }
 
-/* Dropdown button for item selection -->
 .item-dropdown-btn {
   display: flex;
   align-items: center;
@@ -1106,7 +989,6 @@ body {
   background: var(--primary-tan);
 }
 
-/* Section title underlines -->
 .info-section-title {
   font-size: 0.75rem;
   font-weight: 700;
@@ -1117,7 +999,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Expandable details element -->
 .other-details summary {
   font-size: 0.82rem;
   color: var(--text-gray);
@@ -1130,7 +1011,273 @@ body {
   color: var(--dark-brown);
 }
 
-/* Modal for item details -->
 #itemModal {
   z-index: 600;
+}
+
+.report-section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+}
+.report-title-banner {
+  background: #c9a876;
+  color: #fff;
+  text-align: center;
+  padding: 14px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+.report-title-banner h4 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.report-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 2px solid #222;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.report-meta-cell {
+  padding: 10px 16px;
+  border-right: 2px solid #222;
+}
+.report-meta-cell:last-child {
+  border-right: none;
+}
+.report-meta-cell .meta-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #555;
+}
+.report-meta-cell .meta-value {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 4px;
+  background: #d4edda;
+  border-radius: 4px;
+  padding: 3px 8px;
+  display: inline-block;
+  min-width: 120px;
+  text-align: center;
+}
+.period-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.period-selector label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+.period-selector select,
+.period-selector input[type="number"] {
+  padding: 5px 10px;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+}
+.period-selector .btn-generate {
+  padding: 5px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #222;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.period-selector .btn-generate:hover {
+  background: #444;
+}
+.period-selector .btn-pdf {
+  padding: 5px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #c0392b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+}
+.period-selector .btn-pdf:hover {
+  background: #a93226;
+}
+.period-selector .btn-pdf.visible {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .report-body {
+    grid-template-columns: 1fr;
+  }
+  .report-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.chart-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #444;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.chart-legend {
+  margin-top: 14px;
+  width: 100%;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.revenue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.revenue-table thead tr {
+  background: #333;
+  color: #fff;
+}
+.revenue-table thead th {
+  padding: 10px 14px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.revenue-table tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  color: #333;
+}
+.revenue-table tbody td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+.revenue-table tfoot tr {
+  background: #f5f5f5;
+}
+.revenue-table tfoot td {
+  padding: 10px 14px;
+  border-top: 2px solid #333;
+  text-align: center;
+  font-weight: 700;
+}
+.revenue-table tfoot td:first-child {
+  text-align: left;
+}
+
+.badge-exceeded {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-ontrack {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-below {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.badge-overall {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#statusMsg {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+  font-size: 14px;
+}
+#statusMsg i {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* ── Print / PDF styles ─────────────────────────────────── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printArea,
+  #printArea * {
+    visibility: visible;
+  }
+  #printArea {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 30px;
+    background: #fff;
+  }
+  .period-selector,
+  .btn-pdf,
+  .btn-generate {
+    display: none !important;
+  }
 }
