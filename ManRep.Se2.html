@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Reports - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="admin-styles.Se2.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      getAnalytics(app);
+      const db = getFirestore(app);
+
+      const COLORS = [
+        "#2d4a7a",
+        "#e07b39",
+        "#4a8c5c",
+        "#9e9e9e",
+        "#c94f4f",
+        "#7b5ea7",
+        "#d4a847",
+        "#3a7d9e",
+        "#b05c7a",
+        "#5a8f5a",
+      ];
+
+      const MONTHS = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+
+      let pieChart = null;
+
+      function showStatus(msg, icon = "fa-spinner fa-spin") {
+        document.getElementById("statusMsg").innerHTML =
+          `<i class="fas ${icon}"></i>${msg}`;
+        document.getElementById("statusMsg").style.display = "block";
+        document.getElementById("reportBody").style.display = "none";
+      }
+
+      function showReport() {
+        document.getElementById("statusMsg").style.display = "none";
+        document.getElementById("reportBody").style.display = "grid";
+      }
+
+      async function buildReport() {
+        const month = parseInt(document.getElementById("selMonth").value);
+        const year = parseInt(document.getElementById("selYear").value);
+
+        showStatus("Loading orders…");
+
+        try {
+          // ── 1. Fetch all orders ──────────────────────────────────────────
+          const ordersSnap = await getDocs(collection(db, "orders"));
+
+          // ── 2. For each order that matches the selected period,
+          //       fetch its "items" subcollection ──────────────────────────
+          // productId/name -> { name, qty, revenue }
+          const productMap = {};
+
+          const fetchPromises = [];
+
+          ordersSnap.forEach((orderDoc) => {
+            const o = orderDoc.data();
+
+            // Filter by month/year using the Firestore Timestamp in "date"
+            const ts = o.date; // Firestore Timestamp
+            if (!ts || !ts.toDate) return; // skip if no date
+            const d = ts.toDate();
+            if (d.getMonth() !== month || d.getFullYear() !== year) return;
+
+            // Queue subcollection fetch
+            fetchPromises.push(
+              getDocs(collection(db, "orders", orderDoc.id, "items"))
+                .then((itemsSnap) => {
+                  itemsSnap.forEach((itemDoc) => {
+                    const item = itemDoc.data();
+                    // Use Product_ID as key, P_Name as display label
+                    const pid = item.Product_ID || "Unknown";
+                    const name = item.P_Name || pid;
+                    const qty = Number(item.quantity) || 0;
+                    const rev = Number(item.Total) || 0;
+
+                    if (!productMap[pid]) {
+                      productMap[pid] = { name, qty: 0, revenue: 0 };
+                    }
+                    productMap[pid].qty += qty;
+                    productMap[pid].revenue += rev;
+                  });
+                })
+                .catch(() => {
+                  // If subcollection read fails for one order, skip silently
+                }),
+            );
+          });
+
+          // Wait for all subcollection fetches
+          await Promise.all(fetchPromises);
+
+          // ── 3. Build sorted entries ──────────────────────────────────────
+          const entries = Object.entries(productMap)
+            .map(([pid, v]) => ({
+              pid,
+              name: v.name,
+              qty: v.qty,
+              revenue: v.revenue,
+            }))
+            .sort((a, b) => b.qty - a.qty);
+
+          if (entries.length === 0) {
+            showStatus(
+              `No orders found for ${MONTHS[month]} ${year}.`,
+              "fa-inbox",
+            );
+            return;
+          }
+
+          const totalQty = entries.reduce((s, e) => s + e.qty, 0);
+          const totalRev = entries.reduce((s, e) => s + e.revenue, 0);
+          // Target = 80% of actual total as a simple benchmark
+          const overallTarget = Math.round(totalQty * 0.8);
+
+          // Update period label
+          document.getElementById("metaMonth").textContent =
+            MONTHS[month] + " " + year;
+
+          // ── 4. Pie chart ─────────────────────────────────────────────────
+          const labels = entries.map((e) => e.name);
+          const dataQty = entries.map((e) => e.qty);
+          const pcts = entries.map((e) =>
+            totalQty > 0 ? Math.round((e.qty / totalQty) * 100) : 0,
+          );
+          const bgColors = entries.map((_, i) => COLORS[i % COLORS.length]);
+
+          // Destroy old chart if it exists
+          if (pieChart) {
+            pieChart.destroy();
+            pieChart = null;
+          }
+
+          const ctx = document.getElementById("pieCanvas").getContext("2d");
+          pieChart = new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data: dataQty,
+                  backgroundColor: bgColors,
+                  borderWidth: 2,
+                  borderColor: "#fff",
+                },
+              ],
+            },
+            options: {
+              responsive: false,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) =>
+                      ` ${ctx.label}: ${ctx.raw} units (${pcts[ctx.dataIndex]}%)`,
+                  },
+                },
+              },
+            },
+          });
+
+          // ── 5. Legend ────────────────────────────────────────────────────
+          document.getElementById("chartLegend").innerHTML = entries
+            .map(
+              (e, i) => `
+            <div class="legend-item">
+              <div class="legend-dot" style="background:${bgColors[i]}"></div>
+              <span>${e.name} &mdash; <strong>${pcts[i]}%</strong></span>
+            </div>`,
+            )
+            .join("");
+
+          // ── 6. Table rows ────────────────────────────────────────────────
+          document.getElementById("tableBody").innerHTML = entries
+            .map((e) => {
+              const target = Math.round(e.qty * 0.8);
+              let badge;
+              if (e.qty > target) {
+                badge = `<span class="badge-exceeded">&#11088; Exceeded</span>`;
+              } else if (e.qty === target) {
+                badge = `<span class="badge-ontrack">&#8599; On Track</span>`;
+              } else {
+                badge = `<span class="badge-below">&#8600; Below</span>`;
+              }
+              return `
+              <tr>
+                <td>${e.name}</td>
+                <td>${e.qty}</td>
+                <td>${target}</td>
+                <td>&#8369;${e.revenue.toLocaleString()}</td>
+                <td>${badge}</td>
+              </tr>`;
+            })
+            .join("");
+
+          // ── 7. Footer ────────────────────────────────────────────────────
+          const overallBadge =
+            totalQty >= overallTarget
+              ? `<span class="badge-overall">Overall Growth</span>`
+              : `<span class="badge-below">Needs Attention</span>`;
+
+          document.getElementById("tableFooter").innerHTML = `
+          <td>TOTAL</td>
+          <td>${totalQty}</td>
+          <td>${overallTarget}</td>
+          <td>&#8369;${totalRev.toLocaleString()}</td>
+          <td>${overallBadge}</td>`;
+
+          showReport();
+        } catch (err) {
+          showStatus("Error: " + err.message, "fa-exclamation-triangle");
+          console.error("Report error:", err);
+        }
+      }
+
+      // ── Populate month/year selectors ────────────────────────────────────
+      function populateSelectors() {
+        const now = new Date();
+        const sel = document.getElementById("selMonth");
+        MONTHS.forEach((m, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = m;
+          if (i === now.getMonth()) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        document.getElementById("selYear").value = now.getFullYear();
+      }
+
+      // Expose to inline onclick
+      window.buildReport = buildReport;
+
+      document.addEventListener("DOMContentLoaded", () => {
+        populateSelectors();
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "Adminlogin.Se2.html";
+          });
+        }
+
+        buildReport();
+      });
+    </script>
+
+    <!-- ── Sidebar ─────────────────────────────────────────────────────── -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <img src="images/Logo - Black.png" />
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="ManProd.Se2.html"
+            ><i class="fas fa-box"></i> Manage Products</a
+          >
+        </li>
+        <li>
+          <a href="ManCon.Se2.html"
+            ><i class="fas fa-file-alt"></i> Manage Content</a
+          >
+        </li>
+        <li>
+          <a href="ManOrd.Se2.html"
+            ><i class="fas fa-clipboard-list"></i> Manage Order</a
+          >
+        </li>
+        <li>
+          <a href="ManStock.Se2.html"
+            ><i class="fas fa-pen"></i> Manage Stocks</a
+          >
+        </li>
+        <li>
+          <a href="ManFeed.Se2.html"
+            ><i class="fas fa-comments"></i> <span>Customer Feedback</span></a
+          >
+        </li>
+        <li>
+          <a href="ManRep.Se2.html" class="active"
+            ><i class="fas fa-chart-pie"></i> <span>Manage Reports</span></a
+          >
+        </li>
+      </ul>
+      <div class="sidebar-user">
+        <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
+        <div class="sidebar-user-info">
+          <span class="user-name">ADMIN</span>
+          <span class="user-email">admin@gmail.com</span>
+          <button class="btn btn-danger btn-sm mt-2 w-100" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main ───────────────────────────────────────────────────────── -->
+    <div class="admin-main">
+      <div class="admin-topbar"><h3>Reports</h3></div>
+      <div class="admin-content">
+        <div class="report-section">
+          <!-- Title Banner -->
+          <div class="report-title-banner">
+            <h4>Monthly Bakery System Sales Performance Report</h4>
+          </div>
+
+          <!-- Meta Row -->
+          <div class="report-meta-grid">
+            <div class="report-meta-cell">
+              <div class="meta-label">Bakery Store Name</div>
+              <div class="meta-value">The Barkery</div>
+            </div>
+            <div class="report-meta-cell">
+              <div class="meta-label">Reports Manager</div>
+              <div class="meta-value">Admin</div>
+            </div>
+            <div class="report-meta-cell">
+              <div class="meta-label">Report Period (Month/Year)</div>
+              <div class="meta-value" id="metaMonth">—</div>
+            </div>
+          </div>
+
+          <!-- Period Selector -->
+          <div class="period-selector">
+            <label><i class="fas fa-calendar-alt me-1"></i> Period:</label>
+            <select id="selMonth"></select>
+            <input
+              id="selYear"
+              type="number"
+              min="2020"
+              max="2099"
+              style="width: 90px"
+            />
+            <button onclick="buildReport()">
+              <i class="fas fa-sync-alt me-1"></i> Generate
+            </button>
+          </div>
+
+          <!-- Status / Loading (shown while fetching) -->
+          <div id="statusMsg">
+            <i class="fas fa-spinner fa-spin"></i>Loading report data…
+          </div>
+
+          <!-- Report body — always in DOM, shown after data loads -->
+          <div id="reportBody" class="report-body" style="display: none">
+            <!-- LEFT: Pie Chart -->
+            <div class="chart-wrap">
+              <div class="section-title">Monthly Sales Volume Distribution</div>
+              <canvas id="pieCanvas" width="240" height="240"></canvas>
+              <div class="chart-legend" id="chartLegend"></div>
+            </div>
+
+            <!-- RIGHT: Revenue Table -->
+            <div>
+              <div class="section-title">Treat Revenue by Category</div>
+              <table class="revenue-table">
+                <thead>
+                  <tr>
+                    <th>Treat Item</th>
+                    <th>Total Units Sold</th>
+                    <th>Target Goal</th>
+                    <th>Revenue</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+                <tfoot>
+                  <tr id="tableFooter"></tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <!-- /reportBody -->
+        </div>
+        <!-- /report-section -->
+      </div>
+    </div>
+  </body>
+</html>
