@@ -4,81 +4,38 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manage Stocks - The Barkery</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link href="admin-styles.Se2.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- Sidebar -->
     <aside class="admin-sidebar">
-      <div class="sidebar-logo">
-        <img src="images/Logo - Black.png" alt="The Barkery Logo" />
-      </div>
+      <div class="sidebar-logo"><img src="images/Logo - Black.png" alt="The Barkery Logo" /></div>
       <ul class="sidebar-nav">
-        <li>
-          <a href="ManProd.Se2.html"
-            ><i class="fas fa-box"></i> <span>Manage Products</span></a
-          >
-        </li>
-        <li>
-          <a href="ManCon.Se2.html"
-            ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a
-          >
-        </li>
-        <li>
-          <a href="ManOrd.Se2.html"
-            ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
-          >
-        </li>
-        <li>
-          <a href="ManStock.Se2.html" class="active"
-            ><i class="fas fa-pen"></i> Manage Stocks</a
-          >
-        </li>
-        <li>
-          <a href="ManFeed.Se2.html"
-            ><i class="fas fa-comments"></i> <span>Customer Feedback</span></a
-          >
-        </li>
-                <li>
-          <a href="ManRep.Se2.html"
-            ><i class="fas fa-chart-pie"></i> <span>Manage Reports</span></a
-          >
-        </li>
+        <li><a href="ManProd.Se2.html"><i class="fas fa-box"></i> <span>Manage Products</span></a></li>
+        <li><a href="ManCon.Se2.html"><i class="fas fa-file-alt"></i> <span>Manage Content</span></a></li>
+        <li><a href="ManOrd.Se2.html"><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a></li>
+        <li><a href="ManStock.Se2.html" class="active"><i class="fas fa-pen"></i> <span>Manage Stocks</span></a></li>
+        <li><a href="ManFeed.Se2.html"><i class="fas fa-comments"></i> <span>Customer Feedback</span></a></li>
+        <li><a href="ManRep.Se2.html"><i class="fas fa-chart-pie"></i> <span>Manage Reports</span></a></li>
       </ul>
       <div class="sidebar-user">
         <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
         <div class="sidebar-user-info">
           <span class="user-name">ADMIN</span>
           <span class="user-email">admin@gmail.com</span>
-
-          <button class="btn btn-danger btn-sm mt-2 w-100" id="logoutBtn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </button>
+          <button class="btn btn-danger btn-sm mt-2 w-100" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
       </div>
     </aside>
 
-    <!-- Main -->
     <div class="admin-main">
-      <div class="admin-topbar"><h3>All Products</h3></div>
+      <div class="admin-topbar"><h3>Manage Stocks</h3></div>
       <div class="admin-content">
         <div class="products-toolbar">
-          <button class="btn-admin-danger" onclick="openDeleteModal()">
-            <i class="fas fa-trash"></i> Delete Product
-          </button>
-          <button class="btn-admin-outline" onclick="openEditStockModal()">
-            <i class="fas fa-pen"></i> Edit Item Stock
-          </button>
-          <button class="btn-admin-outline" onclick="refreshProducts()">
-            <i class="fas fa-sync-alt"></i>
-          </button>
+          <button class="btn-admin-danger" onclick="openDeleteModal()"><i class="fas fa-trash"></i> Delete Product</button>
+          <button class="btn-admin-outline" onclick="openEditStockModal()"><i class="fas fa-pen"></i> Edit Item Stock</button>
+          <button class="btn-admin-outline" onclick="refreshProducts()"><i class="fas fa-sync-alt"></i></button>
         </div>
         <div class="product-cards" id="productCards"></div>
       </div>
@@ -86,81 +43,39 @@
 
     <!-- Edit Stock Modal -->
     <div class="modal-overlay" id="editStockModal">
-      <div class="order-info-modal" style="width: 400px; max-width: 92%">
-        <button class="modal-close-btn" onclick="closeModal('editStockModal')">
-          &times;
-        </button>
+      <div class="order-info-modal" style="width:400px;max-width:92%">
+        <button class="modal-close-btn" onclick="closeModal('editStockModal')">&times;</button>
         <h5>Edit Item Stock</h5>
-        <div class="form-group mb-2">
-          <label>Stock Quantity</label>
-          <input
-            type="number"
-            id="editStockInput"
-            class="form-control form-control-sm"
-          />
-        </div>
-        <div style="text-align: right">
-          <button
-            class="btn-admin-outline me-2"
-            onclick="closeModal('editStockModal')"
-          >
-            Cancel
-          </button>
-          <button class="btn-admin-primary" id="updateStockBtn">
-            Update Stock
-          </button>
+        <div class="form-group mb-2"><label>Stock Quantity</label><input type="number" id="editStockInput" class="form-control form-control-sm" /></div>
+        <div style="text-align:right">
+          <button class="btn-admin-outline me-2" onclick="closeModal('editStockModal')">Cancel</button>
+          <button class="btn-admin-primary" id="updateStockBtn">Update Stock</button>
         </div>
       </div>
     </div>
 
     <!-- Delete Modal -->
     <div class="modal-overlay" id="deleteModal">
-      <div class="order-info-modal" style="width: 340px; max-width: 92%">
-        <button class="modal-close-btn" onclick="closeModal('deleteModal')">
-          &times;
-        </button>
-        <h5>Delete Product(s)</h5>
-        <p
-          style="
-            font-size: 0.85rem;
-            color: var(--text-gray);
-            margin-bottom: 1rem;
-          "
-        >
-          Are you sure you want to delete the selected product?
-        </p>
-        <div style="text-align: right; margin-top: 1rem">
-          <button
-            class="btn-admin-outline me-2"
-            onclick="closeModal('deleteModal')"
-          >
-            Cancel
-          </button>
+      <div class="order-info-modal" style="width:340px;max-width:92%">
+        <button class="modal-close-btn" onclick="closeModal('deleteModal')">&times;</button>
+        <h5>Delete Product</h5>
+        <p style="font-size:0.85rem;color:var(--text-gray);margin-bottom:1rem;">Are you sure you want to delete the selected product?</p>
+        <div style="text-align:right;margin-top:1rem">
+          <button class="btn-admin-outline me-2" onclick="closeModal('deleteModal')">Cancel</button>
           <button class="btn-admin-danger" id="confirmDeleteBtn">Delete</button>
         </div>
       </div>
     </div>
 
-    <!-- Toast -->
     <div class="admin-toast" id="adminToast"></div>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        getDocs,
-        query,
-        orderBy,
-        updateDoc,
-        doc,
-        deleteDoc,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+      import { getFirestore, collection, getDocs, query, orderBy, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
-        authDomain: "grp2-se.firebaseapp.com",
-        projectId: "grp2-se",
+        authDomain: "grp2-se.firebaseapp.com", projectId: "grp2-se",
         storageBucket: "grp2-se.firebasestorage.app",
         messagingSenderId: "488325990404",
         appId: "1:488325990404:web:2f885df16b18d9057a8d51",
@@ -172,53 +87,40 @@
 
       const productCards = document.getElementById("productCards");
       const toast = document.getElementById("adminToast");
-      const editBtn = document.querySelector(".btn-admin-outline");
+      const editBtn = document.querySelectorAll(".btn-admin-outline")[0];
       const deleteBtn = document.querySelector(".btn-admin-danger");
       let selectedProduct = null;
 
-      window.showToast = (msg) => {
-        toast.textContent = msg;
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 2500);
-      };
-      window.closeModal = (id) =>
-        document.getElementById(id).classList.remove("show");
+      window.showToast = (msg) => { toast.textContent = msg; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2500); };
+      window.closeModal = (id) => document.getElementById(id).classList.remove("show");
 
-      /* Button States */
       function updateButtonStates() {
-        if (!selectedProduct) {
-          editBtn.classList.add("btn-disabled");
-          deleteBtn.classList.add("btn-disabled");
-        } else {
-          editBtn.classList.remove("btn-disabled");
-          deleteBtn.classList.remove("btn-disabled");
-        }
+        editBtn.classList.toggle("btn-disabled", !selectedProduct);
+        deleteBtn.classList.toggle("btn-disabled", !selectedProduct);
       }
 
-      /* Fetch Products */
       async function fetchProducts() {
         productCards.innerHTML = "";
-        const q = query(collection(db, "products"), orderBy("P_Name", "asc"));
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(query(collection(db, "products"), orderBy("P_Name", "asc")));
         snapshot.forEach((docSnap) => {
           const p = docSnap.data();
+          const stock = p.P_Stock ?? p.stock ?? 0;
+          const stockColor = stock === 0 ? "color:#dc2626;" : stock <= 5 ? "color:#d97706;" : "";
           const card = document.createElement("div");
           card.className = "product-card";
           card.innerHTML = `
             <div class="product-card-image">
-              <img src="${p.img}" onerror="this.style.display='none'"/>
+              <img src="${p.img}" onerror="this.style.display='none'" />
             </div>
             <div class="product-card-body">
-              <div class="product-card-header">
-                <h4>${p.P_Name}</h4>
-                <div class="stock-badge"><i class="fas fa-box"></i> In Stock: ${p.P_Stock}</div>
-              </div>
+              <h4>${p.P_Name}</h4>
+              <span class="stock-badge" style="${stockColor}">
+                <i class="fas fa-box"></i> ${stock} in stock
+              </span>
             </div>
           `;
           card.onclick = () => {
-            document
-              .querySelectorAll(".product-card")
-              .forEach((c) => c.classList.remove("selected"));
+            document.querySelectorAll(".product-card").forEach(c => c.classList.remove("selected"));
             card.classList.add("selected");
             selectedProduct = { id: docSnap.id, ...p };
             updateButtonStates();
@@ -228,40 +130,24 @@
         updateButtonStates();
       }
 
-      /* Edit Stock Modal */
       window.openEditStockModal = () => {
         if (!selectedProduct) return showToast("Select a product first");
-        document.getElementById("editStockInput").value =
-          selectedProduct.P_Stock;
-        const updateBtn = document.getElementById("updateStockBtn");
-        updateBtn.onclick = async () => {
-          const newStock = parseInt(
-            document.getElementById("editStockInput").value,
-          );
-          if (isNaN(newStock) || newStock < 0)
-            return showToast("Enter a valid stock value");
-          await updateDoc(doc(db, "products", selectedProduct.id), {
-            P_Stock: newStock,
-          });
-          showToast("Stock updated successfully!");
-          closeModal("editStockModal");
-          selectedProduct = null;
-          fetchProducts();
+        document.getElementById("editStockInput").value = selectedProduct.P_Stock ?? selectedProduct.stock ?? 0;
+        document.getElementById("updateStockBtn").onclick = async () => {
+          const newStock = parseInt(document.getElementById("editStockInput").value);
+          if (isNaN(newStock) || newStock < 0) return showToast("Enter a valid stock value");
+          await updateDoc(doc(db, "products", selectedProduct.id), { P_Stock: newStock });
+          showToast("Stock updated!"); closeModal("editStockModal"); selectedProduct = null; fetchProducts();
         };
         document.getElementById("editStockModal").classList.add("show");
       };
 
-      /* Refresh Button */
       window.refreshProducts = () => {
         selectedProduct = null;
-        document
-          .querySelectorAll(".product-card")
-          .forEach((c) => c.classList.remove("selected"));
-        updateButtonStates();
-        fetchProducts();
+        document.querySelectorAll(".product-card").forEach(c => c.classList.remove("selected"));
+        updateButtonStates(); fetchProducts();
       };
 
-      /* Delete Modal */
       window.openDeleteModal = () => {
         if (!selectedProduct) return showToast("Select a product first");
         document.getElementById("deleteModal").classList.add("show");
@@ -270,19 +156,11 @@
       document.getElementById("confirmDeleteBtn").onclick = async () => {
         if (!selectedProduct) return;
         await deleteDoc(doc(db, "products", selectedProduct.id));
-        showToast("Product deleted!");
-        closeModal("deleteModal");
-        selectedProduct = null;
-        fetchProducts();
+        showToast("Product deleted!"); closeModal("deleteModal"); selectedProduct = null; fetchProducts();
       };
 
       fetchProducts();
-
-      document.getElementById("logoutBtn")?.addEventListener("click", () => {
-        localStorage.clear();
-        sessionStorage.clear();
-        window.location.href = "Adminlogin.Se2.html";
-      });
+      document.getElementById("logoutBtn")?.addEventListener("click", () => { localStorage.clear(); sessionStorage.clear(); window.location.href = "Adminlogin.Se2.html"; });
     </script>
   </body>
 </html>
