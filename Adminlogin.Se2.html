@@ -176,8 +176,10 @@
 
     <script>
       // Admin credentials
-      const OWN_Email = "barkertest462@gmail.com";
-      const OWN_Password = "Adm1n89457";
+      const OWN_Credentials = [
+        { email: "barkertest462@gmail.com", password: "Adm1n89457" },
+        { email: "appbarkery@gmail.com", password: "@dmIn458-3" },
+      ];
 
       const loginForm = document.getElementById("loginForm");
       const emailInput = document.getElementById("OWN_Email");
@@ -261,7 +263,10 @@
         }
 
         // Credential check
-        if (email === OWN_Email && password === OWN_Password) {
+        const isValid = OWN_Credentials.some(
+          (c) => c.email === email && c.password === password,
+        );
+        if (isValid) {
           try {
             const response = await fetch("sendotp.php", {
               method: "POST",
