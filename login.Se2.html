@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="auth-styles.Se2.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="breadcrumb-nav">
+      <div class="breadcrumb-container">
+        <a href="index.html" class="breadcrumb-link">
+          <i class="fas fa-home"></i> Home
+        </a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Login</span>
+      </div>
+    </nav>
+
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-left">
+          <div class="auth-logo">
+            <a href="index.html" title="Back to Home">
+              <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+            </a>
+            <p class="tagline">Where happy tails and healthy treats meet!</p>
+          </div>
+
+          <form class="auth-form" id="loginForm" novalidate>
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="email"
+                  id="C_Email"
+                  name="C_Email"
+                  placeholder=" "
+                  required
+                  autocomplete="email"
+                />
+                <label for="C_Email">
+                  Email Address <span class="required">*</span>
+                </label>
+              </div>
+              <div class="invalid-feedback">
+                Please enter a valid email address
+              </div>
+              <div
+                class="field-error"
+                id="emailError"
+                style="
+                  color: red;
+                  font-size: 0.8rem;
+                  margin-top: 4px;
+                  display: none;
+                "
+              ></div>
+            </div>
+
+            <div class="form-group">
+              <div class="floating-input">
+                <input
+                  type="password"
+                  id="C_Password"
+                  name="C_Password"
+                  placeholder=" "
+                  required
+                  autocomplete="current-password"
+                />
+                <label for="C_Password">
+                  Password <span class="required">*</span>
+                </label>
+                <button
+                  type="button"
+                  class="toggle-password"
+                  onclick="togglePassword('C_Password')"
+                  aria-label="Toggle password visibility"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <div class="invalid-feedback">Password is required</div>
+              <div
+                class="field-error"
+                id="passwordError"
+                style="
+                  color: red;
+                  font-size: 0.8rem;
+                  margin-top: 4px;
+                  display: none;
+                "
+              ></div>
+            </div>
+
+            <!-- Forgot Password Link -->
+            <div
+              class="auth-links"
+              style="
+                margin-top: -0.5rem;
+                margin-bottom: -0.25rem;
+                text-align: right;
+              "
+            >
+              <a
+                href="Forgotpassword.Se2.html"
+                class="forgot-link"
+                style="display: inline; font-size: 0.85rem"
+              >
+                <i class="fas fa-lock" style="font-size: 0.75rem"></i> Forgot
+                Password?
+              </a>
+            </div>
+
+            <div class="form-check-group">
+              <input type="checkbox" id="remember" name="remember" />
+              <label for="remember">Remember me</label>
+            </div>
+
+            <button type="submit" class="btn-auth">
+              <span class="btn-text">LOGIN</span>
+              <span class="btn-loader" style="display: none">
+                <i class="fas fa-spinner fa-spin"></i> Logging in...
+              </span>
+            </button>
+
+            <div class="signup-link">
+              Don't Have an Account Yet?
+              <a href="signup.Se2.html"><strong>Sign Up</strong></a>
+            </div>
+
+            <div class="form-message" id="formMessage"></div>
+          </form>
+        </div>
+
+        <div class="auth-right"></div>
+      </div>
+    </div>
+
+    <!-- Lockout Toast -->
+    <div
+      id="lockoutToast"
+      class="toast align-items-center text-bg-danger border-0"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      style="
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        display: none;
+        z-index: 1055;
+      "
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          Too many failed attempts. Please wait 5 min.
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          onclick="
+            document.getElementById('lockoutToast').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="auth-footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+        </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth(app);
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const loginForm = document.getElementById("loginForm");
+        const C_Email_Input = document.getElementById("C_Email");
+        const C_Password_Input = document.getElementById("C_Password");
+        const btnText = document.querySelector(".btn-text");
+        const btnLoader = document.querySelector(".btn-loader");
+        const formMessage = document.getElementById("formMessage");
+        const loginButton = loginForm.querySelector("button[type='submit']");
+        const passwordError = document.getElementById("passwordError");
+        const emailError = document.getElementById("emailError");
+
+        // Clear errors on input
+        C_Email_Input.addEventListener("input", () => {
+          C_Email_Input.style.border = "";
+          emailError.style.display = "none";
+          emailError.textContent = "";
+          formMessage.textContent = "";
+        });
+
+        C_Password_Input.addEventListener("input", () => {
+          C_Password_Input.style.border = "";
+          passwordError.style.display = "none";
+          passwordError.textContent = "";
+          formMessage.textContent = "";
+        });
+
+        // Restore lockout state on page load
+        let failedAttempts =
+          parseInt(localStorage.getItem("failedAttempts")) || 0;
+        const lockUntil = parseInt(localStorage.getItem("lockUntil"));
+        if (lockUntil && Date.now() < lockUntil) {
+          loginButton.disabled = true;
+          document.getElementById("lockoutToast").style.display = "block";
+          passwordError.style.display = "block";
+          passwordError.textContent =
+            "Too many failed attempts. Please wait 5 minutes.";
+          setTimeout(() => {
+            loginButton.disabled = false;
+            document.getElementById("lockoutToast").style.display = "none";
+            passwordError.style.display = "none";
+            passwordError.textContent = "";
+            localStorage.removeItem("lockUntil");
+            failedAttempts = 0;
+            localStorage.setItem("failedAttempts", failedAttempts);
+          }, lockUntil - Date.now());
+        }
+
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const C_Email = C_Email_Input.value.trim();
+          const C_Password = C_Password_Input.value;
+
+          // Reset all errors
+          C_Email_Input.style.border = "";
+          C_Password_Input.style.border = "";
+          emailError.style.display = "none";
+          emailError.textContent = "";
+          passwordError.style.display = "none";
+          passwordError.textContent = "";
+          formMessage.innerHTML = "";
+
+          btnText.style.display = "none";
+          btnLoader.style.display = "inline-block";
+
+          // Empty field check
+          if (!C_Email || !C_Password) {
+            if (!C_Email) {
+              C_Email_Input.style.border = "1px solid red";
+              emailError.style.display = "block";
+              emailError.textContent = "Email address is required.";
+            }
+            if (!C_Password) {
+              C_Password_Input.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent = "Password is required.";
+            }
+            btnText.style.display = "inline-block";
+            btnLoader.style.display = "none";
+            return;
+          }
+
+          try {
+            await signInWithEmailAndPassword(auth, C_Email, C_Password);
+
+            const response = await fetch("sendotp.php", {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: "email=" + encodeURIComponent(C_Email),
+            });
+
+            const resultRaw = (await response.text()).trim();
+            console.log("sendotp response:", resultRaw);
+            const result = resultRaw.includes("OTP_SENT")
+              ? "OTP_SENT"
+              : resultRaw;
+
+            if (response.ok && result === "OTP_SENT") {
+              window.location.href =
+                "emailver.Se2.html?email=" + encodeURIComponent(C_Email);
+            } else {
+              btnText.style.display = "inline-block";
+              btnLoader.style.display = "none";
+              formMessage.style.color = "red";
+              formMessage.textContent =
+                "Failed to send OTP. Try again. (" + result + ")";
+            }
+          } catch (error) {
+            btnText.style.display = "inline-block";
+            btnLoader.style.display = "none";
+
+            failedAttempts++;
+            localStorage.setItem("failedAttempts", failedAttempts);
+
+            const remaining = 3 - failedAttempts;
+            const attemptsText =
+              remaining > 0
+                ? ` ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.`
+                : "";
+
+            console.log("Firebase error code:", error.code);
+
+            if (error.code === "auth/invalid-email") {
+              C_Email_Input.style.border = "1px solid red";
+              emailError.style.display = "block";
+              emailError.textContent = "Invalid email format.";
+            } else if (error.code === "auth/user-not-found") {
+              C_Email_Input.style.border = "1px solid red";
+              emailError.style.display = "block";
+              emailError.textContent = "No account found with this email.";
+            } else if (
+              error.code === "auth/wrong-password" ||
+              error.code === "auth/invalid-credential"
+            ) {
+              C_Password_Input.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Incorrect email or password." + attemptsText;
+            } else if (error.code === "auth/too-many-requests") {
+              C_Password_Input.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Too many failed attempts. Account temporarily locked.";
+            } else {
+              C_Password_Input.style.border = "1px solid red";
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Incorrect email or password." + attemptsText;
+            }
+
+            if (failedAttempts >= 3) {
+              const lockTime = 5 * 60 * 1000;
+              const unlockAt = Date.now() + lockTime;
+              localStorage.setItem("lockUntil", unlockAt);
+              loginButton.disabled = true;
+              passwordError.style.display = "block";
+              passwordError.textContent =
+                "Too many failed attempts. Please wait 5 minutes.";
+              document.getElementById("lockoutToast").style.display = "block";
+              setTimeout(() => {
+                loginButton.disabled = false;
+                document.getElementById("lockoutToast").style.display = "none";
+                passwordError.style.display = "none";
+                passwordError.textContent = "";
+                failedAttempts = 0;
+                localStorage.setItem("failedAttempts", failedAttempts);
+                localStorage.removeItem("lockUntil");
+              }, lockTime);
+            }
+          }
+        });
+      });
+    </script>
+
+    <!-- Password Reveal Toggle -->
+    <script>
+      function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const button = input.parentElement.querySelector(".toggle-password i");
+        if (input.type === "password") {
+          input.type = "text";
+          button.classList.remove("fa-eye");
+          button.classList.add("fa-eye-slash");
+        } else {
+          input.type = "password";
+          button.classList.remove("fa-eye-slash");
+          button.classList.add("fa-eye");
+        }
+      }
+    </script>
+  </body>
+</html>

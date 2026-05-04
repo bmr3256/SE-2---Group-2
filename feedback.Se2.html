@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.Se2.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div
+          class="collapse navbar-collapse justify-content-center"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.Se2.html">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="products.Se2.html">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="feedback.Se2.html">Feedback</a>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-actions">
+          <button
+            class="btn-help"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+            title="Need help?"
+          >
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+          </a>
+          <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+            <i class="fas fa-user-circle"></i>
+          </a>
+          <button
+            id="logoutBtn"
+            class="nav-icon"
+            title="Logout"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Feedback Header -->
+    <section class="page-hero">
+      <div class="hero-content-center">
+        <h1>FEEDBACK</h1>
+      </div>
+    </section>
+
+    <!-- Feedback Section -->
+    <section class="feedback-page-section">
+      <div class="feedback-page-container">
+        <h2>WE VALUE YOUR OPINION</h2>
+        <p class="feedback-subtitle">
+          How would you rate your overall experience?
+        </p>
+
+        <div class="rating-stars" id="ratingStars">
+          <svg
+            class="star-icon"
+            data-rating="1"
+            onclick="rateExperience(1)"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+          <svg
+            class="star-icon"
+            data-rating="2"
+            onclick="rateExperience(2)"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+          <svg
+            class="star-icon"
+            data-rating="3"
+            onclick="rateExperience(3)"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+          <svg
+            class="star-icon"
+            data-rating="4"
+            onclick="rateExperience(4)"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+          <svg
+            class="star-icon"
+            data-rating="5"
+            onclick="rateExperience(5)"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+            />
+          </svg>
+        </div>
+
+        <form id="feedbackForm">
+          <div class="form-group">
+            <div class="floating-input">
+              <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder=" "
+                required
+              />
+              <label for="name"
+                >Your Name <span class="required">*</span></label
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="floating-input">
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder=" "
+                required
+              />
+              <label for="email"
+                >Your Email <span class="required">*</span></label
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="floating-input">
+              <textarea
+                id="message"
+                name="message"
+                placeholder=" "
+                required
+                rows="5"
+              ></textarea>
+              <label for="message"
+                >Your Feedback <span class="required">*</span></label
+              >
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn-submit">Share my Feedback</button>
+          </div>
+        </form>
+
+        <!-- Related Words / Delivery / Socials section -->
+        <div
+          class="contact-info-page"
+          id="contactInfoSection"
+          style="margin-top: 2rem"
+        ></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+        </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
+    </footer>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Need Help?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Quick Guide:</h6>
+            <ul>
+              <li>
+                <strong>Feedback:</strong> Rate your experience and share your
+                thoughts
+              </li>
+              <li>
+                <strong>Response Time:</strong> We typically respond within
+                24-48 hours
+              </li>
+              <li>
+                <strong>Questions?</strong> Check our FAQ section on the
+                homepage
+              </li>
+              <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="feedbackToast"
+      class="toast align-items-center text-bg-success border-0 position-fixed bottom-0 end-0"
+      role="alert"
+      style="
+        z-index: 9999;
+        margin: 0 12px 12px 0;
+        width: fit-content;
+        min-width: 0;
+      "
+    >
+      <div class="d-flex">
+        <div class="toast-body">Feedback submitted! Thank you.</div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          onclick="
+            document.getElementById('feedbackToast').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
+
+    <div
+      id="feedbackToastError"
+      class="toast align-items-center text-bg-danger border-0 position-fixed bottom-0 end-0"
+      role="alert"
+      style="
+        z-index: 9999;
+        margin: 0 12px 12px 0;
+        width: fit-content;
+        min-width: 0;
+      "
+    >
+      <div class="d-flex align-items-center w-100 px-3 py-2">
+        <div class="toast-body p-0">Please select a star rating.</div>
+        <button
+          type="button"
+          class="btn-close btn-close-white ms-auto flex-shrink-0"
+          onclick="
+            document.getElementById('feedbackToastError').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="script.Se2.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        addDoc,
+        collection,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      async function loadContactInfo() {
+        try {
+          const snap = await getDoc(doc(db, "managecon", "feedback_info"));
+          const section = document.getElementById("contactInfoSection");
+          if (!snap.exists() || !snap.data().fields?.length) {
+            section.innerHTML = "";
+            return;
+          }
+
+          section.innerHTML = "";
+          snap.data().fields.forEach((field) => {
+            const fieldDiv = document.createElement("div");
+            fieldDiv.style.marginBottom = "1.2rem";
+
+            const titleEl = document.createElement("p");
+            titleEl.style.fontWeight = "700";
+            titleEl.style.marginBottom = "4px";
+            titleEl.textContent = field.title;
+            fieldDiv.appendChild(titleEl);
+
+            field.contents?.forEach((content) => {
+              if (!content.trim()) return;
+              const item = document.createElement("p");
+              item.style.margin = "0 0 2px 0";
+              item.textContent = "• " + content;
+              fieldDiv.appendChild(item);
+            });
+
+            section.appendChild(fieldDiv);
+          });
+        } catch (err) {
+          console.error("Error loading contact info:", err);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        loadContactInfo();
+
+        document
+          .getElementById("feedbackForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const rating = document.querySelectorAll(
+              ".star-icon.selected",
+            ).length;
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const message = document.getElementById("message").value.trim();
+
+            if (!rating) {
+              const errorToast = document.getElementById("feedbackToastError");
+              errorToast.style.display = "flex";
+              setTimeout(() => (errorToast.style.display = "none"), 3000);
+              return;
+            }
+
+            await addDoc(collection(db, "feedbacks"), {
+              Rating: rating,
+              Customer_Name: name,
+              Customer_Email: email,
+              Customer_Feedback: message,
+              Feedback_Date: new Date(),
+            });
+
+            const toastEl = document.getElementById("feedbackToast");
+            toastEl.style.display = "flex";
+            setTimeout(() => (toastEl.style.display = "none"), 3000);
+            document.getElementById("feedbackForm").reset();
+            // Reset Stars
+            document.querySelectorAll(".star-icon").forEach((s) => {
+              s.classList.remove("selected");
+              s.style.fill = "none";
+              s.style.stroke = "var(--button-tan)";
+            });
+            selectedRating = 0;
+          });
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          const fullName = docSnap.exists()
+            ? `${docSnap.data().fname} ${docSnap.data().lname}`
+            : user.email;
+          userIcon.href = "profile.Se2.html";
+          userIcon.title = fullName;
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          logoutBtn.style.display = "inline-block";
+          logoutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.href = "login.Se2.html";
+          };
+        } else {
+          userIcon.href = "login.Se2.html";
+          userIcon.title = "Login / Sign Up";
+          userIcon.querySelector("i").className = "fas fa-user-circle";
+          logoutBtn.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

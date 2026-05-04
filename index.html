@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Barkery - Premium Dog Treats</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.Se2.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div
+          class="collapse navbar-collapse justify-content-center"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" href="#home">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.Se2.html">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="products.Se2.html">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="feedback.Se2.html">Feedback</a>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-actions">
+          <button
+            class="btn-help"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+            title="Need help?"
+          >
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+          </a>
+          <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+            <i class="fas fa-user-circle"></i>
+          </a>
+          <button
+            id="logoutBtn"
+            class="nav-icon"
+            title="Logout"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <section class="hero-section" id="home">
+      <div class="hero-content">
+        <div class="hero-image">
+          <img
+            src="images/About us - sticker.png"
+            alt="The Barkery Dog Mascot"
+          />
+        </div>
+        <div class="hero-text">
+          <h1>
+            TAIL-WAGGINGLY GUARANTEED:<br />
+            AGE-APPROPRIATE, HEALTH-<br />
+            FOCUSED <span class="highlight">TREATS</span> MADE JUST FOR<br />
+            YOUR FURBABIES!
+          </h1>
+          <button
+            class="btn-hero"
+            onclick="location.href = 'products.Se2.html'"
+          >
+            SHOP NOW <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-section" id="about">
+      <div class="story-content">
+        <div class="story-text">
+          <h2>Our Story</h2>
+          <p id="storyText" style="min-height: 48px">
+            At the Barkery, we offer transparency in all of our products. The
+            health benefits are that we use natural and human-grade ingredients.
+          </p>
+          <button
+            class="btn-shop"
+            onclick="location.href = 'products.Se2.html'"
+          >
+            SHOP NOW
+          </button>
+        </div>
+        <div class="story-images">
+          <div class="product-img">
+            <img src="images/designtreats.png" alt="The Barkery Dog Mascot" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="instagram-section">
+      <h3>Follow Us On Instagram</h3>
+      <p class="instagram-handle">@the.barkeryph</p>
+      <div class="instagram-grid">
+        <div class="instagram-post">
+          <img src="images/igproduct1.png" alt="The Barkery Dog Mascot" />
+        </div>
+        <div class="instagram-post">
+          <img src="images/igproduct2.png" alt="Instagram post 2" />
+        </div>
+        <div class="instagram-post">
+          <img src="images/igproduct3.png" alt="Instagram post 3" />
+        </div>
+      </div>
+      <a
+        href="https://www.instagram.com/the.barkeryph/"
+        target="_blank"
+        class="btn-instagram" 
+      >
+        <i class="fab fa-instagram"></i> Follow Us on Instagram
+      </a>
+    </section>
+
+    <section class="faq-section" id="faq">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-container" id="faqContainer"></div>
+    </section>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+        </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
+    </footer>
+
+    <div class="modal fade" id="helpModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Need Help?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Quick Guide:</h6>
+            <ul>
+              <li>
+                <strong>Ordering:</strong> Click the user icon to create an
+                account, then browse products and add to cart
+              </li>
+              <li>
+                <strong>Account:</strong> Sign up to track orders and save
+                preferences
+              </li>
+              <li>
+                <strong>Questions?</strong> Check our
+                <a href="#faq">FAQ section</a> below
+              </li>
+              <li><strong>Contact:</strong> Email us at hello@barkery.ph</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="script.Se2.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      async function loadStoryText() {
+        try {
+          const snap = await getDoc(doc(db, "managecon", "home_info"));
+          if (snap.exists() && snap.data().storyText) {
+            document.getElementById("storyText").textContent =
+              snap.data().storyText;
+          }
+        } catch (err) {
+          console.error("Error loading story text:", err);
+        }
+      }
+
+      async function loadDynamicFaqs() {
+        try {
+          const snap = await getDoc(doc(db, "managecon", "home_faqs"));
+          const container = document.getElementById("faqContainer");
+          container.innerHTML = "";
+          if (!snap.exists() || !snap.data().fields?.length) return;
+
+          snap.data().fields.forEach((field) => {
+            const item = document.createElement("div");
+            item.className = "faq-item";
+
+            const question = document.createElement("div");
+            question.className = "faq-question";
+            question.innerHTML = `<span>${field.title}</span><i class="fas fa-chevron-down"></i>`;
+
+            const answer = document.createElement("div");
+            answer.className = "faq-answer";
+            answer.textContent = field.contents?.[0] || "";
+
+            question.addEventListener("click", () => {
+              const isCurrentlyOpen = answer.classList.contains("show");
+
+              // Close All Others
+              document
+                .querySelectorAll(".faq-answer")
+                .forEach((a) => a.classList.remove("show"));
+              document.querySelectorAll(".faq-question").forEach((q) => {
+                q.classList.remove("active");
+                const icon = q.querySelector("i");
+                if (icon) {
+                  icon.classList.remove("fa-chevron-up");
+                  icon.classList.add("fa-chevron-down");
+                }
+              });
+
+              // Toggle current
+              if (!isCurrentlyOpen) {
+                answer.classList.add("show");
+                question.classList.add("active");
+                const icon = question.querySelector("i");
+                if (icon) {
+                  icon.classList.remove("fa-chevron-down");
+                  icon.classList.add("fa-chevron-up");
+                }
+              }
+            });
+
+            item.appendChild(question);
+            item.appendChild(answer);
+            container.appendChild(item);
+          });
+        } catch (err) {
+          console.error("Error loading FAQs:", err);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        loadStoryText();
+        loadDynamicFaqs();
+      });
+
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          const fullName = docSnap.exists()
+            ? `${docSnap.data().F_Name} ${docSnap.data().L_Name}`
+            : user.email;
+          userIcon.href = "profile.Se2.html";
+          userIcon.title = fullName;
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          logoutBtn.style.display = "inline-block";
+          logoutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.href = "login.Se2.html";
+          };
+        } else {
+          userIcon.href = "login.Se2.html";
+          userIcon.title = "Login / Sign Up";
+          userIcon.querySelector("i").className = "fas fa-user-circle";
+          logoutBtn.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

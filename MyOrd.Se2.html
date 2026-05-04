@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Orders - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.Se2.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        updateDoc,
+        query,
+        where,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let allOrders = [];
+      let visibleOrders = [];
+      let pendingCancelId = null;
+
+      /* Auth State */
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const fullName = `${data.F_Name || ""} ${data.L_Name || ""}`.trim();
+            userIcon.href = "profile.Se2.html";
+            userIcon.title = fullName || "Profile";
+
+            const customerID = data.Customer_ID;
+            fetchMyOrders(customerID);
+          }
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          logoutBtn.style.display = "inline-block";
+          logoutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.href = "login.Se2.html";
+          };
+        } else {
+          /* Not logged in >> redirect */
+          window.location.href = "login.Se2.html";
+        }
+      });
+
+      /* Fetch Order for currently logged user */
+      async function fetchMyOrders(uid) {
+        showLoading(true);
+        try {
+          const q = query(
+            collection(db, "orders"),
+            where("Customer_ID", "==", uid),
+          );
+          const snap = await getDocs(q);
+          allOrders = [];
+
+          const orderList = [];
+          snap.forEach((d) =>
+            orderList.push({ firestoreId: d.id, ...d.data() }),
+          );
+
+          /* Fetch subcollection items for each order*/
+          await Promise.all(
+            orderList.map(async (o) => {
+              if (!o.item) {
+                try {
+                  const itemsSnap = await getDocs(
+                    collection(db, "orders", o.firestoreId, "items"),
+                  );
+                  let names = [];
+                  let qty = 0;
+                  itemsSnap.forEach((d) => {
+                    const item = d.data();
+                    names.push(item.P_Name || item.name || "Item");
+                    qty += item.quantity || 0;
+                  });
+                  o._itemNames = names.join(", ") || "—";
+                  o._totalQty = qty || "—";
+                } catch (e) {
+                  o._itemNames = "—";
+                  o._totalQty = "—";
+                }
+              }
+              allOrders.push(o);
+            }),
+          );
+
+          visibleOrders = [...allOrders];
+          renderTable();
+        } catch (err) {
+          console.error(err);
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      function showLoading(state) {
+        document.getElementById("loadingState").style.display = state
+          ? ""
+          : "none";
+        document.getElementById("ordersTableWrap").style.display = state
+          ? "none"
+          : "";
+      }
+
+      /* Render Table */
+      function renderTable(data) {
+        const list = data ?? visibleOrders;
+        const tbody = document.getElementById("ordersBody");
+        tbody.innerHTML = "";
+
+        if (list.length === 0) {
+          tbody.innerHTML = `
+            <tr><td colspan="6">
+              <div class="state-box">
+                <i class="fas fa-clipboard-list"></i>
+                <p>No orders found. <a href="products.Se2.html">Start shopping!</a></p>
+              </div>
+            </td></tr>`;
+          document.getElementById("tableFooter").textContent = "0 orders";
+          return;
+        }
+
+        list.forEach((o) => {
+          const isCancellable = (o.status || "").toUpperCase() === "PROCESSING";
+          const cancelBtn = isCancellable
+            ? `<button class="btn-cancel-order" onclick="event.stopPropagation(); confirmCancel('${o.firestoreId}')">
+                <i class="fas fa-times"></i> Cancel
+              </button>`
+            : `<button class="btn-cancel-order" disabled style="opacity:0.4;cursor:not-allowed;">
+                <i class="fas fa-ban"></i> ${(o.status || "").toUpperCase() === "CANCEL" ? "Cancelled" : "N/A"}
+              </button>`;
+
+          tbody.innerHTML += `
+          <tr onclick="openDetailModal('${o.firestoreId}')">
+            <td class="order-id-cell">${o.Order_ID ?? o.orderId ?? o.firestoreId}</td>
+            <td>${o.date?.toDate ? o.date.toDate().toLocaleDateString() : (o.date ?? "—")}</td>
+            <td>${o._itemNames ?? o.item ?? "—"}</td>
+            <td>${o._totalQty ?? o.qty ?? "—"}</td>
+            <td>₱${o.total ?? "0"}.00</td>
+            <td>${badgeHtml(o.status)}</td>
+            <td>${cancelBtn}</td>
+          </tr>`;
+        });
+
+        document.getElementById("tableFooter").textContent =
+          list.length + (list.length === 1 ? " order" : " orders");
+      }
+
+      function badgeHtml(status) {
+        const s = (status || "").toUpperCase();
+        const cls =
+          s === "PROCESSING"
+            ? "badge-processing"
+            : s === "COMPLETE"
+              ? "badge-complete"
+              : "badge-cancel";
+        return `<span class="${cls}">${s}</span>`;
+      }
+
+      /* Search */
+      window.filterOrders = function () {
+        const q = document
+          .getElementById("searchInput")
+          .value.toLowerCase()
+          .trim();
+        if (!q) {
+          visibleOrders = [...allOrders];
+          renderTable();
+          return;
+        }
+        visibleOrders = allOrders.filter((o) => {
+          const dateStr = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString()
+            : (o.date ?? "");
+          return (
+            (o.Order_ID && o.Order_ID.toLowerCase().includes(q)) ||
+            (o.firestoreId && o.firestoreId.toLowerCase().includes(q)) ||
+            (dateStr && dateStr.toLowerCase().includes(q)) ||
+            (o._itemNames && o._itemNames.toLowerCase().includes(q)) ||
+            (o.item && o.item.toLowerCase().includes(q)) ||
+            (o.status && o.status.toLowerCase().includes(q)) ||
+            (o.total && o.total.toString().includes(q))
+          );
+        });
+        renderTable(visibleOrders);
+      };
+
+      /* Order Detail Modal */
+      window.openDetailModal = function (firestoreId) {
+        const o = allOrders.find((x) => x.firestoreId === firestoreId);
+        if (!o) return;
+        document.getElementById("dOrderId").textContent =
+          o.Order_ID ?? o.orderId ?? o.firestoreId;
+        document.getElementById("dOrderDate").textContent = o.date?.toDate
+          ? o.date.toDate().toLocaleDateString()
+          : o.date || "—";
+        document.getElementById("dItemName").textContent =
+          o._itemNames ?? o.item ?? "—";
+        document.getElementById("dQty").textContent =
+          o._totalQty ?? o.qty ?? "—";
+        document.getElementById("dTotal").textContent =
+          "₱" + (o.total ?? "0") + ".00";
+        document.getElementById("dStatusBadge").innerHTML = badgeHtml(o.status);
+        new bootstrap.Modal(document.getElementById("orderDetailModal")).show();
+      };
+
+      window.confirmCancel = function (firestoreId) {
+        const o = allOrders.find((x) => x.firestoreId === firestoreId);
+        if (!o) return;
+        pendingCancelId = firestoreId;
+        document.getElementById("cancelOrderRef").textContent =
+          o.orderId ?? o.id ?? o.firestoreId;
+        document.getElementById("cancelItemRef").textContent =
+          o._itemNames ?? o.item ?? "—";
+        new bootstrap.Modal(
+          document.getElementById("cancelConfirmModal"),
+        ).show();
+      };
+
+      window.executeCancel = async function () {
+        if (!pendingCancelId) return;
+        const btnConfirm = document.getElementById("btnConfirmCancel");
+        btnConfirm.disabled = true;
+        btnConfirm.textContent = "Cancelling…";
+        try {
+          await updateDoc(doc(db, "orders", pendingCancelId), {
+            status: "CANCEL",
+          });
+          const order = allOrders.find(
+            (x) => x.firestoreId === pendingCancelId,
+          );
+          if (order) order.status = "CANCEL";
+          visibleOrders = visibleOrders.map((o) =>
+            o.firestoreId === pendingCancelId ? { ...o, status: "CANCEL" } : o,
+          );
+          renderTable();
+          bootstrap.Modal.getInstance(
+            document.getElementById("cancelConfirmModal"),
+          ).hide();
+        } catch (err) {
+          console.error("Failed to cancel order:", err);
+          alert("Something went wrong. Please try again.");
+        } finally {
+          btnConfirm.disabled = false;
+          btnConfirm.textContent = "Yes, Cancel Order";
+          pendingCancelId = null;
+        }
+      };
+
+      /* Filter Modal */
+      window.applyFilter = function () {
+        const name = document
+          .getElementById("fItemName")
+          .value.toLowerCase()
+          .trim();
+        const date = document.getElementById("fDate").value;
+        const qty = document.getElementById("fQty").value;
+        const status = document.getElementById("fStatus").value;
+
+        visibleOrders = allOrders.filter((o) => {
+          const itemStr = (o._itemNames ?? o.item ?? "").toLowerCase();
+          const dateStr = o.date?.toDate
+            ? o.date.toDate().toLocaleDateString("en-CA")
+            : (o.date ?? "");
+          const statusStr = (o.status ?? "").toUpperCase();
+
+          return (
+            (!name || itemStr.includes(name)) &&
+            (!date || dateStr === date) &&
+            (!qty || (o._totalQty ?? o.qty ?? "").toString() === qty) &&
+            (!status || statusStr === status.toUpperCase())
+          );
+        });
+
+        renderTable();
+        bootstrap.Modal.getInstance(
+          document.getElementById("filterModal"),
+        ).hide();
+      };
+
+      window.resetFilter = function () {
+        document.getElementById("fItemName").value = "";
+        document.getElementById("fDate").value = "";
+        document.getElementById("fQty").value = "";
+        document.getElementById("fStatus").value = "";
+        document.getElementById("searchInput").value = "";
+        visibleOrders = [...allOrders];
+        renderTable();
+        bootstrap.Modal.getInstance(
+          document.getElementById("filterModal"),
+        ).hide();
+      };
+
+      window.refreshOrders = async function () {
+        document.getElementById("searchInput").value = "";
+        const user = auth.currentUser;
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          if (docSnap.exists()) {
+            fetchMyOrders(docSnap.data().Customer_ID);
+          }
+        }
+      };
+    </script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/Logo - Black.png" alt="The Barkery" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div
+          class="collapse navbar-collapse justify-content-center"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.Se2.html">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="products.Se2.html">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="feedback.Se2.html">Feedback</a>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-actions">
+          <button
+            class="btn-help"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+            title="Need help?"
+          >
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+          </a>
+          <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+            <i class="fas fa-user-circle"></i>
+          </a>
+          <button
+            id="logoutBtn"
+            class="nav-icon"
+            title="Logout"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <section class="page-hero">
+      <div class="hero-content-center" style="padding: 2rem">
+        <h1>MY ORDERS</h1>
+        <p>Track and view your order history</p>
+      </div>
+    </section>
+
+    <!-- Order Section -->
+    <section class="orders-page-section">
+      <div class="orders-page-container">
+        <!-- Toolbar -->
+        <div class="orders-toolbar">
+          <input
+            type="text"
+            id="searchInput"
+            class="orders-search"
+            placeholder="Search orders…"
+            oninput="filterOrders()"
+          />
+          <button
+            class="toolbar-btn"
+            data-bs-toggle="modal"
+            data-bs-target="#filterModal"
+          >
+            <i class="fas fa-sliders-h"></i> Filter
+          </button>
+          <button class="toolbar-btn" onclick="refreshOrders()">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Loading state -->
+        <div id="loadingState" class="orders-table-wrap">
+          <div class="state-box">
+            <div class="spinner"></div>
+            <p>Loading your orders…</p>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div
+          id="ordersTableWrap"
+          class="orders-table-wrap"
+          style="display: none"
+        >
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+          <div class="orders-table-footer" id="tableFooter"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+        </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
+    </footer>
+
+    <!-- Order Detail Modal -->
+    <div
+      class="modal fade order-detail-modal"
+      id="orderDetailModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Order Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-row">
+              <span class="detail-label">Order ID</span>
+              <span class="detail-value" id="dOrderId"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Order Date</span>
+              <span class="detail-value" id="dOrderDate"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Item</span>
+              <span class="detail-value" id="dItemName"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Quantity</span>
+              <span class="detail-value" id="dQty"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Total</span>
+              <span class="detail-value" id="dTotal"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Status</span>
+              <span class="detail-value" id="dStatusBadge"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Modal -->
+    <div class="modal fade" id="filterModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content filter-modal-content">
+          <div class="modal-header filter-modal-header">
+            <h5 class="modal-title">Filter Orders</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" style="padding: 1.5rem">
+            <div class="form-group mb-3">
+              <div class="floating-input">
+                <input id="fItemName" placeholder=" " class="form-control" />
+                <label for="fItemName">Item Name</label>
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <div class="floating-input">
+                <input
+                  id="fDate"
+                  type="date"
+                  placeholder=" "
+                  class="form-control"
+                />
+                <label for="fDate">Order Date</label>
+              </div>
+            </div>
+            <div class="form-group mb-3">
+              <div class="floating-input">
+                <input
+                  id="fQty"
+                  type="number"
+                  placeholder=" "
+                  class="form-control"
+                />
+                <label for="fQty">Quantity</label>
+              </div>
+            </div>
+            <div class="form-group mb-4">
+              <select
+                id="fStatus"
+                class="form-select"
+                style="
+                  font-family: var(--font-body);
+                  border: 2px solid #e0e0e0;
+                  border-radius: 8px;
+                "
+              >
+                <option value="">All Statuses</option>
+                <option value="PROCESSING">PROCESSING</option>
+                <option value="COMPLETE">COMPLETE</option>
+                <option value="CANCEL">CANCEL</option>
+              </select>
+            </div>
+            <div class="d-flex gap-2">
+              <button
+                class="btn-modal-no w-50"
+                style="
+                  border-radius: 25px;
+                  padding: 0.75rem;
+                  border: none;
+                  background: #e0e0e0;
+                  color: var(--dark-brown);
+                  font-family: var(--font-body);
+                  font-weight: 600;
+                  cursor: pointer;
+                "
+                onclick="resetFilter()"
+              >
+                Reset
+              </button>
+              <button
+                class="btn-modal-yes w-50"
+                style="
+                  border-radius: 25px;
+                  padding: 0.75rem;
+                  border: none;
+                  background: var(--dark-brown);
+                  color: white;
+                  font-family: var(--font-body);
+                  font-weight: 600;
+                  cursor: pointer;
+                "
+                onclick="applyFilter()"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Need Help?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Quick Guide:</h6>
+            <ul>
+              <li>
+                <strong>My Orders:</strong> View all past and current orders
+                here
+              </li>
+              <li>
+                <strong>Status:</strong> PROCESSING = being prepared, COMPLETE =
+                delivered, CANCEL = cancelled
+              </li>
+              <li>
+                <strong>Search:</strong> Search by order ID, item name, date, or
+                status
+              </li>
+              <li>
+                <strong>Questions?</strong> Contact us at hello@barkery.ph
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="cancelConfirmModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div
+            class="modal-header"
+            style="
+              background: #fee2e2;
+              border-bottom: none;
+              border-radius: 15px 15px 0 0;
+            "
+          >
+            <h5
+              class="modal-title"
+              style="
+                color: #dc2626;
+                font-family: var(--font-bold);
+                font-weight: 400;
+              "
+            >
+              <i class="fas fa-exclamation-triangle me-2"></i>Cancel Order
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div
+            class="modal-body"
+            style="padding: 1.5rem; font-family: var(--font-body)"
+          >
+            <p>
+              Are you sure you want to cancel order
+              <strong id="cancelOrderRef"></strong>?
+            </p>
+            <p style="color: #6b7280; font-size: 0.875rem">
+              <strong>Item:</strong> <span id="cancelItemRef"></span>
+            </p>
+            <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.75rem">
+              <i class="fas fa-info-circle me-1"></i>This action cannot be
+              undone.
+            </p>
+          </div>
+          <div class="modal-footer" style="gap: 0.75rem">
+            <button
+              type="button"
+              data-bs-dismiss="modal"
+              style="
+                flex: 1;
+                border-radius: 25px;
+                padding: 0.75rem;
+                border: 2px solid #e0e0e0;
+                background: white;
+                color: var(--dark-brown);
+                font-family: var(--font-body);
+                font-weight: 600;
+                cursor: pointer;
+              "
+            >
+              Keep Order
+            </button>
+            <button
+              id="btnConfirmCancel"
+              type="button"
+              onclick="executeCancel()"
+              style="
+                flex: 1;
+                border-radius: 25px;
+                padding: 0.75rem;
+                border: none;
+                background: #dc2626;
+                color: white;
+                font-family: var(--font-body);
+                font-weight: 600;
+                cursor: pointer;
+              "
+            >
+              <i class="fas fa-times me-1"></i> Yes, Cancel Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

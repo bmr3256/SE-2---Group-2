@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cart Selection - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.Se2.css" rel="stylesheet" />
+    <style>
+      /* ── Cart FAQ Modal ── */
+      .cart-faq-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--button-tan);
+        color: white;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 400;
+        transition:
+          background 0.2s,
+          transform 0.2s;
+      }
+      .cart-faq-btn:hover {
+        background: #b39870;
+        transform: scale(1.08);
+      }
+
+      .cart-faq-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 450;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+      }
+      .cart-faq-modal-overlay.show {
+        display: flex;
+      }
+
+      .cart-faq-modal {
+        background: var(--cream, #fbf6ee);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 560px;
+        max-height: 82vh;
+        overflow-y: auto;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cart-faq-modal-header {
+        background: var(--primary-tan, #e3d2b8);
+        padding: 1.1rem 1.5rem;
+        border-radius: 16px 16px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+
+      .cart-faq-modal-header h5 {
+        font-family: "Bayon", sans-serif;
+        font-size: 1.05rem;
+        color: var(--dark-brown, #1e1e1e);
+        margin: 0;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .cart-faq-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: var(--text-gray, #6b6b6b);
+        cursor: pointer;
+        line-height: 1;
+        padding: 0.2rem;
+        transition: color 0.2s;
+      }
+      .cart-faq-modal-close:hover {
+        color: var(--dark-brown, #1e1e1e);
+      }
+
+      .cart-faq-body {
+        padding: 1.25rem 1.5rem 1.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      /* Accordion items */
+      .faq-acc-item {
+        border-bottom: 1px solid rgba(227, 210, 184, 0.8);
+      }
+      .faq-acc-item:last-child {
+        border-bottom: none;
+      }
+
+      .faq-acc-question {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 0.95rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-family: "Be Vietnam Pro", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--dark-brown, #1e1e1e);
+        transition: color 0.2s;
+      }
+      .faq-acc-question:hover {
+        color: var(--orange, #c48a3a);
+      }
+
+      .faq-acc-question i {
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        color: var(--button-tan, #c9a876);
+        transition: transform 0.3s;
+      }
+      .faq-acc-question.open i {
+        transform: rotate(180deg);
+      }
+
+      .faq-acc-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.35s ease,
+          padding 0.25s;
+        font-family: "Be Vietnam Pro", sans-serif;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        color: var(--text-gray, #6b6b6b);
+        padding: 0;
+      }
+      .faq-acc-answer.open {
+        max-height: 500px;
+        padding-bottom: 0.9rem;
+      }
+
+      /* Loading skeleton inside FAQ modal */
+      .faq-skeleton {
+        height: 14px;
+        border-radius: 6px;
+        background: linear-gradient(
+          90deg,
+          #f0e8da 25%,
+          #faf7f2 50%,
+          #f0e8da 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+        margin-bottom: 8px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div
+          class="collapse navbar-collapse justify-content-center"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.Se2.html">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="products.Se2.html">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="feedback.Se2.html">Feedback</a>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-actions">
+          <button
+            class="btn-help"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+            title="Need help?"
+          >
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+          </a>
+          <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up">
+            <i class="fas fa-user-circle"></i>
+          </a>
+          <button
+            id="logoutBtn"
+            class="nav-icon"
+            title="Logout"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Cart Page Hero -->
+    <section class="page-hero">
+      <div class="hero-content-center">
+        <h1>CART SELECTION</h1>
+      </div>
+    </section>
+
+    <!-- Cart Content -->
+    <section class="cart-page-section">
+      <div class="cart-page-container">
+        <div class="cart-layout">
+          <!-- Left Side / Order Form -->
+          <div class="cart-form-section">
+            <h2>ORDER CONFIRMATION</h2>
+            <form id="orderForm">
+              <div class="form-group">
+                <div class="floating-input">
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder=" "
+                    required
+                  />
+                  <label for="email"
+                    >Email Address <span class="required">*</span></label
+                  >
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="floating-input">
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      placeholder=" "
+                      required
+                    />
+                    <label for="firstName"
+                      >First Name <span class="required">*</span></label
+                    >
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="floating-input">
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      placeholder=" "
+                      required
+                    />
+                    <label for="lastName"
+                      >Last Name <span class="required">*</span></label
+                    >
+                  </div>
+                </div>
+              </div>
+              <h3 class="section-subtitle">SHIPPING ADDRESS</h3>
+              <div class="form-group">
+                <div class="floating-input">
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    placeholder=" "
+                    required
+                  />
+                  <label for="address"
+                    >Address <span class="required">*</span></label
+                  >
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <div class="floating-input">
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      placeholder=" "
+                      required
+                    />
+                    <label for="city"
+                      >City <span class="required">*</span></label
+                    >
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="floating-input">
+                    <input
+                      type="text"
+                      id="zipCode"
+                      name="zipCode"
+                      placeholder=" "
+                      required
+                    />
+                    <label for="zipCode"
+                      >ZIP Code <span class="required">*</span></label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="floating-input">
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    placeholder=" "
+                    required
+                  />
+                  <label for="phone"
+                    >Phone <span class="required">*</span></label
+                  >
+                </div>
+              </div>
+              <h3 class="section-subtitle">MODE OF PAYMENT</h3>
+              <div class="payment-option">
+                <input
+                  type="radio"
+                  id="cashOnDelivery"
+                  name="payment"
+                  value="cod"
+                  checked
+                />
+                <label for="cashOnDelivery">Cash on Delivery</label>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right Side / Order Summary -->
+          <div class="order-summary-section">
+            <div class="order-summary-box">
+              <h3>Order Summary</h3>
+              <button
+                type="button"
+                class="btn-place-order"
+                onclick="showConfirmationModal()"
+              >
+                Place Order
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+        </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
+    </footer>
+
+    <!-- ══ FLOATING FAQ BUTTON ══ -->
+    <button class="cart-faq-btn" onclick="openCartFaq()" title="Cart FAQ">
+      <i class="fas fa-question"></i>
+    </button>
+
+    <!-- ══ CART FAQ MODAL ══ -->
+    <div class="cart-faq-modal-overlay" id="cartFaqOverlay">
+      <div
+        class="cart-faq-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Cart FAQ"
+      >
+        <div class="cart-faq-modal-header">
+          <h5><i class="fas fa-info-circle"></i> Cart Help &amp; FAQ</h5>
+          <button
+            class="cart-faq-modal-close"
+            onclick="closeCartFaq()"
+            aria-label="Close"
+          >
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="cart-faq-body" id="cartFaqBody">
+          <!-- filled by JS -->
+          <div
+            class="faq-skeleton"
+            style="width: 70%; height: 16px; margin: 1rem 0 0.5rem"
+          ></div>
+          <div class="faq-skeleton" style="width: 90%"></div>
+          <div
+            class="faq-skeleton"
+            style="width: 80%; margin-top: 1.2rem; height: 16px"
+          ></div>
+          <div class="faq-skeleton" style="width: 95%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div
+      class="modal fade"
+      id="confirmOrderModal"
+      tabindex="-1"
+      data-bs-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cart-modal">
+          <div class="modal-body text-center">
+            <h4 class="warning-title">WARNING!</h4>
+            <p class="warning-message">
+              After this order is processed, it can no longer be cancelled.
+              Would you like to proceed?
+            </p>
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-no"
+                data-bs-dismiss="modal"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                class="btn-modal-yes"
+                onclick="processOrder()"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Need Help?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Quick Guide:</h6>
+            <ul>
+              <li>
+                <strong>Cart:</strong> Review your items and proceed to checkout
+              </li>
+              <li><strong>Shipping:</strong> Standard shipping is ₱50</li>
+              <li>
+                <strong>Payment:</strong> Currently accepting Cash on Delivery
+              </li>
+              <li>
+                <strong>Questions?</strong> Contact us at hello@barkery.ph
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div
+      id="successToast"
+      class="toast align-items-center text-bg-success border-0"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      style="
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        display: none;
+        z-index: 1055;
+      "
+    >
+      <div class="d-flex">
+        <div class="toast-body">
+          Order placed successfully! We will contact you with shipping details.
+        </div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 m-auto"
+          onclick="
+            document.getElementById('successToast').style.display = 'none'
+          "
+        ></button>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ══ CART FAQ LOGIC ══ -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      /* Default FAQs shown if Firebase returns nothing */
+      const DEFAULT_FAQS = [
+        {
+          title: "How do I know if my order was successful?",
+          contents: [
+            'After clicking "Place Order" and confirming the prompt, your order will appear in the My Orders tab with a unique Order ID. You will also see a real-time status update (e.g., "Pending" or "Processing").',
+          ],
+        },
+        {
+          title: "Can I cancel my order after confirming?",
+          contents: [
+            "As noted in the final checkout warning, once an order is processed, it can no longer be canceled. This ensures our bakers can start preparing your fresh treats immediately. Please review your cart carefully before the final click!",
+          ],
+        },
+        {
+          title: "What payment methods are accepted?",
+          contents: [
+            "Currently, we support Cash on Delivery (COD) for all orders within our service area. Please ensure someone is available at the provided shipping address to receive the delivery.",
+          ],
+        },
+        {
+          title: "How can I track my order history?",
+          contents: [
+            "You can view all past and current transactions by navigating to My Profile > My Orders. Here, you can see the item list, quantity, and total price for every purchase.",
+          ],
+        },
+      ];
+
+      let faqsLoaded = false;
+
+      async function loadCartFaqs() {
+        if (faqsLoaded) return;
+        const body = document.getElementById("cartFaqBody");
+
+        try {
+          const snap = await getDoc(doc(db, "managecon", "cart_faqs"));
+          const fields =
+            snap.exists() && snap.data().fields && snap.data().fields.length
+              ? snap.data().fields
+              : DEFAULT_FAQS;
+          renderCartFaqs(fields, body);
+        } catch {
+          renderCartFaqs(DEFAULT_FAQS, body);
+        }
+
+        faqsLoaded = true;
+      }
+
+      function renderCartFaqs(fields, body) {
+        body.innerHTML = "";
+        fields.forEach((faq, i) => {
+          const answer = (faq.contents || [])
+            .filter((c) => c.trim())
+            .join("\n\n");
+          const item = document.createElement("div");
+          item.className = "faq-acc-item";
+          item.innerHTML = `
+            <button class="faq-acc-question" aria-expanded="false" data-idx="${i}">
+              <span>${faq.title}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-acc-answer" id="faq-ans-${i}">${answer.replace(/\n/g, "<br>")}</div>
+          `;
+          body.appendChild(item);
+
+          item
+            .querySelector(".faq-acc-question")
+            .addEventListener("click", function () {
+              const ansEl = document.getElementById(`faq-ans-${i}`);
+              const isOpen = ansEl.classList.contains("open");
+
+              // Close all
+              body
+                .querySelectorAll(".faq-acc-answer")
+                .forEach((a) => a.classList.remove("open"));
+              body.querySelectorAll(".faq-acc-question").forEach((q) => {
+                q.classList.remove("open");
+                q.setAttribute("aria-expanded", "false");
+              });
+
+              if (!isOpen) {
+                ansEl.classList.add("open");
+                this.classList.add("open");
+                this.setAttribute("aria-expanded", "true");
+              }
+            });
+        });
+      }
+
+      window.openCartFaq = async function () {
+        document.getElementById("cartFaqOverlay").classList.add("show");
+        await loadCartFaqs();
+      };
+
+      window.closeCartFaq = function () {
+        document.getElementById("cartFaqOverlay").classList.remove("show");
+      };
+
+      // Close on backdrop click
+      document
+        .getElementById("cartFaqOverlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) window.closeCartFaq();
+        });
+    </script>
+
+    <!-- ══ ORDER / AUTH LOGIC ══ -->
+    <script>
+      function showConfirmationModal() {
+        const form = document.getElementById("orderForm");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        new bootstrap.Modal(
+          document.getElementById("confirmOrderModal"),
+        ).show();
+      }
+      function processOrder() {
+        bootstrap.Modal.getInstance(
+          document.getElementById("confirmOrderModal"),
+        ).hide();
+        setTimeout(() => window.saveOrder(), 300);
+      }
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        deleteDoc,
+        setDoc,
+        addDoc,
+        updateDoc,
+        query,
+        where,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      async function loadCart(user) {
+        const snapshot = await getDocs(
+          collection(db, "carts", user.uid, "items"),
+        );
+        const summaryBox = document.querySelector(".order-summary-box");
+
+        if (snapshot.empty) {
+          summaryBox.innerHTML = `
+            <h3>Order Summary</h3>
+            <p>Your cart is empty.</p>
+            <a href="products.Se2.html" class="btn-place-order" style="text-align:center;display:block;">Shop Now</a>
+          `;
+          document
+            .querySelectorAll(".cart-badge")
+            .forEach((b) => (b.textContent = 0));
+          return;
+        }
+
+        let itemsHTML = "",
+          total = 0;
+        snapshot.forEach((d) => {
+          const item = d.data();
+          const subtotal = item.price * item.quantity;
+          total += subtotal;
+          itemsHTML += `
+            <div class="cart-item" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <img src="${item.img}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+              <div style="flex:1"><strong>${item.name}</strong><br>₱${item.price} x ${item.quantity} = ₱${subtotal}</div>
+              <div style="display:flex;align-items:center;gap:5px;">
+                <button onclick="changeQty('${item.name}',${item.quantity},${item.price},'${item.img}',-1)" style="border:none;background:#eee;padding:2px 8px;cursor:pointer;border-radius:4px;">−</button>
+                <span>${item.quantity}</span>
+                <button onclick="changeQty('${item.name}',${item.quantity},${item.price},'${item.img}',1)" style="border:none;background:#eee;padding:2px 8px;cursor:pointer;border-radius:4px;">+</button>
+                <button onclick="removeItem('${item.name}')" style="border:none;background:none;color:red;cursor:pointer;margin-left:5px;"><i class="fas fa-trash"></i></button>
+              </div>
+            </div>
+          `;
+        });
+
+        const shipping = 50;
+        summaryBox.innerHTML = `
+          <h3>Order Summary</h3>
+          ${itemsHTML}
+          <hr>
+          <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>₱${total}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Shipping</span><span>₱${shipping}</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:bold;margin-top:8px;"><span>Total</span><span id="totalAmount">₱${total + shipping}</span></div>
+          <button type="button" class="btn-place-order" style="margin-top:16px;width:100%;" onclick="showConfirmationModal()">Place Order</button>
+        `;
+
+        let totalQty = 0;
+        snapshot.forEach((d) => (totalQty += d.data().quantity || 1));
+        document
+          .querySelectorAll(".cart-badge")
+          .forEach((b) => (b.textContent = totalQty));
+      }
+
+      window.changeQty = async function (name, currentQty, price, img, delta) {
+        const user = auth.currentUser;
+        const itemRef = doc(db, "carts", user.uid, "items", name);
+        const newQty = currentQty + delta;
+        if (newQty <= 0) await deleteDoc(itemRef);
+        else
+          await setDoc(itemRef, {
+            name,
+            price,
+            img,
+            quantity: newQty,
+            updatedAt: serverTimestamp(),
+          });
+        loadCart(user);
+      };
+
+      window.removeItem = async function (name) {
+        const user = auth.currentUser;
+        await deleteDoc(doc(db, "carts", user.uid, "items", name));
+        loadCart(user);
+      };
+
+      window.saveOrder = async function () {
+        const user = auth.currentUser;
+        if (!user) return;
+        const email = document.getElementById("email").value;
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const address = document.getElementById("address").value;
+        const city = document.getElementById("city").value;
+        const zipCode = document.getElementById("zipCode").value;
+        const phone = document.getElementById("phone").value;
+
+        const snapshot = await getDocs(
+          collection(db, "carts", user.uid, "items"),
+        );
+        const items = [];
+        let subtotal = 0;
+        snapshot.forEach((d) => {
+          const item = d.data();
+          items.push({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            img: item.img,
+          });
+          subtotal += item.price * item.quantity;
+        });
+
+        const shipping = 50,
+          total = subtotal + shipping;
+
+        try {
+          const Order_ID =
+            "ORD-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+          const accountSnap = await getDoc(doc(db, "accounts", user.uid));
+          const customerID = accountSnap.exists()
+            ? accountSnap.data().Customer_ID
+            : user.uid;
+
+          const orderRef = await addDoc(collection(db, "orders"), {
+            Order_ID,
+            Customer_ID: customerID,
+            email,
+            firstName,
+            lastName,
+            address,
+            city,
+            zipCode,
+            phone,
+            subtotal,
+            shipping,
+            total,
+            status: "PROCESSING",
+            payment: "Cash on Delivery",
+            date: serverTimestamp(),
+          });
+
+          const itemPromises = items.map(async (item) => {
+            const productQuery = await getDocs(
+              query(
+                collection(db, "products"),
+                where("P_Name", "==", item.name),
+              ),
+            );
+            let productId = "UNKNOWN";
+            productQuery.forEach((d) => {
+              productId = d.data().Product_ID || d.id;
+            });
+            const orderItemId =
+              "ITEM-" +
+              Math.random().toString(36).substring(2, 8).toUpperCase();
+            await addDoc(collection(db, "orders", orderRef.id, "items"), {
+              OrderItem_ID: orderItemId,
+              Order_ID,
+              Product_ID: productId,
+              P_Name: item.name,
+              quantity: item.quantity,
+              Price_at_Order: item.price,
+              Total: item.price * item.quantity,
+            });
+          });
+          await Promise.all(itemPromises);
+
+          const deletePromises = [],
+            stockPromises = [];
+          snapshot.forEach((d) => {
+            const item = d.data();
+            deletePromises.push(
+              deleteDoc(doc(db, "carts", user.uid, "items", d.id)),
+            );
+            stockPromises.push(
+              (async () => {
+                const productQuery = await getDocs(
+                  query(
+                    collection(db, "products"),
+                    where("P_Name", "==", item.name),
+                  ),
+                );
+                const updatePromises = [];
+                productQuery.forEach((productDoc) => {
+                  const newStock = Math.max(
+                    0,
+                    (productDoc.data().P_Stock ?? 0) - item.quantity,
+                  );
+                  updatePromises.push(
+                    updateDoc(doc(db, "products", productDoc.id), {
+                      P_Stock: newStock,
+                    }),
+                  );
+                });
+                await Promise.all(updatePromises);
+              })(),
+            );
+          });
+          await Promise.all([...deletePromises, ...stockPromises]);
+
+          document.getElementById("successToast").style.display = "block";
+          setTimeout(() => (window.location.href = "index.html"), 3000);
+        } catch (err) {
+          console.error("Error saving order:", err);
+          alert("Failed to place order. Please try again.");
+        }
+      };
+
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (user) {
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            document.getElementById("email").value = data.email || "";
+            document.getElementById("firstName").value = data.fname || "";
+            document.getElementById("lastName").value = data.lname || "";
+            userIcon.href = "profile.Se2.html";
+            userIcon.title = `${data.F_Name} ${data.L_Name}`;
+          }
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          logoutBtn.style.display = "inline-block";
+          logoutBtn.onclick = async () => {
+            await signOut(auth);
+            window.location.href = "login.Se2.html";
+          };
+          loadCart(user);
+        } else {
+          window.location.href = "login.Se2.html";
+          logoutBtn.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

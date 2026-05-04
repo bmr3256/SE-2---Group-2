@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="style.Se2.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+        updateDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      /* Auth State */
+      onAuthStateChanged(auth, async (user) => {
+        const userIcon = document.querySelector(
+          '.navbar-actions a[href="login.Se2.html"]',
+        );
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        if (user) {
+          userIcon.querySelector("i").className = "fas fa-user-check";
+          userIcon.href = "profile.Se2.html";
+          userIcon.title = "My Profile";
+          logoutBtn.style.display = "inline-block";
+
+          /* Fetch from accounts collection */
+          const docSnap = await getDoc(doc(db, "accounts", user.uid));
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const fullName = `${data.F_Name || ""} ${data.L_Name || ""}`.trim();
+
+            /* Avatar Initials */
+            const initials = (
+              (data.F_Name?.[0] || "") + (data.L_Name?.[0] || "")
+            ).toUpperCase();
+            document.getElementById("avatarInitials").textContent =
+              initials || "?";
+
+            /* Header Card */
+            document.getElementById("profileName").textContent =
+              fullName || "—";
+            document.getElementById("profileEmail").textContent =
+              data.email || user.email || "—";
+
+            /* Info Rows */
+            document.getElementById("infoFirstName").textContent =
+              data.F_Name || "—";
+            document.getElementById("infoLastName").textContent =
+              data.L_Name || "—";
+            document.getElementById("infoEmail").textContent =
+              data.email || user.email || "—";
+          } else {
+            /* Fallback to Auth data only */
+            document.getElementById("avatarInitials").textContent = "?";
+            document.getElementById("profileName").textContent =
+              user.displayName || "Customer";
+            document.getElementById("profileEmail").textContent =
+              user.email || "—";
+            document.getElementById("infoEmail").textContent =
+              user.email || "—";
+          }
+
+          /* Logout handler (navbar button) */
+          logoutBtn.onclick = () => handleLogout();
+
+          /* Logout action card */
+          document.getElementById("logoutActionCard").onclick = () =>
+            handleLogout();
+        } else {
+          /* Not logged in >> redirect to login */
+          window.location.href = "login.Se2.html";
+        }
+      });
+
+      async function handleLogout() {
+        await signOut(auth);
+        window.location.href = "login.Se2.html";
+      }
+
+      /* Edit Profile Modal */
+      const editModal = document.getElementById("editProfileModal");
+
+      editModal.addEventListener("show.bs.modal", async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const docSnap = await getDoc(doc(db, "accounts", user.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          document.getElementById("editFname").value = data.F_Name || "";
+          document.getElementById("editLname").value = data.L_Name || "";
+        }
+      });
+
+      /* Save */
+      document.getElementById("saveProfileBtn").onclick = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const fname = document.getElementById("editFname").value;
+        const lname = document.getElementById("editLname").value;
+
+        await updateDoc(doc(db, "accounts", user.uid), {
+          F_Name: fname,
+          L_Name: lname,
+        });
+
+        location.reload();
+      };
+    </script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/Logo - Black.png" alt="The Barkery" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div
+          class="collapse navbar-collapse justify-content-center"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="about.Se2.html">About Us</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="products.Se2.html">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="feedback.Se2.html">Feedback</a>
+            </li>
+          </ul>
+        </div>
+        <div class="navbar-actions">
+          <button
+            class="btn-help"
+            data-bs-toggle="modal"
+            data-bs-target="#helpModal"
+            title="Need help?"
+          >
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge">0</span>
+          </a>
+          <a href="login.Se2.html" class="nav-icon" title="My Profile">
+            <i class="fas fa-user-circle"></i>
+          </a>
+          <button
+            id="logoutBtn"
+            class="nav-icon"
+            title="Logout"
+            style="
+              display: none;
+              background: none;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <section class="page-hero">
+      <div class="hero-content-center" style="padding: 2rem">
+        <h1>MY PROFILE</h1>
+        <p>Manage your account details</p>
+      </div>
+    </section>
+
+    <!-- Profile Content -->
+    <section class="profile-page-section">
+      <div class="profile-page-container">
+        <!-- Avatar Card -->
+        <div class="profile-avatar-card">
+          <div class="avatar-circle">
+            <span
+              id="avatarInitials"
+              style="font-family: var(--font-bold); font-size: 1.8rem"
+            >
+              <span
+                class="skeleton skeleton-name"
+                style="height: 40px; width: 40px; border-radius: 50%"
+              ></span>
+            </span>
+          </div>
+          <div class="profile-name" id="profileName">
+            <span class="skeleton skeleton-name"></span>
+          </div>
+          <div class="profile-email" id="profileEmail">
+            <span class="skeleton skeleton-email"></span>
+          </div>
+        </div>
+
+        <!-- Account Info Card -->
+        <div class="profile-info-card">
+          <div class="card-header-bar">
+            <h3>Account Information</h3>
+          </div>
+          <div class="info-row">
+            <span class="info-label">First Name</span>
+            <span class="info-value" id="infoFirstName">
+              <span class="skeleton skeleton-val"></span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Last Name</span>
+            <span class="info-value" id="infoLastName">
+              <span class="skeleton skeleton-val"></span>
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value" id="infoEmail">
+              <span class="skeleton skeleton-val"></span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Action Cards -->
+        <div class="profile-actions">
+          <!-- My Orders -->
+          <a href="MyOrd.Se2.html" class="action-card">
+            <div class="action-card-left">
+              <div class="action-icon orders">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+              <div class="action-card-text">
+                <strong>My Orders</strong>
+                <span>View your order history and status</span>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right action-chevron"></i>
+          </a>
+
+          <!-- Edit Profile -->
+          <button
+            class="action-card"
+            data-bs-toggle="modal"
+            data-bs-target="#editProfileModal"
+          >
+            <div class="action-card-left">
+              <div
+                class="action-icon"
+                style="background: #dbeafe; color: #1e40af"
+              >
+                <i class="fas fa-user-edit"></i>
+              </div>
+              <div class="action-card-text">
+                <strong>Edit Profile</strong>
+                <span>Update your account details</span>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right action-chevron"></i>
+          </button>
+
+          <!-- Logout -->
+          <button id="logoutActionCard" class="action-card logout-card">
+            <div class="action-card-left">
+              <div class="action-icon logout">
+                <i class="fas fa-sign-out-alt"></i>
+              </div>
+              <div class="action-card-text">
+                <strong>Log Out</strong>
+                <span>Sign out of your account</span>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right action-chevron"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <img src="images/B_logo_black.png" id="B_logo" alt="The Barkery B" />
+          <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+        </div>
+        <div class="footer-copyright">© 2025 The Barkery</div>
+        <div class="footer-location">Angeles City, Pampanga</div>
+      </div>
+    </footer>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Need Help?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <h6>Quick Guide:</h6>
+            <ul>
+              <li><strong>Profile:</strong> View your account details here</li>
+              <li>
+                <strong>My Orders:</strong> Track your order history and status
+              </li>
+              <li><strong>Log Out:</strong> Sign out of your account safely</li>
+              <li>
+                <strong>Questions?</strong> Contact us at hello@barkery.ph
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Profile</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="editProfileForm">
+              <div class="mb-3">
+                <label class="form-label">First Name</label>
+                <input type="text" id="editFname" class="form-control" />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <input type="text" id="editLname" class="form-control" />
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-primary" id="saveProfileBtn">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
