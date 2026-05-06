@@ -2,7 +2,7 @@
   // Run the check immediately — blocks rendering via async
   async function checkAdminAuth() {
     try {
-      const res = await fetch("admin-check.php", {
+      const res = await fetch("https://thebarkery.42web.io/admin-check.php", {
         method: "POST",
         credentials: "include", // sends the PHP session cookie
       });
