@@ -12,7 +12,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
     />
-    <link href="style.Se2.css" rel="stylesheet" />
+    <link href="style.css" rel="stylesheet" />
     <style>
       /* ── Cart FAQ Modal ── */
       .cart-faq-btn {
@@ -558,154 +558,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-    <!-- ══ CART FAQ LOGIC ══ -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-      import {
-        getFirestore,
-        doc,
-        getDoc,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
-        authDomain: "grp2-se.firebaseapp.com",
-        projectId: "grp2-se",
-        storageBucket: "grp2-se.firebasestorage.app",
-        messagingSenderId: "488325990404",
-        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
-        measurementId: "G-PDT5LV9JX1",
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-
-      /* Default FAQs shown if Firebase returns nothing */
-      const DEFAULT_FAQS = [
-        {
-          title: "How do I know if my order was successful?",
-          contents: [
-            'After clicking "Place Order" and confirming the prompt, your order will appear in the My Orders tab with a unique Order ID. You will also see a real-time status update (e.g., "Pending" or "Processing").',
-          ],
-        },
-        {
-          title: "Can I cancel my order after confirming?",
-          contents: [
-            "As noted in the final checkout warning, once an order is processed, it can no longer be canceled. This ensures our bakers can start preparing your fresh treats immediately. Please review your cart carefully before the final click!",
-          ],
-        },
-        {
-          title: "What payment methods are accepted?",
-          contents: [
-            "Currently, we support Cash on Delivery (COD) for all orders within our service area. Please ensure someone is available at the provided shipping address to receive the delivery.",
-          ],
-        },
-        {
-          title: "How can I track my order history?",
-          contents: [
-            "You can view all past and current transactions by navigating to My Profile > My Orders. Here, you can see the item list, quantity, and total price for every purchase.",
-          ],
-        },
-      ];
-
-      let faqsLoaded = false;
-
-      async function loadCartFaqs() {
-        if (faqsLoaded) return;
-        const body = document.getElementById("cartFaqBody");
-
-        try {
-          const snap = await getDoc(doc(db, "managecon", "cart_faqs"));
-          const fields =
-            snap.exists() && snap.data().fields && snap.data().fields.length
-              ? snap.data().fields
-              : DEFAULT_FAQS;
-          renderCartFaqs(fields, body);
-        } catch {
-          renderCartFaqs(DEFAULT_FAQS, body);
-        }
-
-        faqsLoaded = true;
-      }
-
-      function renderCartFaqs(fields, body) {
-        body.innerHTML = "";
-        fields.forEach((faq, i) => {
-          const answer = (faq.contents || [])
-            .filter((c) => c.trim())
-            .join("\n\n");
-          const item = document.createElement("div");
-          item.className = "faq-acc-item";
-          item.innerHTML = `
-            <button class="faq-acc-question" aria-expanded="false" data-idx="${i}">
-              <span>${faq.title}</span>
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="faq-acc-answer" id="faq-ans-${i}">${answer.replace(/\n/g, "<br>")}</div>
-          `;
-          body.appendChild(item);
-
-          item
-            .querySelector(".faq-acc-question")
-            .addEventListener("click", function () {
-              const ansEl = document.getElementById(`faq-ans-${i}`);
-              const isOpen = ansEl.classList.contains("open");
-
-              // Close all
-              body
-                .querySelectorAll(".faq-acc-answer")
-                .forEach((a) => a.classList.remove("open"));
-              body.querySelectorAll(".faq-acc-question").forEach((q) => {
-                q.classList.remove("open");
-                q.setAttribute("aria-expanded", "false");
-              });
-
-              if (!isOpen) {
-                ansEl.classList.add("open");
-                this.classList.add("open");
-                this.setAttribute("aria-expanded", "true");
-              }
-            });
-        });
-      }
-
-      window.openCartFaq = async function () {
-        document.getElementById("cartFaqOverlay").classList.add("show");
-        await loadCartFaqs();
-      };
-
-      window.closeCartFaq = function () {
-        document.getElementById("cartFaqOverlay").classList.remove("show");
-      };
-
-      // Close on backdrop click
-      document
-        .getElementById("cartFaqOverlay")
-        .addEventListener("click", function (e) {
-          if (e.target === this) window.closeCartFaq();
-        });
-    </script>
-
-    <!-- ══ ORDER / AUTH LOGIC ══ -->
-    <script>
-      function showConfirmationModal() {
-        const form = document.getElementById("orderForm");
-        if (!form.checkValidity()) {
-          form.reportValidity();
-          return;
-        }
-        new bootstrap.Modal(
-          document.getElementById("confirmOrderModal"),
-        ).show();
-      }
-      function processOrder() {
-        bootstrap.Modal.getInstance(
-          document.getElementById("confirmOrderModal"),
-        ).hide();
-        setTimeout(() => window.saveOrder(), 300);
-      }
-    </script>
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
       import {
@@ -728,6 +580,120 @@
         serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      // ── CART FAQ ──────────────────────────────────────────
+      const DEFAULT_FAQS = [
+        {
+          title: "How do I know if my order was successful?",
+          contents: [
+            'After clicking "Place Order" and confirming the prompt, your order will appear in the My Orders tab with a unique Order ID.',
+          ],
+        },
+        {
+          title: "Can I cancel my order after confirming?",
+          contents: [
+            "Once an order is processed, it can no longer be canceled. Please review your cart carefully before the final click!",
+          ],
+        },
+        {
+          title: "What payment methods are accepted?",
+          contents: [
+            "Currently, we support Cash on Delivery (COD) for all orders within our service area.",
+          ],
+        },
+        {
+          title: "How can I track my order history?",
+          contents: [
+            "Navigate to My Profile > My Orders to see all past and current transactions.",
+          ],
+        },
+      ];
+
+      let faqsLoaded = false;
+
+      async function loadCartFaqs() {
+        if (faqsLoaded) return;
+        const body = document.getElementById("cartFaqBody");
+        try {
+          const snap = await getDoc(doc(db, "managecon", "cart_faqs"));
+          const fields =
+            snap.exists() && snap.data().fields?.length
+              ? snap.data().fields
+              : DEFAULT_FAQS;
+          renderCartFaqs(fields, body);
+        } catch {
+          renderCartFaqs(DEFAULT_FAQS, body);
+        }
+        faqsLoaded = true;
+      }
+
+      function renderCartFaqs(fields, body) {
+        body.innerHTML = "";
+        fields.forEach((faq, i) => {
+          const answer = (faq.contents || [])
+            .filter((c) => c.trim())
+            .join("\n\n");
+          const item = document.createElement("div");
+          item.className = "faq-acc-item";
+          item.innerHTML = `
+        <button class="faq-acc-question" aria-expanded="false" data-idx="${i}">
+          <span>${faq.title}</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="faq-acc-answer" id="faq-ans-${i}">${answer.replace(/\n/g, "<br>")}</div>
+      `;
+          body.appendChild(item);
+
+          item
+            .querySelector(".faq-acc-question")
+            .addEventListener("click", function () {
+              const ansEl = document.getElementById(`faq-ans-${i}`);
+              const isOpen = ansEl.classList.contains("open");
+              body
+                .querySelectorAll(".faq-acc-answer")
+                .forEach((a) => a.classList.remove("open"));
+              body.querySelectorAll(".faq-acc-question").forEach((q) => {
+                q.classList.remove("open");
+                q.setAttribute("aria-expanded", "false");
+              });
+              if (!isOpen) {
+                ansEl.classList.add("open");
+                this.classList.add("open");
+                this.setAttribute("aria-expanded", "true");
+              }
+            });
+        });
+      }
+
+      window.openCartFaq = async function () {
+        document.getElementById("cartFaqOverlay").classList.add("show");
+        await loadCartFaqs();
+      };
+
+      window.closeCartFaq = function () {
+        document.getElementById("cartFaqOverlay").classList.remove("show");
+      };
+
+      document
+        .getElementById("cartFaqOverlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) window.closeCartFaq();
+        });
+
+      // ── CART LOADING ──────────────────────────────────────
       async function loadCart(user) {
         const snapshot = await getDocs(
           collection(db, "carts", user.uid, "items"),
@@ -736,10 +702,10 @@
 
         if (snapshot.empty) {
           summaryBox.innerHTML = `
-            <h3>Order Summary</h3>
-            <p>Your cart is empty.</p>
-            <a href="products.Se2.html" class="btn-place-order" style="text-align:center;display:block;">Shop Now</a>
-          `;
+        <h3>Order Summary</h3>
+        <p>Your cart is empty.</p>
+        <a href="products.Se2.html" class="btn-place-order" style="text-align:center;display:block;">Shop Now</a>
+      `;
           document
             .querySelectorAll(".cart-badge")
             .forEach((b) => (b.textContent = 0));
@@ -753,29 +719,29 @@
           const subtotal = item.price * item.quantity;
           total += subtotal;
           itemsHTML += `
-            <div class="cart-item" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-              <img src="${item.img}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
-              <div style="flex:1"><strong>${item.name}</strong><br>₱${item.price} x ${item.quantity} = ₱${subtotal}</div>
-              <div style="display:flex;align-items:center;gap:5px;">
-                <button onclick="changeQty('${item.name}',${item.quantity},${item.price},'${item.img}',-1)" style="border:none;background:#eee;padding:2px 8px;cursor:pointer;border-radius:4px;">−</button>
-                <span>${item.quantity}</span>
-                <button onclick="changeQty('${item.name}',${item.quantity},${item.price},'${item.img}',1)" style="border:none;background:#eee;padding:2px 8px;cursor:pointer;border-radius:4px;">+</button>
-                <button onclick="removeItem('${item.name}')" style="border:none;background:none;color:red;cursor:pointer;margin-left:5px;"><i class="fas fa-trash"></i></button>
-              </div>
-            </div>
-          `;
+        <div class="cart-item" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <img src="${item.img}" alt="${item.name}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+          <div style="flex:1"><strong>${item.name}</strong><br>₱${item.price} x ${item.quantity} = ₱${subtotal}</div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <button onclick="changeQty('${item.name}',${item.quantity},${item.price},'${item.img}',-1)" style="border:none;background:#eee;padding:2px 8px;cursor:pointer;border-radius:4px;">−</button>
+            <span>${item.quantity}</span>
+            <button onclick="changeQty('${item.name}',${item.quantity},${item.price},'${item.img}',1)" style="border:none;background:#eee;padding:2px 8px;cursor:pointer;border-radius:4px;">+</button>
+            <button onclick="removeItem('${item.name}')" style="border:none;background:none;color:red;cursor:pointer;margin-left:5px;"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      `;
         });
 
         const shipping = 50;
         summaryBox.innerHTML = `
-          <h3>Order Summary</h3>
-          ${itemsHTML}
-          <hr>
-          <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>₱${total}</span></div>
-          <div style="display:flex;justify-content:space-between;"><span>Shipping</span><span>₱${shipping}</span></div>
-          <div style="display:flex;justify-content:space-between;font-weight:bold;margin-top:8px;"><span>Total</span><span id="totalAmount">₱${total + shipping}</span></div>
-          <button type="button" class="btn-place-order" style="margin-top:16px;width:100%;" onclick="showConfirmationModal()">Place Order</button>
-        `;
+      <h3>Order Summary</h3>
+      ${itemsHTML}
+      <hr>
+      <div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>₱${total}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span>Shipping</span><span>₱${shipping}</span></div>
+      <div style="display:flex;justify-content:space-between;font-weight:bold;margin-top:8px;"><span>Total</span><span id="totalAmount">₱${total + shipping}</span></div>
+      <button type="button" class="btn-place-order" style="margin-top:16px;width:100%;" onclick="showConfirmationModal()">Place Order</button>
+    `;
 
         let totalQty = 0;
         snapshot.forEach((d) => (totalQty += d.data().quantity || 1));
@@ -784,6 +750,7 @@
           .forEach((b) => (b.textContent = totalQty));
       }
 
+      // ── CART ACTIONS ──────────────────────────────────────
       window.changeQty = async function (name, currentQty, price, img, delta) {
         const user = auth.currentUser;
         const itemRef = doc(db, "carts", user.uid, "items", name);
@@ -809,6 +776,7 @@
       window.saveOrder = async function () {
         const user = auth.currentUser;
         if (!user) return;
+
         const email = document.getElementById("email").value;
         const firstName = document.getElementById("firstName").value;
         const lastName = document.getElementById("lastName").value;
@@ -862,31 +830,31 @@
             date: serverTimestamp(),
           });
 
-          const itemPromises = items.map(async (item) => {
-            const productQuery = await getDocs(
-              query(
-                collection(db, "products"),
-                where("P_Name", "==", item.name),
-              ),
-            );
-            let productId = "UNKNOWN";
-            productQuery.forEach((d) => {
-              productId = d.data().Product_ID || d.id;
-            });
-            const orderItemId =
-              "ITEM-" +
-              Math.random().toString(36).substring(2, 8).toUpperCase();
-            await addDoc(collection(db, "orders", orderRef.id, "items"), {
-              OrderItem_ID: orderItemId,
-              Order_ID,
-              Product_ID: productId,
-              P_Name: item.name,
-              quantity: item.quantity,
-              Price_at_Order: item.price,
-              Total: item.price * item.quantity,
-            });
-          });
-          await Promise.all(itemPromises);
+          await Promise.all(
+            items.map(async (item) => {
+              const productQuery = await getDocs(
+                query(
+                  collection(db, "products"),
+                  where("P_Name", "==", item.name),
+                ),
+              );
+              let productId = "UNKNOWN";
+              productQuery.forEach((d) => {
+                productId = d.data().Product_ID || d.id;
+              });
+              await addDoc(collection(db, "orders", orderRef.id, "items"), {
+                OrderItem_ID:
+                  "ITEM-" +
+                  Math.random().toString(36).substring(2, 8).toUpperCase(),
+                Order_ID,
+                Product_ID: productId,
+                P_Name: item.name,
+                quantity: item.quantity,
+                Price_at_Order: item.price,
+                Total: item.price * item.quantity,
+              });
+            }),
+          );
 
           const deletePromises = [],
             stockPromises = [];
@@ -929,6 +897,7 @@
         }
       };
 
+      // ── AUTH STATE ────────────────────────────────────────
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -943,7 +912,7 @@
             document.getElementById("firstName").value = data.fname || "";
             document.getElementById("lastName").value = data.lname || "";
             userIcon.href = "profile.Se2.html";
-            userIcon.title = `${data.F_Name} ${data.L_Name}`;
+            userIcon.title = `${data.fname} ${data.lname}`;
           }
           userIcon.querySelector("i").className = "fas fa-user-check";
           logoutBtn.style.display = "inline-block";
@@ -957,6 +926,26 @@
           logoutBtn.style.display = "none";
         }
       });
+    </script>
+
+    <!-- ══ ORDER / AUTH LOGIC ══ -->
+    <script>
+      function showConfirmationModal() {
+        const form = document.getElementById("orderForm");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+        new bootstrap.Modal(
+          document.getElementById("confirmOrderModal"),
+        ).show();
+      }
+      function processOrder() {
+        bootstrap.Modal.getInstance(
+          document.getElementById("confirmOrderModal"),
+        ).hide();
+        setTimeout(() => window.saveOrder(), 300);
+      }
     </script>
   </body>
 </html>
