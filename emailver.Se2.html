@@ -273,8 +273,7 @@
         if (user) {
           currentUser = user;
         } else {
-          // Only redirect to login if not in signup mode
-          if (mode !== "signup") {
+          if (mode !== "signup" && mode !== "admin") {
             window.location.href = "login.Se2.html";
           }
         }
@@ -334,7 +333,7 @@
           btnLoader.style.display = "inline-flex";
           submitBtn.disabled = true;
 
-          fetch("verifyotp.php", {
+          fetch("https://thebarkery.42web.io/verifyotp.php", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body:
@@ -424,7 +423,7 @@
         resendBtn.innerHTML =
           '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-        fetch("sendotp.php", {
+        fetch("https://thebarkery.42web.io/sendotp.php", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: "email=" + encodeURIComponent(email),
