@@ -210,7 +210,9 @@
                     <span>Details</span>
                     <i class="fas fa-chevron-down"></i>
                   </div>
-                  <div class="faq-answer">${product.desc || ""}</div>
+                  <div class="faq-answer" style="max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.3s ease;">
+                    ${product.desc || ""}
+                  </div>
                 </div>
                 <div class="product-benefits-box">
                   <p><strong>Benefits of ${product.P_Name}:</strong></p>
@@ -227,20 +229,33 @@
         }
       }
 
-      //* Toggle FAQ */
+      /* Improved Toggle FAQ */
       window.toggleFAQ = function (element) {
         const faqItem = element.closest(".faq-item");
         const answer = faqItem.querySelector(".faq-answer");
         const question = faqItem.querySelector(".faq-question");
+        const icon = question.querySelector("i");
+        
         question.classList.toggle("active");
+        
         if (answer.classList.contains("show")) {
           answer.classList.remove("show");
-          answer.style.maxHeight = null;
-          answer.style.opacity = 0;
+          answer.style.maxHeight = "0";
+          answer.style.opacity = "0";
+          if(icon) icon.style.transform = "rotate(0deg)";
         } else {
           answer.classList.add("show");
+          // Calculate height based on actual content
           answer.style.maxHeight = answer.scrollHeight + "px";
-          answer.style.opacity = 1;
+          answer.style.opacity = "1";
+          if(icon) icon.style.transform = "rotate(180deg)";
+          
+          // Allow height to become flexible after animation completes
+          setTimeout(() => {
+            if (answer.classList.contains("show")) {
+              answer.style.maxHeight = "none";
+            }
+          }, 300);
         }
       };
 
