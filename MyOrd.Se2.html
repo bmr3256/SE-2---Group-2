@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>My Orders - The Barkery</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -54,6 +57,12 @@
       let visibleOrders = [];
       let pendingCancelId = null;
 
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
       /* Auth State */
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
@@ -75,12 +84,12 @@
           userIcon.querySelector("i").className = "fas fa-user-check";
           logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
-            await signOut(auth);
-            window.location.href = "login.Se2.html";
+          await signOut(auth);
+          window.location.replace("login.Se2.html"); // prevents back-button return to logged-in state
           };
         } else {
-          /* Not logged in >> redirect */
-          window.location.href = "login.Se2.html";
+           // Redirect immediately if not authenticated
+        window.location.replace("login.Se2.html"); // replace() prevents back-button return
         }
       });
 

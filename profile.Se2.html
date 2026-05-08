@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>My Profile - The Barkery</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -44,6 +47,14 @@
       const analytics = getAnalytics(app);
       const auth = getAuth(app);
       const db = getFirestore(app);
+
+      // Force auth re-check when user navigates back via browser history
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+      // Page was loaded from bfcache (back/forward cache) — force reload
+      window.location.reload();
+      }
+        });
 
       /* Auth State */
       onAuthStateChanged(auth, async (user) => {
@@ -103,13 +114,13 @@
             handleLogout();
         } else {
           /* Not logged in >> redirect to login */
-          window.location.href = "login.Se2.html";
+          window.location.replace("login.Se2.html");
         }
       });
 
       async function handleLogout() {
         await signOut(auth);
-        window.location.href = "login.Se2.html";
+        window.location.replace("login.Se2.html");
       }
 
       /* Edit Profile Modal */

@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Cart Selection - The Barkery</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -594,6 +597,13 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
+      // ── BACK BUTTON GUARD ──────────────────────────────────
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
       // ── CART FAQ ──────────────────────────────────────────
       const DEFAULT_FAQS = [
         {
@@ -890,7 +900,7 @@
           await Promise.all([...deletePromises, ...stockPromises]);
 
           document.getElementById("successToast").style.display = "block";
-          setTimeout(() => (window.location.href = "index.html"), 3000);
+          setTimeout(() => (window.location.replace("index.html")), 3000);
         } catch (err) {
           console.error("Error saving order:", err);
           alert("Failed to place order. Please try again.");
@@ -918,11 +928,12 @@
           logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
-            window.location.href = "login.Se2.html";
+            window.location.replace("login.Se2.html");
           };
           loadCart(user);
         } else {
-          window.location.href = "login.Se2.html";
+          // Cart requires login — redirect and prevent back-button return
+          window.location.replace("login.Se2.html");
           logoutBtn.style.display = "none";
         }
       });

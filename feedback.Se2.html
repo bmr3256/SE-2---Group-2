@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Feedback - The Barkery</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -352,6 +355,13 @@
       const db = getFirestore(app);
       const auth = getAuth(app);
 
+      // ── BACK BUTTON GUARD ──────────────────────────────────
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
       async function loadContactInfo() {
         try {
           const snap = await getDoc(doc(db, "managecon", "feedback_info"));
@@ -447,7 +457,7 @@
           logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
-            window.location.href = "login.Se2.html";
+            window.location.replace("login.Se2.html");
           };
         } else {
           userIcon.href = "login.Se2.html";

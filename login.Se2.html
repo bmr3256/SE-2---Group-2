@@ -2,6 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - The Barkery</title>
     <link
@@ -209,6 +212,14 @@
       const analytics = getAnalytics(app);
       const auth = getAuth(app);
 
+      // Force auth re-check when user navigates back via browser history
+      window.addEventListener("pageshow", function (event) {
+      if (event.persisted) {
+      // Page was loaded from bfcache (back/forward cache) — force reload
+      window.location.reload();
+      }
+      });
+
       window.addEventListener("DOMContentLoaded", () => {
         const loginForm = document.getElementById("loginForm");
         const C_Email_Input = document.getElementById("C_Email");
@@ -307,8 +318,7 @@
               : resultRaw;
 
             if (response.ok && result === "OTP_SENT") {
-              window.location.href =
-                "emailver.Se2.html?email=" + encodeURIComponent(C_Email);
+              window.location.replace("emailver.Se2.html?email=" + encodeURIComponent(C_Email));
             } else {
               btnText.style.display = "inline-block";
               btnLoader.style.display = "none";

@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>The Barkery - Premium Dog Treats</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -230,6 +233,13 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
+      // ── BACK BUTTON GUARD ──────────────────────────────────
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
       async function loadStoryText() {
         try {
           const snap = await getDoc(doc(db, "managecon", "home_info"));
@@ -264,7 +274,6 @@
             question.addEventListener("click", () => {
               const isCurrentlyOpen = answer.classList.contains("show");
 
-              // Close All Others
               document
                 .querySelectorAll(".faq-answer")
                 .forEach((a) => a.classList.remove("show"));
@@ -277,7 +286,6 @@
                 }
               });
 
-              // Toggle current
               if (!isCurrentlyOpen) {
                 answer.classList.add("show");
                 question.classList.add("active");
@@ -319,7 +327,7 @@
           logoutBtn.style.display = "inline-block";
           logoutBtn.onclick = async () => {
             await signOut(auth);
-            window.location.href = "login.Se2.html";
+            window.location.replace("login.Se2.html");
           };
         } else {
           userIcon.href = "login.Se2.html";

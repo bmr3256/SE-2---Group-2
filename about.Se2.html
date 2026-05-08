@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>About Us - The Barkery</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
@@ -20,7 +23,7 @@
     <nav class="navbar navbar-expand-lg">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.html">
-          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />
+          <img src="images/Logo - Black.png" alt="The Barkery Dog Mascot" />A
         </a>
         <button
           class="navbar-toggler"
@@ -225,6 +228,13 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
+      // ── BACK BUTTON GUARD ──────────────────────────────────
+      window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
       onAuthStateChanged(auth, async (user) => {
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
@@ -244,7 +254,7 @@
 
           logoutBtn.onclick = async () => {
             await signOut(auth);
-            window.location.href = "login.Se2.html";
+            window.location.replace("login.Se2.html");
           };
         } else {
           userIcon.href = "login.Se2.html";
