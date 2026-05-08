@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script src="admin-guard.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Products - The Barkery</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="adminstylesSe2.css" rel="stylesheet" />
+  </head>
+  <body>
+    <aside class="admin-sidebar">
+      <div class="sidebar-logo">
+        <img src="images/Logo - Black.png" alt="The Barkery Logo" />
+      </div>
+      <ul class="sidebar-nav">
+        <li>
+          <a href="ManProd.Se2.html" class="active"
+            ><i class="fas fa-box"></i> <span>Manage Products</span></a
+          >
+        </li>
+        <li>
+          <a href="ManCon.Se2.html"
+            ><i class="fas fa-file-alt"></i> <span>Manage Content</span></a
+          >
+        </li>
+        <li>
+          <a href="ManOrd.Se2.html"
+            ><i class="fas fa-clipboard-list"></i> <span>Manage Order</span></a
+          >
+        </li>
+        <li>
+          <a href="ManStock.Se2.html"
+            ><i class="fas fa-pen"></i> <span>Manage Stocks</span></a
+          >
+        </li>
+        <li>
+          <a href="ManFeed.Se2.html"
+            ><i class="fas fa-comments"></i> <span>Customer Feedback</span></a
+          >
+        </li>
+        <li>
+          <a href="ManRep.Se2.html"
+            ><i class="fas fa-chart-pie"></i> <span>Manage Reports</span></a
+          >
+        </li>
+      </ul>
+      <div class="sidebar-user">
+        <div class="sidebar-avatar"><i class="fas fa-user"></i></div>
+        <div class="sidebar-user-info">
+          <span class="user-name">ADMIN</span>
+          <span class="user-email">admin@gmail.com</span>
+          <button class="btn btn-danger btn-sm mt-2 w-100" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <div class="admin-topbar"><h3>All Products</h3></div>
+      <div class="admin-content">
+        <div class="products-toolbar">
+          <button class="btn-admin-primary" onclick="openAddModal()">
+            <i class="fas fa-plus"></i> Add Product
+          </button>
+          <button class="btn-admin-danger" onclick="openDeleteModal()">
+            <i class="fas fa-trash"></i> Delete Product
+          </button>
+          <button class="btn-admin-outline" onclick="openEditModal()">
+            <i class="fas fa-pen"></i> Edit Product
+          </button>
+        </div>
+        <div class="product-cards" id="productCards"></div>
+      </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="addModal">
+      <div class="order-info-modal" style="width: 400px; max-width: 92%">
+        <button class="modal-close-btn" onclick="closeModal('addModal')">
+          &times;
+        </button>
+        <h5 id="modalTitle">Add New Product</h5>
+        <div class="form-group mb-2">
+          <label>Product Name</label
+          ><input
+            type="text"
+            id="newName"
+            class="form-control form-control-sm"
+          />
+        </div>
+        <div class="form-group mb-2">
+          <label>Price (₱)</label
+          ><input
+            type="number"
+            id="newPrice"
+            class="form-control form-control-sm"
+            min="0"
+          />
+        </div>
+        <div class="form-group mb-2">
+          <label>Description</label
+          ><textarea
+            id="newDesc"
+            class="form-control form-control-sm"
+            rows="2"
+          ></textarea>
+        </div>
+        <div class="form-group mb-3">
+          <label>Product Image</label
+          ><input
+            type="file"
+            id="newImg"
+            accept="image/*"
+            class="form-control form-control-sm"
+          />
+        </div>
+        <div style="text-align: right">
+          <button
+            class="btn-admin-outline me-2"
+            onclick="closeModal('addModal')"
+          >
+            Cancel
+          </button>
+          <button class="btn-admin-primary" id="addProductBtn">
+            Add Product
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="deleteModal">
+      <div class="order-info-modal" style="width: 340px; max-width: 92%">
+        <button class="modal-close-btn" onclick="closeModal('deleteModal')">
+          &times;
+        </button>
+        <h5>Delete Product(s)</h5>
+        <p
+          style="
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+          "
+        >
+          Are you sure you want to delete the selected product(s)?
+        </p>
+        <div style="text-align: right; margin-top: 1rem">
+          <button
+            class="btn-admin-outline me-2"
+            onclick="closeModal('deleteModal')"
+          >
+            Cancel
+          </button>
+          <button class="btn-admin-danger" id="confirmDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-toast" id="adminToast"></div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        orderBy,
+        deleteDoc,
+        doc,
+        updateDoc,
+      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+        authDomain: "grp2-se.firebaseapp.com",
+        projectId: "grp2-se",
+        storageBucket: "grp2-se.firebasestorage.app",
+        messagingSenderId: "488325990404",
+        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+        measurementId: "G-PDT5LV9JX1",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const productCards = document.getElementById("productCards");
+      const toast = document.getElementById("adminToast");
+      const addBtn = document.querySelector(".btn-admin-primary");
+      const editBtn = document.querySelector(".btn-admin-outline");
+      const deleteBtn = document.querySelector(".btn-admin-danger");
+      const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+      let selectedProducts = new Map();
+
+      window.showToast = (msg) => {
+        toast.textContent = msg;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
+      };
+      window.openAddModal = () => {
+        document.getElementById("modalTitle").textContent = "Add New Product";
+        document.getElementById("addProductBtn").textContent = "Add Product";
+        document.getElementById("addProductBtn").onclick = addProduct;
+        clearModalInputs();
+        document.getElementById("addModal").classList.add("show");
+      };
+      window.closeModal = (id) =>
+        document.getElementById(id).classList.remove("show");
+      window.openDeleteModal = () => {
+        if (selectedProducts.size === 0)
+          return showToast("Select product(s) to delete");
+        document.getElementById("deleteModal").classList.add("show");
+      };
+      function clearModalInputs() {
+        ["newName", "newPrice", "newDesc", "newImg"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+      }
+
+      const CLOUDINARY_CLOUD_NAME = "dfppbhbr3";
+      const CLOUDINARY_UPLOAD_PRESET = "finals";
+      async function uploadToCloudinary(file) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+          { method: "POST", body: fd },
+        );
+        return (await res.json()).secure_url;
+      }
+      function generateProductID() {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        return (
+          "PRD-" +
+          Array.from(
+            { length: 6 },
+            () => chars[Math.floor(Math.random() * chars.length)],
+          ).join("")
+        );
+      }
+
+      async function fetchProducts() {
+        productCards.innerHTML = "";
+        const snapshot = await getDocs(
+          query(collection(db, "products"), orderBy("P_Name", "asc")),
+        );
+        snapshot.forEach((docSnap) => {
+          const p = docSnap.data();
+          const card = document.createElement("div");
+          card.className = "product-card";
+          card.innerHTML = `
+            <div class="product-card-image">
+              <img src="${p.img}" onerror="this.style.display='none'" />
+            </div>
+            <div class="product-card-body">
+              <h4>${p.P_Name}</h4>
+              <div class="product-price">₱${p.P_Price}</div>
+              <p>${p.desc || ""}</p>
+            </div>
+          `;
+          card.onclick = (e) => {
+            const id = docSnap.id;
+            if (e.ctrlKey) {
+              if (selectedProducts.has(id)) {
+                selectedProducts.delete(id);
+                card.classList.remove("selected");
+              } else {
+                selectedProducts.set(id, p);
+                card.classList.add("selected");
+              }
+            } else {
+              document
+                .querySelectorAll(".product-card")
+                .forEach((c) => c.classList.remove("selected"));
+              selectedProducts.clear();
+              selectedProducts.set(id, p);
+              card.classList.add("selected");
+            }
+            updateButtonStates();
+          };
+          productCards.appendChild(card);
+        });
+        updateButtonStates();
+      }
+
+      function updateButtonStates() {
+        const n = selectedProducts.size;
+        editBtn.classList.toggle("btn-disabled", n !== 1);
+        deleteBtn.classList.toggle("btn-disabled", n === 0);
+        addBtn.classList.toggle("btn-disabled", n > 1);
+      }
+
+      async function addProduct() {
+        const name = document.getElementById("newName").value.trim();
+        const price = document.getElementById("newPrice").value.trim();
+        const desc = document.getElementById("newDesc").value.trim();
+        const imgFile = document.getElementById("newImg").files[0];
+        if (!name || !price || !imgFile)
+          return showToast("Fill all fields and select an image");
+        showToast("Uploading image...");
+        const imgURL = await uploadToCloudinary(imgFile);
+        await addDoc(collection(db, "products"), {
+          Product_ID: generateProductID(),
+          P_Name: name,
+          P_Price: Number(price),
+          stock: 0,
+          desc: desc || "No description",
+          img: imgURL,
+        });
+        showToast("Product added!");
+        closeModal("addModal");
+        fetchProducts();
+      }
+
+      window.openEditModal = () => {
+        if (selectedProducts.size !== 1)
+          return showToast("Select exactly one product to edit");
+        const [id, product] = selectedProducts.entries().next().value;
+        document.getElementById("modalTitle").textContent = "Edit Product";
+        document.getElementById("addProductBtn").textContent = "Update Product";
+        document.getElementById("newName").value = product.P_Name;
+        document.getElementById("newPrice").value = product.P_Price;
+        document.getElementById("newDesc").value = product.desc;
+        document.getElementById("addProductBtn").onclick = async () => {
+          const name = document.getElementById("newName").value.trim();
+          const price = document.getElementById("newPrice").value.trim();
+          const desc = document.getElementById("newDesc").value.trim();
+          const imgFile = document.getElementById("newImg").files[0];
+          let imgURL = product.img;
+          if (imgFile) {
+            showToast("Uploading...");
+            imgURL = await uploadToCloudinary(imgFile);
+          }
+          if (!name || !price) return showToast("Fill all required fields");
+          await updateDoc(doc(db, "products", id), {
+            P_Name: name,
+            P_Price: Number(price),
+            desc,
+            img: imgURL,
+          });
+          showToast("Product updated!");
+          closeModal("addModal");
+          selectedProducts.clear();
+          fetchProducts();
+        };
+        document.getElementById("addModal").classList.add("show");
+      };
+
+      confirmDeleteBtn.onclick = async () => {
+        for (const [id] of selectedProducts)
+          await deleteDoc(doc(db, "products", id));
+        showToast("Product(s) deleted!");
+        closeModal("deleteModal");
+        selectedProducts.clear();
+        fetchProducts();
+      };
+
+      fetchProducts();
+      window.addEventListener("load", () => {
+        document.getElementById("logoutBtn")?.addEventListener("click", () => {
+          window.location.href = "https://thebarkery.42web.io/admin-logout.php";
+        });
+      });
+    </script>
+  </body>
+</html>
