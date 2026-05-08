@@ -204,130 +204,142 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="script.Se2.js"></script>
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-      import {
-        getAuth,
-        onAuthStateChanged,
-        signOut,
-      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-      import {
-        getFirestore,
-        doc,
-        getDoc,
-      } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection, // Added this
+    getDocs,    // Added this
+  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
-        authDomain: "grp2-se.firebaseapp.com",
-        projectId: "grp2-se",
-        storageBucket: "grp2-se.firebasestorage.app",
-        messagingSenderId: "488325990404",
-        appId: "1:488325990404:web:2f885df16b18d9057a8d51",
-        measurementId: "G-PDT5LV9JX1",
-      };
+  const firebaseConfig = {
+    apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
+    authDomain: "grp2-se.firebaseapp.com",
+    projectId: "grp2-se",
+    storageBucket: "grp2-se.firebasestorage.app",
+    messagingSenderId: "488325990404",
+    appId: "1:488325990404:web:2f885df16b18d9057a8d51",
+    measurementId: "G-PDT5LV9JX1",
+  };
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-      async function loadStoryText() {
-        try {
-          const snap = await getDoc(doc(db, "managecon", "home_info"));
-          if (snap.exists() && snap.data().storyText) {
-            document.getElementById("storyText").textContent =
-              snap.data().storyText;
-          }
-        } catch (err) {
-          console.error("Error loading story text:", err);
-        }
+  /* Load Cart Badge Quantity */
+  async function updateCartBadge(user) {
+    if (!user) return;
+    try {
+      const snapshot = await getDocs(collection(db, "carts", user.uid, "items"));
+      let totalQty = 0;
+      snapshot.forEach((d) => (totalQty += d.data().quantity || 0));
+      document
+        .querySelectorAll(".cart-badge")
+        .forEach((b) => (b.textContent = totalQty));
+    } catch (err) {
+      console.error("Error updating cart badge:", err);
+    }
+  }
+
+  async function loadStoryText() {
+    try {
+      const snap = await getDoc(doc(db, "managecon", "home_info"));
+      if (snap.exists() && snap.data().storyText) {
+        document.getElementById("storyText").textContent = snap.data().storyText;
       }
+    } catch (err) {
+      console.error("Error loading story text:", err);
+    }
+  }
 
-      async function loadDynamicFaqs() {
-        try {
-          const snap = await getDoc(doc(db, "managecon", "home_faqs"));
-          const container = document.getElementById("faqContainer");
-          container.innerHTML = "";
-          if (!snap.exists() || !snap.data().fields?.length) return;
+  async function loadDynamicFaqs() {
+    try {
+      const snap = await getDoc(doc(db, "managecon", "home_faqs"));
+      const container = document.getElementById("faqContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      if (!snap.exists() || !snap.data().fields?.length) return;
 
-          snap.data().fields.forEach((field) => {
-            const item = document.createElement("div");
-            item.className = "faq-item";
+      snap.data().fields.forEach((field) => {
+        const item = document.createElement("div");
+        item.className = "faq-item";
+        const question = document.createElement("div");
+        question.className = "faq-question";
+        question.innerHTML = `<span>${field.title}</span><i class="fas fa-chevron-down"></i>`;
+        const answer = document.createElement("div");
+        answer.className = "faq-answer";
+        answer.textContent = field.contents?.[0] || "";
 
-            const question = document.createElement("div");
-            question.className = "faq-question";
-            question.innerHTML = `<span>${field.title}</span><i class="fas fa-chevron-down"></i>`;
-
-            const answer = document.createElement("div");
-            answer.className = "faq-answer";
-            answer.textContent = field.contents?.[0] || "";
-
-            question.addEventListener("click", () => {
-              const isCurrentlyOpen = answer.classList.contains("show");
-
-              // Close All Others
-              document
-                .querySelectorAll(".faq-answer")
-                .forEach((a) => a.classList.remove("show"));
-              document.querySelectorAll(".faq-question").forEach((q) => {
-                q.classList.remove("active");
-                const icon = q.querySelector("i");
-                if (icon) {
-                  icon.classList.remove("fa-chevron-up");
-                  icon.classList.add("fa-chevron-down");
-                }
-              });
-
-              // Toggle current
-              if (!isCurrentlyOpen) {
-                answer.classList.add("show");
-                question.classList.add("active");
-                const icon = question.querySelector("i");
-                if (icon) {
-                  icon.classList.remove("fa-chevron-down");
-                  icon.classList.add("fa-chevron-up");
-                }
-              }
-            });
-
-            item.appendChild(question);
-            item.appendChild(answer);
-            container.appendChild(item);
+        question.addEventListener("click", () => {
+          const isCurrentlyOpen = answer.classList.contains("show");
+          document.querySelectorAll(".faq-answer").forEach((a) => a.classList.remove("show"));
+          document.querySelectorAll(".faq-question").forEach((q) => {
+            q.classList.remove("active");
+            const icon = q.querySelector("i");
+            if (icon) { icon.classList.replace("fa-chevron-up", "fa-chevron-down"); }
           });
-        } catch (err) {
-          console.error("Error loading FAQs:", err);
-        }
-      }
 
-      window.addEventListener("DOMContentLoaded", () => {
-        loadStoryText();
-        loadDynamicFaqs();
-      });
+          if (!isCurrentlyOpen) {
+            answer.classList.add("show");
+            question.classList.add("active");
+            const icon = question.querySelector("i");
+            if (icon) { icon.classList.replace("fa-chevron-down", "fa-chevron-up"); }
+          }
+        });
 
-      onAuthStateChanged(auth, async (user) => {
-        const userIcon = document.querySelector(
-          '.navbar-actions a[href="login.Se2.html"]',
-        );
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (user) {
-          const docSnap = await getDoc(doc(db, "accounts", user.uid));
-          const fullName = docSnap.exists()
-            ? `${docSnap.data().F_Name} ${docSnap.data().L_Name}`
-            : user.email;
-          userIcon.href = "profile.Se2.html";
-          userIcon.title = fullName;
-          userIcon.querySelector("i").className = "fas fa-user-check";
-          logoutBtn.style.display = "inline-block";
-          logoutBtn.onclick = async () => {
-            await signOut(auth);
-            window.location.href = "login.Se2.html";
-          };
-        } else {
-          userIcon.href = "login.Se2.html";
-          userIcon.title = "Login / Sign Up";
-          userIcon.querySelector("i").className = "fas fa-user-circle";
-          logoutBtn.style.display = "none";
-        }
+        item.appendChild(question);
+        item.appendChild(answer);
+        container.appendChild(item);
       });
-    </script>
+    } catch (err) {
+      console.error("Error loading FAQs:", err);
+    }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadStoryText();
+    loadDynamicFaqs();
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    const userIcon = document.querySelector('.navbar-actions a[href="login.Se2.html"]');
+    const logoutBtn = document.getElementById("logoutBtn");
+    
+    if (user) {
+      // Fetch user data
+      const docSnap = await getDoc(doc(db, "accounts", user.uid));
+      const fullName = docSnap.exists()
+        ? `${docSnap.data().F_Name} ${docSnap.data().L_Name}`
+        : user.email;
+      
+      // Update UI
+      userIcon.href = "profile.Se2.html";
+      userIcon.title = fullName;
+      userIcon.querySelector("i").className = "fas fa-user-check";
+      logoutBtn.style.display = "inline-block";
+      
+      // Update Cart Badge
+      updateCartBadge(user); 
+
+      logoutBtn.onclick = async () => {
+        await signOut(auth);
+        window.location.href = "login.Se2.html";
+      };
+    } else {
+      userIcon.href = "login.Se2.html";
+      userIcon.title = "Login / Sign Up";
+      userIcon.querySelector("i").className = "fas fa-user-circle";
+      logoutBtn.style.display = "none";
+      // Reset badge to 0 for logged out users
+      document.querySelectorAll(".cart-badge").forEach((b) => (b.textContent = "0"));
+    }
+  });
+</script>
   </body>
 </html>
