@@ -382,6 +382,7 @@
             label: "Shipping Fee",
             value: o.shipping_fee ? `₱${o.shipping_fee}` : "—",
           },
+          { label: "Message for Seller", value: o.orderNote || "—" },
         ];
         document.getElementById("mOtherFields").innerHTML = otherFields
           .map(

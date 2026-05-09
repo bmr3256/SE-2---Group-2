@@ -392,6 +392,27 @@
                 />
                 <label for="cashOnDelivery">Cash on Delivery</label>
               </div>
+              <h3 class="section-subtitle">MESSAGE FOR SELLER</h3>
+                <div class="form-group">
+                  <div style="position: relative;">
+                    <textarea
+                id="orderNote"
+                name="orderNote"
+                placeholder="e.g. Please pack carefully, gift wrapping preferred…"
+                rows="3"
+                maxlength="200"
+                style="width:100%; padding:1rem 1rem 1.75rem; border:2px solid #e0e0e0; border-radius:8px;
+                font-family:var(--font-body); font-size:1rem; resize:vertical; transition:border-color .3s;
+                background:white; color:var(--dark-brown);"
+                oninput="document.getElementById('noteCount').textContent=this.value.length+' / 200'"
+                onfocus="this.style.borderColor='var(--button-tan)'"
+                onblur="this.style.borderColor='#e0e0e0'">
+                    </textarea>
+                <span id="noteCount" style="position:absolute; bottom:8px; right:12px; font-size:0.75rem; color:var(--text-gray); pointer-events:none;">
+                0 / 200
+                </span>
+                  </div>
+                </div>
             </form>
           </div>
 
@@ -794,6 +815,7 @@
         const city = document.getElementById("city").value;
         const zipCode = document.getElementById("zipCode").value;
         const phone = document.getElementById("phone").value;
+        const orderNote = document.getElementById("orderNote").value.trim();
 
         const snapshot = await getDocs(
           collection(db, "carts", user.uid, "items"),
@@ -832,6 +854,7 @@
             city,
             zipCode,
             phone,
+            orderNote,
             subtotal,
             shipping,
             total,
