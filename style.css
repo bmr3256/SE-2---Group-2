@@ -2794,14 +2794,7 @@ button,
   word-break: break-word;
   overflow: visible; /* or remove max-height if it's fixed */
 }
-.faq-answer {
-  overflow: hidden;
-  transition: max-height 0.3s ease-out, opacity 0.3s ease;
-  max-height: 0;
-  opacity: 0;
-}
-
-.faq-answer.show {
-  /* This ensures that if scrollHeight fails, it still shows */
-  opacity: 1;
+.product-detail-card .faq-item:hover {
+  padding-left: 0;
+  padding-right: 0;
 }
