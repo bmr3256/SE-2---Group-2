@@ -90,6 +90,12 @@ body {
   order: 0;           /* desktop: normal flow */
 }
 
+/* .mobile-nav-actions is hidden by default on desktop.
+   It is only shown inside the @media (max-width:991px) block below. */
+.mobile-nav-actions {
+  display: none;
+}
+
 /* ── MOBILE DROPDOWN MENU ───────────────────────── */
 /* Only kicks in below 992px — desktop is completely unaffected   */
 @media (max-width: 991px) {
