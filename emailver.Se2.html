@@ -359,17 +359,16 @@
 
                     const userCredential = await createUserWithEmailAndPassword(
                       auth,
-                      signupData.C_Email,
-                      signupData.C_Password,
+                      signupData.email, // ← match the keys from signup
+                      signupData.password,
                     );
-                    const user = userCredential.user;
+                    const user = userCredential.user; // ← add this line
 
                     await setDoc(doc(db, "accounts", user.uid), {
-                      F_Name: signupData.F_Name,
-                      L_Name: signupData.L_Name,
-                      C_Email: signupData.C_Email,
-                      C_Password: signupData.C_Password,
-                      Customer_ID: signupData.Customer_ID,
+                      F_Name: signupData.fname,
+                      L_Name: signupData.lname,
+                      C_Email: signupData.email,
+                      Customer_ID: signupData.customerId,
                       createdAt: new Date(),
                     });
 
