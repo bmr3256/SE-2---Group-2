@@ -380,6 +380,16 @@
           hasError = true;
         }
 
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+          if (password.value && !passwordPattern.test(password.value)) {
+          password.classList.add("error");
+          const errorDiv = document.createElement("div");
+          errorDiv.classList.add("error-message");
+          errorDiv.textContent = "Password must have 8+ chars, 1 uppercase, 1 lowercase, and 1 number";
+          password.closest(".form-group")?.appendChild(errorDiv);
+          hasError = true;
+          }
+
         const termsWrapper = terms.closest(".form-check-group");
         if (!terms.checked) {
           terms.classList.add("error");
@@ -400,13 +410,14 @@
           Date.now().toString(36).toUpperCase() +
           Math.random().toString(36).substring(2, 6).toUpperCase();
 
-        sessionStorage.setItem(
-          "signupData",
+       sessionStorage.setItem(
+        "signupData",
           JSON.stringify({
-            F_Name: fname.value.trim(),
-            L_Name: lname.value.trim(),
-            C_Email: email.value.trim(),
-            Customer_ID: customerID,
+          fname: fname.value.trim(),       // ← was F_Name
+          lname: lname.value.trim(),       // ← was L_Name
+          email: email.value.trim(),       // ← was C_Email
+          password: password.value,        // ← keep temporarily for createUserWithEmailAndPassword
+          customerId: customerID,
           }),
         );
 

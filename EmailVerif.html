@@ -234,17 +234,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
       import {
         getAuth,
         onAuthStateChanged,
         createUserWithEmailAndPassword,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
       import {
         getFirestore,
         doc,
         setDoc,
-      } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+      } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBV5wWoUZDeJYSADjLvQTvAPwggwAppeTI",
@@ -357,9 +357,14 @@
                 if (mode === "signup") {
                   // ── Create the account now ──
                   try {
-                    const signupData = JSON.parse(
-                      sessionStorage.getItem("signupData"),
-                    );
+                    const signupData = JSON.parse(sessionStorage.getItem("signupData"));
+                      if (!signupData || !signupData.email || !signupData.password) {
+                      showError("Session expired. Please sign up again.");
+                      setTimeout(() => window.location.href = "signup.Se2.html", 2000);
+                      return;
+                      }
+                    console.log("Creating user with:", signupData.email, "pwd length:", signupData.password?.length);
+
 
                     const userCredential = await createUserWithEmailAndPassword(
                       auth,
@@ -387,10 +392,9 @@
                       fname: signupData.fname,
                       lname: signupData.lname,
                       email: signupData.email,
-                      password: signupData.password, // ← remove this entirely
                       emailHash: emailHash,
-                      createdAt: new Date(),
-                      // password intentionally omitted — Firebase Auth handles it
+                      customerId: signupData.customerId,  
+                      createdAt: new Date(),  
                     });
 
                     sessionStorage.removeItem("signupData"); // clean up
