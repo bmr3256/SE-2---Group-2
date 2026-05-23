@@ -410,14 +410,14 @@
           Date.now().toString(36).toUpperCase() +
           Math.random().toString(36).substring(2, 6).toUpperCase();
 
-       sessionStorage.setItem(
-        "signupData",
+        sessionStorage.setItem(
+          "signupData",
           JSON.stringify({
-          fname: fname.value.trim(),       // ← was F_Name
-          lname: lname.value.trim(),       // ← was L_Name
-          email: email.value.trim(),       // ← was C_Email
-          password: password.value,        // ← keep temporarily for createUserWithEmailAndPassword
-          customerId: customerID,
+            C_Email: email.value.trim(),
+            C_Password: password.value,
+            F_Name: fname.value.trim(),
+            L_Name: lname.value.trim(),
+            Customer_ID: customerID,
           }),
         );
 
