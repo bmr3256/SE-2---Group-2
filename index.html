@@ -32,6 +32,7 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div
           class="collapse navbar-collapse justify-content-center"
           id="navbarNav"
@@ -50,7 +51,38 @@
               <a class="nav-link" href="feedback.Se2.html">Feedback</a>
             </li>
           </ul>
+
+          <!-- ▼ CHANGE 1: Mobile-only action icons row inside the dropdown -->
+          <div class="mobile-nav-actions">
+            <button
+              class="btn-help"
+              data-bs-toggle="modal"
+              data-bs-target="#helpModal"
+              title="Need help?"
+            >
+              <i class="fas fa-question-circle"></i>
+            </button>
+            <a href="cart.Se2.html" class="nav-icon" title="Shopping Cart">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="cart-badge">0</span>
+            </a>
+            <a href="login.Se2.html" class="nav-icon" title="Login / Sign Up" id="mobileUserIcon">
+              <i class="fas fa-user-circle"></i>
+            </a>
+            <button
+              id="mobileLogoutBtn"
+              class="nav-icon"
+              title="Logout"
+              style="display: none; background: none; border: none; cursor: pointer;"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
+          <!-- ▲ END CHANGE 1 -->
+
         </div>
+
+        <!-- Desktop-only action icons (hidden on mobile via CSS) -->
         <div class="navbar-actions">
           <button
             class="btn-help"
@@ -71,16 +103,12 @@
             id="logoutBtn"
             class="nav-icon"
             title="Logout"
-            style="
-              display: none;
-              background: none;
-              border: none;
-              cursor: pointer;
-            "
+            style="display: none; background: none; border: none; cursor: pointer;"
           >
             <i class="fas fa-sign-out-alt"></i>
           </button>
         </div>
+
       </div>
     </nav>
 
@@ -233,7 +261,6 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      // ── BACK BUTTON GUARD ──────────────────────────────────
       window.addEventListener("pageshow", function (event) {
         if (event.persisted) {
           window.location.reload();
@@ -273,7 +300,6 @@
 
             question.addEventListener("click", () => {
               const isCurrentlyOpen = answer.classList.contains("show");
-
               document
                 .querySelectorAll(".faq-answer")
                 .forEach((a) => a.classList.remove("show"));
@@ -285,7 +311,6 @@
                   icon.classList.add("fa-chevron-down");
                 }
               });
-
               if (!isCurrentlyOpen) {
                 answer.classList.add("show");
                 question.classList.add("active");
@@ -312,15 +337,24 @@
       });
 
       onAuthStateChanged(auth, async (user) => {
+        // ── Desktop elements (unchanged) ──────────────────
         const userIcon = document.querySelector(
           '.navbar-actions a[href="login.Se2.html"]',
         );
         const logoutBtn = document.getElementById("logoutBtn");
+
+        // ▼ CHANGE 2: Mobile elements inside the dropdown
+        const mobileUserIcon = document.getElementById("mobileUserIcon");
+        const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+        // ▲ END CHANGE 2
+
         if (user) {
           const docSnap = await getDoc(doc(db, "accounts", user.uid));
           const fullName = docSnap.exists()
             ? `${docSnap.data().F_Name} ${docSnap.data().L_Name}`
             : user.email;
+
+          // Desktop
           userIcon.href = "profile.Se2.html";
           userIcon.title = fullName;
           userIcon.querySelector("i").className = "fas fa-user-check";
@@ -329,11 +363,37 @@
             await signOut(auth);
             window.location.replace("login.Se2.html");
           };
+
+          // ▼ CHANGE 2 continued: sync mobile icons when logged IN
+          if (mobileUserIcon) {
+            mobileUserIcon.href = "profile.Se2.html";
+            mobileUserIcon.title = fullName;
+            mobileUserIcon.querySelector("i").className = "fas fa-user-check";
+          }
+          if (mobileLogoutBtn) {
+            mobileLogoutBtn.style.display = "inline-flex";
+            mobileLogoutBtn.onclick = async () => {
+              await signOut(auth);
+              window.location.replace("login.Se2.html");
+            };
+          }
+          // ▲ END CHANGE 2 continued
+
         } else {
+          // Desktop
           userIcon.href = "login.Se2.html";
           userIcon.title = "Login / Sign Up";
           userIcon.querySelector("i").className = "fas fa-user-circle";
           logoutBtn.style.display = "none";
+
+          // ▼ CHANGE 2 continued: sync mobile icons when logged OUT
+          if (mobileUserIcon) {
+            mobileUserIcon.href = "login.Se2.html";
+            mobileUserIcon.title = "Login / Sign Up";
+            mobileUserIcon.querySelector("i").className = "fas fa-user-circle";
+          }
+          if (mobileLogoutBtn) mobileLogoutBtn.style.display = "none";
+          // ▲ END CHANGE 2 continued
         }
       });
     </script>

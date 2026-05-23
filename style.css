@@ -67,33 +67,54 @@ body {
   border-radius: 2px;
 }
 
-/* ── NAVBAR LAYOUT ───────────────────────────────── */
+/* ── NAVBAR LAYOUT ──────────────────────────────────
+   Desktop: brand (left) | nav links (center) | actions (right)
+   The HTML uses justify-content-center on .navbar-collapse,
+   so Bootstrap naturally centres the links between brand & actions.
+   ─────────────────────────────────────────────────── */
 .navbar > .container-fluid {
-  flex-wrap: wrap;        /* ← was nowrap, this is the root cause */
+  flex-wrap: nowrap;      /* keep brand | links | actions on one row */
   align-items: center;
 }
-
 .navbar-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-shrink: 0;
-  margin-left: auto;
+  /* No margin-left:auto — Bootstrap justify-content-center handles centering */
 }
-
-
-/* Collapse menu always renders below the top bar */
+/* On DESKTOP the collapse is inline (Bootstrap default).
+   On mobile we override below inside @media (max-width:991px). */
 .navbar-collapse {
-  flex-basis: 100%;
-  order: 99;
+  flex-basis: auto;   /* desktop: shrink-wrap the nav links */
+  order: 0;           /* desktop: normal flow */
 }
 
 /* ── MOBILE DROPDOWN MENU ───────────────────────── */
-/* Shown when hamburger is open — full-width dropdown below navbar */
+/* Only kicks in below 992px — desktop is completely unaffected   */
 @media (max-width: 991px) {
+  /* Hide the action icons from the top bar — they move into the dropdown */
+  .navbar-actions {
+    display: none !important;
+  }
+
+  /* Keep brand + toggler on one line */
+  .navbar > .container-fluid {
+    flex-wrap: wrap;
+  }
+
+  /* Collapse row is full-width below brand + toggler */
+  .navbar-collapse {
+    flex-basis: 100%;
+    order: 99;
+  }
+
+  /* Hidden when closed */
   .navbar-collapse.collapse:not(.show) {
     display: none !important;
   }
+
+  /* Visible dropdown panel */
   .navbar-collapse.collapsing,
   .navbar-collapse.show {
     display: block !important;
@@ -104,8 +125,10 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     margin-top: 0.5rem;
     border-radius: 0 0 10px 10px;
-    padding: 0.25rem 0 0.5rem;
+    padding: 0.25rem 0 0.75rem;
   }
+
+  /* Nav links list */
   .navbar-nav {
     flex-direction: column !important;
     width: 100%;
@@ -116,9 +139,7 @@ body {
     width: 100%;
     border-bottom: 1px solid rgba(0,0,0,0.07);
   }
-  .nav-item:last-child {
-    border-bottom: none;
-  }
+  .nav-item:last-child { border-bottom: none; }
   .nav-link {
     display: block !important;
     width: 100%;
@@ -136,11 +157,50 @@ body {
     background-color: rgba(0,0,0,0.06) !important;
     color: var(--dark-brown) !important;
   }
-  /* Remove underline indicator in dropdown mode */
   .nav-link.active::after,
-  .nav-link:hover::after {
-    display: none !important;
+  .nav-link:hover::after { display: none !important; }
+
+  /* ── ACTION ICONS ROW inside the dropdown ─────── */
+  /* This div is added inside .navbar-collapse via the HTML change  */
+  .mobile-nav-actions {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0.75rem 1.25rem 0.25rem;
+    border-top: 2px solid rgba(0,0,0,0.08);
+    margin-top: 0.25rem;
   }
+  .mobile-nav-actions .nav-icon {
+    font-size: 1.3rem;
+    color: var(--dark-brown);
+    text-decoration: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+  }
+  .mobile-nav-actions .nav-icon:hover { color: var(--orange); }
+  .mobile-nav-actions .btn-help {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+  .mobile-nav-actions #logoutBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.3rem;
+    color: var(--dark-brown);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .mobile-nav-actions #logoutBtn:hover { color: var(--orange); }
 }
 
 .btn-help {
@@ -800,16 +860,4 @@ button, .btn-hero, .btn-shop, .btn-add-cart, .btn-add-cart-detail, .btn-submit, 
   .section-title, .faq-section h2 { font-size: 32px; }
   .feedback-container { padding: 30px; }
   .about-hero h1 { font-size: 2.25rem; }
-}
-@media (max-width: 768px) {
-  /* Hero */
-  .hero-section { padding: 1.5rem 1.25rem; }   /* ← change from 2.5rem */
-  .hero-image img { max-width: 160px !important; }  /* ← add this line */
-  .hero-content { gap: 1rem; }                  /* ← add this line */
-  .hero-text h1 { font-size: 1.35rem; line-height: 1.35; }  /* ← update */
-
-  /* Navbar icons */
-  .navbar-actions { gap: 0.4rem; }
-  .nav-icon { font-size: 1rem; }
-  .navbar-brand img { max-width: 110px; }
 }
